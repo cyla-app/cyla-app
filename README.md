@@ -5,7 +5,7 @@
 ## backend
 
 1. `cd backend/`
-2. `go get` (ignore errors)
+2. `go get -d`
 
 ## frontend
 
