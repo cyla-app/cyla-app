@@ -8,7 +8,6 @@ import com.cossacklabs.themis.InvalidArgumentException;
 import com.cossacklabs.themis.NullArgumentException;
 import com.cossacklabs.themis.SecureCell;
 import com.cossacklabs.themis.SecureCellException;
-import com.cyla.BuildConfig;
 import com.facebook.react.*;
 import com.facebook.soloader.SoLoader;
 
