@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  db:
+    image: "postgres:13.1"
+    environment:
+      - POSTGRES_DB=cyla
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  go:
+    image: "air_with_dependencies:v1.15.1"
+    working_dir: '/go/src/github.com/cyla-app/cyla-app'
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/go/src/github.com/cyla-app/cyla-app
+  adminer:
+    image: "adminer:4.7.7-standalone"
+    restart: always
+    ports:
+      - 8080:8080

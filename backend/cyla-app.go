@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/cossacklabs/themis/gothemis/cell"
@@ -146,7 +147,14 @@ func exampleTokenImprint(key *keys.SymmetricKey, message, context []byte) {
 	fmt.Printf("\n")
 }
 
+func HelloServer(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hellloo, %s!", r.URL.Path[1:])
+}
+
 func main() {
+	http.HandleFunc("/", HelloServer)
+	http.ListenAndServe(":5000", nil)
+
 	// Cryptographic parameters. Keep them secret.
 	passphrase := "broccoli"
 	key, err := keys.NewSymmetricKey()
