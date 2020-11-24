@@ -21,7 +21,7 @@
 
 ### Docker Services
 
-#### go
+#### application
 > Go backend with auto reloading using air
 
 Port: 5000
@@ -36,6 +36,6 @@ Port: default
 
 Port: 8080
 
-To login use the following settings (PW is postgres):
+To login click [here](http://localhost:8080/?pgsql=db&username=postgres&db=cyla&password=postgres) and use the following settings (PW is postgres):
 
 ![](./docs/adminer_login.png)

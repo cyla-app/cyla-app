@@ -6,7 +6,7 @@ services:
       - POSTGRES_DB=cyla
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-  go:
+  application:
     image: "air_with_dependencies:v1.15.1"
     working_dir: '/go/src/github.com/cyla-app/cyla-app'
     ports:
