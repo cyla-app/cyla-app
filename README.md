@@ -21,7 +21,7 @@
 
 ### Docker Services
 
-#### application
+#### app
 > Go backend with auto reloading using air
 
 Port: 5000
