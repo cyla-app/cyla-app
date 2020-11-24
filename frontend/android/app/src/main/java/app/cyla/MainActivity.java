@@ -1,4 +1,4 @@
-package com.frontend;
+package app.cyla;
 
 import com.facebook.react.ReactActivity;
 
