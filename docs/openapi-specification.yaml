@@ -1,0 +1,469 @@
+openapi: 3.0.3
+info:
+  description: "API for the period tracking app 'Cyla'"
+  version: 0.1.0
+  title: "Cyla App API"
+servers:
+  - url: "http://localhost:5000"
+    description: "DEV server"
+paths:
+  /user:
+    post:
+      tags:
+        - user
+      description: Create a new user
+      operationId: createUser
+      requestBody:
+        description: New user to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: User created
+        "400":
+          description: Invalid client request
+  /user/{userId}:
+    get:
+      tags:
+        - user
+      description: Get a single user
+      operationId: getUserById
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+    put:
+      tags:
+        - user
+      description: Update an user
+      operationId: updateUser
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        description: Updated user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: User updated successfully
+        "400":
+          description: Invalid client request
+  /user/{userId}/restore:
+    get:
+      tags:
+        - user
+      description: Get key backup for user
+      operationId: getRestoreData
+      parameters:
+      - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: Backup information found
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/EncryptedAttribute"
+        "404":
+          description: User not found
+  /day/{userId}:
+    post:
+      tags:
+        - day
+      description: Add a day for an user
+      operationId: createDayEntry
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        description: New day to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Day"
+      responses:
+        "200":
+          description: Day succesfully created
+        "404":
+          description: User not found
+    put:
+      tags:
+        - day
+      description: Update a day for an user
+      operationId: updateDayEntry
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        description: Updated day
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Day"
+      responses:
+        "200":
+          description: Day updated successfully
+        "404":
+          description: Day or user not found
+  /day/{userId}/byDate:
+    get:
+      tags:
+        - day
+      description: Get the day from user at date
+      operationId: getDaysByUserIdAndDate
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - name: date
+          in: query
+          description: date(s) of the entries to get
+          explode: true
+          style: form
+          schema:
+            type: array
+            items:
+              format: date
+              type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/DaysFound"
+        "404":
+          description: User not found
+  /day/{userId}/byRange:
+    get:
+      tags:
+        - day
+      description: Get a range of dates from user. If not provided, end defaults to start.
+      operationId: getDayByUserAndRange
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - name: startDate
+          in: query
+          description: start date
+          required: true
+          schema:
+            format: date
+            type: string
+        - name: endDate
+          in: query
+          description: end date
+          required: false
+          schema:
+            format: date
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/DaysFound"
+        "404":
+          description: User not found
+  /bleeding/{userId}:
+    get:
+      tags:
+        - bleeding
+      description: Get bleeding information for a day
+      operationId: getBleedingByDate
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/date"
+      responses:
+        "200":
+          description: Bleeding entry found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bleeding"
+        "404":
+          description: User not found
+  /temperature/{userId}:
+    get:
+      tags:
+        - temperature
+      description: Get temperature information for a day
+      operationId: getTemperatureByDate
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/date"
+      responses:
+        "200":
+          description: Temperature entry found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Temperature"
+        "404":
+          description: User not found
+  /cervical/{userId}:
+    get:
+      tags:
+        - cervical
+      description: Get cervical information for a day
+      operationId: getCervicalByDate
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/date"
+      responses:
+        "200":
+          description: Cervical entry found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CervicalMucus"
+        "404":
+          description: User not found
+  /cervix/{userId}:
+    get:
+      tags:
+        - cervix
+      description: Get cervix information for a day
+      operationId: getCervixByDate
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/date"
+      responses:
+        "200":
+          description: Cervix entry found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cervix"
+        "404":
+          description: User not found
+  /pain/{userId}:
+    get:
+      tags:
+        - pain
+      description: Get pain information for a day
+      operationId: getPainByDate
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/date"
+      responses:
+        "200":
+          description: Pain entry found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pain"
+        "404":
+          description: User not found
+  /mood/{userId}:
+    get:
+      tags:
+        - mood
+      description: Get mood information for a day
+      operationId: getMoodByDate
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/date"
+      responses:
+        "200":
+          description: Mood entry found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mood"
+        "404":
+          description: User not found
+  /sexDesire/{userId}:
+    get:
+      tags:
+        - desire
+      description: Get sexual desire information for a day
+      operationId: getSexDesireByDate
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/date"
+      responses:
+        "200":
+          description: Desire entry found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SexualDesire"
+        "404":
+          description: User not found
+  /sexActivity/{userId}:
+    get:
+      tags:
+        - activity
+      description: Get sexual activity information for a day
+      operationId: getSexActivityByDate
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/date"
+      responses:
+        "200":
+          description: Activity entry found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SexualActivity"
+        "404":
+          description: User not found
+components:
+  parameters:
+    userId:
+      description: Path parameter for id of user to return
+      in: path
+      name: userId
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+    date:
+      description: Query parameter for date
+      name: date
+      in: query
+      required: true
+      schema:
+        format: date
+        type: string
+  responses:
+    DaysFound:
+      description: (Empty) list of days found
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Day"
+  schemas:
+    EncryptedAttribute:
+      type: string
+      format: byte
+    Id:
+      type: integer
+      format: int64
+      description: Unique id of object
+    User:
+      type: object
+      description: An User of the app
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        user_key_backup:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    Day:
+      type: object
+      description: A Day entry
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        day_key:
+          format: byte
+          type: string
+          description: Day key used to encrypt sensitive information for the day.
+        version:
+          format: byte
+          type: string
+        date:
+          format: date
+          type: string
+        bleeding:
+          $ref: "#/components/schemas/Bleeding"
+        cervical:
+          $ref: "#/components/schemas/CervicalMucus"
+        cervix:
+          $ref: "#/components/schemas/Cervix"
+        sexActivity:
+          $ref: "#/components/schemas/SexualActivity"
+        sexDesire:
+          $ref: "#/components/schemas/SexualDesire"
+        pain:
+          $ref: "#/components/schemas/Pain"
+        mood:
+          $ref: "#/components/schemas/Mood"
+    Bleeding:
+      type: object
+      description: Bleeding information for a day
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        strength:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        exclude:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    Temperature:
+      type: object
+      description: Temperature information for a day
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        value:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        timestamp:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        note:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        exclude:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    CervicalMucus:
+      type: object
+      description: Cervical Mucus information for a day
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        feeling:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        texture:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        exclude:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    Cervix:
+      type: object
+      description: Cervix information for a day
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        opening:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        firmness:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        position:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        excluce:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    Mood:
+      type: object
+      description: Mood information for a day
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        type:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    Pain:
+      type: object
+      description: Pain information for a day
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        type:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    SexualDesire:
+      type: object
+      description: Sexual desire information for a day
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        intensity:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    SexualActivity:
+      type: object
+      description: Sexual activity information for a day
+      properties:
+        id:
+          $ref: "#/components/schemas/Id"
+        type:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        contraceptives:
+          $ref: "#/components/schemas/EncryptedAttribute"
