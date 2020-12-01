@@ -245,7 +245,7 @@ openApiGenerate {
 
 afterEvaluate {
     android.applicationVariants.all { variant ->
-        variant.javaCompiler.dependsOn(tasks.openApiGenerate)
+        variant.javaCompileProvider.get().dependsOn(tasks.openApiGenerate)
     }
 }
 
