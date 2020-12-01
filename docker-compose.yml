@@ -4,11 +4,13 @@ services:
   redis:
     container_name: redis
     image: "redis:6.0.9"
-    command: redis-server --requirepass "${REDIS_PASSWORD}"
+    command: redis-server --requirepass "${REDIS_PASSWORD}" --appendonly yes
     ports:
       - "6379:6379"
     environment:
       - REDIS_REPLICATION_MODE=master
+    volumes:
+    - ./store:/data
   app:
     image: "air_with_dependencies:v1.15.1"
     working_dir: '/go/src/github.com/cyla-app/cyla-app'
