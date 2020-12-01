@@ -1,11 +1,14 @@
 version: "3.8"
+
 services:
-  db:
-    image: "postgres:13.1"
+  redis:
+    container_name: redis
+    image: "redis:6.0.9"
+    command: redis-server --requirepass "${REDIS_PASSWORD}"
+    ports:
+      - "6379:6379"
     environment:
-      - POSTGRES_DB=cyla
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - REDIS_REPLICATION_MODE=master
   app:
     image: "air_with_dependencies:v1.15.1"
     working_dir: '/go/src/github.com/cyla-app/cyla-app'
@@ -13,8 +16,5 @@ services:
       - "5000:5000"
     volumes:
       - ./backend:/go/src/github.com/cyla-app/cyla-app
-  adminer:
-    image: "adminer:4.7.7-standalone"
-    restart: always
-    ports:
-      - 8080:8080
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
