@@ -1,11 +1,24 @@
 import React from 'react'
 import { View } from 'react-native'
-import { FAB, Headline, Text, useTheme } from 'react-native-paper'
+import { Headline, Text, useTheme } from 'react-native-paper'
+import CalendarStrip from '../components/CalendarStrip'
+import { StackNavigationProp } from '@react-navigation/stack'
+import { MainStackParamList } from '../navigation/MainStackNavigation'
 
-export default ({ navigation }) => {
+type DailyScreenNavigationProp = StackNavigationProp<
+  MainStackParamList,
+  'Daily'
+>
+
+export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   const { colors } = useTheme()
   return (
-    <>
+    <View
+      style={{
+        flex: 1,
+        flexDirection: 'column',
+        alignContent: 'space-between',
+      }}>
       <View
         style={{
           flex: 1,
@@ -29,18 +42,24 @@ export default ({ navigation }) => {
         </View>
       </View>
 
-      <FAB
-        style={{
-          position: 'absolute',
-          right: 0,
-          bottom: 0,
-          margin: 16,
-        }}
-        icon="plus"
-        onPress={() => {
-          navigation.navigate('Add', { key: 'Add' })
+      <CalendarStrip
+        onDaySelected={() => {
+          navigation.navigate('Add')
         }}
       />
-    </>
+
+      {/*<FAB*/}
+      {/*  style={{*/}
+      {/*    position: 'absolute',*/}
+      {/*    right: 0,*/}
+      {/*    bottom: 0,*/}
+      {/*    margin: 16,*/}
+      {/*  }}*/}
+      {/*  icon="plus"*/}
+      {/*  onPress={() => {*/}
+      {/*    navigation.navigate('Add', { key: 'Add' })*/}
+      {/*  }}*/}
+      {/*/>*/}
+    </View>
   )
 }

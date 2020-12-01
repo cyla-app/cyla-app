@@ -6,7 +6,6 @@ import {
 } from '@react-navigation/stack'
 import { Text, useTheme } from 'react-native-paper'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-// import { BlurView } from 'expo-blur'
 import Fontisto from 'react-native-vector-icons/Fontisto'
 import DailyScreen from '../screens/DailyScreen'
 import CalendarScreen from '../screens/CalendarScreen'
@@ -108,11 +107,17 @@ const BottomBarNavigation = () => {
   )
 }
 
+export type MainStackParamList = {
+  Daily: undefined
+  Profile: undefined
+  Add: undefined
+}
+
 export default () => {
   return (
     <>
       <Stack.Navigator screenOptions={{ headerShown: false }} mode="modal">
-        <Stack.Screen name="Home" component={BottomBarNavigation} />
+        <Stack.Screen name="Daily" component={BottomBarNavigation} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen
           name="Add"
