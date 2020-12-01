@@ -5,18 +5,19 @@
 ## backend
 
 1. `cd backend/`
-2. `go get -d`
+1. `go get -d`
 
 ## frontend
 
 1. `cd frontend`
-2. `npm instal`
-2. `npx react-native start`
+1. `npm instal`
+1. `npx react-native start`
 
 ## Docker
 
+1. Create a `.env` file in the project root. Fill it according to `.env.example`.
 1. Build docker container: `sudo docker build backend/air_with_dependencies --tag air_with_dependencies:v1.15.1`
-2. Start all containers: `sudo docker-compose up`
+1. Start all containers: `sudo docker-compose up`
 
 
 ### Docker Services
