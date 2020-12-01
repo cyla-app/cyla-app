@@ -3,6 +3,8 @@ import { StyleSheet, View } from 'react-native'
 import React from 'react'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
+import DayDataEntry from '../components/DayDataEntry'
+import { format } from 'date-fns'
 
 type AddScreenNavigationProp = StackNavigationProp<MainStackParamList, 'Add'>
 
@@ -10,11 +12,16 @@ export default ({ navigation }: { navigation: AddScreenNavigationProp }) => {
   console.log(navigation)
   return (
     <View style={[StyleSheet.absoluteFill]}>
-      <Card style={[StyleSheet.absoluteFill]}>
+      <Card
+        theme={{ roundness: 20 }}
+        style={[StyleSheet.absoluteFill, { height: 1000 }]}>
         <Card.Title
-          title="Add data for today"
-          subtitle={new Date().toDateString()}
+          titleStyle={{ textAlign: 'center' }}
+          title={format(new Date(), 'Mo MMMM yyyy ')}
         />
+
+        <DayDataEntry />
+
         <Card.Content>
           <Button
             onPress={() => {}}
