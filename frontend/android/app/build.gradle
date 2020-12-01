@@ -233,7 +233,7 @@ task copyDownloadableDepsToLibs(type: Copy) {
 
 openApiGenerate {
     generatorName = "kotlin"
-    inputSpec = "$rootDir/openapi-specification.yaml".toString()
+    inputSpec = "$rootDir/../../docs/openapi-specification.yaml".toString()
     outputDir = "$buildDir/generated/api-client".toString()
     packageName = "app.cyla.api"
     modelFilesConstrainedTo = [
