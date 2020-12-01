@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
+import app.cyla.api.models.CervicalMucus;
 import com.cossacklabs.themis.InvalidArgumentException;
 import com.cossacklabs.themis.NullArgumentException;
 import com.cossacklabs.themis.SecureCell;
@@ -55,6 +56,8 @@ public class MainApplication extends Application implements ReactApplication {
         } catch (SecureCellException e) {
             e.printStackTrace();
         }
+        
+        new CervicalMucus().getFeeling();
     }
 
     void encryptDataForStoring() throws SecureCellException, NullArgumentException, InvalidArgumentException {

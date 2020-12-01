@@ -1,4 +1,8 @@
-apply plugin: "com.android.application"
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id "org.openapi.generator" version "4.3.1"
+}
 
 import com.android.build.OutputFile
 
@@ -152,6 +156,9 @@ android {
             keyPassword 'android'
         }
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -187,6 +194,11 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    implementation "com.squareup.moshi:moshi-kotlin:1.9.2"
+    implementation "com.squareup.moshi:moshi-adapters:1.9.2"
+    implementation "com.squareup.okhttp3:okhttp:4.2.2"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
@@ -217,6 +229,30 @@ dependencies {
 task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
+}
+
+openApiGenerate {
+    generatorName = "kotlin"
+    inputSpec = "$rootDir/openapi-specification.yaml".toString()
+    outputDir = "$buildDir/generated/api-client".toString()
+    packageName = "app.cyla.api"
+    modelFilesConstrainedTo = [
+    ]
+    configOptions = [
+            dateLibrary: "java8"
+    ]
+}
+
+afterEvaluate {
+    android.applicationVariants.all { variant ->
+        variant.javaCompiler.dependsOn(tasks.openApiGenerate)
+    }
+}
+
+android {
+    sourceSets {
+        main.java.srcDirs += "${buildDir}/generated/api-client/src/main/kotlin"
+    }
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
