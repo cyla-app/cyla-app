@@ -68,7 +68,7 @@ paths:
       description: Get key backup for user
       operationId: getRestoreData
       parameters:
-      - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/userId"
       responses:
         "200":
           description: Backup information found
@@ -337,6 +337,12 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Day"
+    UserNotFound:
+      description: Error about missing user
+      content:
+        application/json:
+          schema:
+            type: string
   schemas:
     EncryptedAttribute:
       type: string
