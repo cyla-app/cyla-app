@@ -5,8 +5,9 @@
 set -eo pipefail
 
 docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
-	-i /local/docs/openapi-specification.yaml \
+	-i /local/openapi/openapi-specification.yaml \
 	-g go-server \
+	-t /local/openapi/go-server_templates \
 	-o /local/backend \
 	--git-repo-id cyla-app --git-user-id cyla-app \
 	--package-name server \
