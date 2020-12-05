@@ -6,13 +6,13 @@ import {
 } from '@react-navigation/stack'
 import { Text, useTheme } from 'react-native-paper'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-// import { BlurView } from 'expo-blur'
 import Fontisto from 'react-native-vector-icons/Fontisto'
 import DailyScreen from '../screens/DailyScreen'
 import CalendarScreen from '../screens/CalendarScreen'
-import MoreScreen from '../screens/MoreScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 import AddScreen from '../screens/AddScreen'
+import { NavigatorScreenParams } from '@react-navigation/native'
+import NYIScreen from '../screens/NYIScreen'
 
 const NavigationBarIcon = ({
   color,
@@ -31,26 +31,43 @@ const NavigationBarIcon = ({
 const NavigationBarLabel = ({
   color,
   children,
-}: {
+}: // focused,
+{
   color: string
   children: React.ReactNode
+  focused: boolean
 }) => {
   return (
     <Text
       style={{
         fontSize: 10,
         lineHeight: 20,
+        height: 20,
         textAlign: 'center',
         color: color,
       }}>
+      {/*{focused ? children : null}*/}
       {children}
     </Text>
   )
 }
 
-const Stack = createStackNavigator()
+export type MainStackParamList = {
+  Tabs: NavigatorScreenParams<TabsParamList>
+  Profile: undefined
+  Add: undefined
+}
 
-const Tab = createBottomTabNavigator()
+const Stack = createStackNavigator<MainStackParamList>()
+
+export type TabsParamList = {
+  Daily: undefined
+  Calendar: undefined
+  Statistics: undefined
+  More: undefined
+}
+
+const Tab = createBottomTabNavigator<TabsParamList>()
 
 const BottomBarNavigation = () => {
   const { colors } = useTheme()
@@ -64,7 +81,7 @@ const BottomBarNavigation = () => {
       />
       <Tab.Navigator>
         <Tab.Screen
-          name="daily"
+          name="Daily"
           component={DailyScreen}
           options={{
             tabBarIcon: ({ color }) => (
@@ -80,7 +97,7 @@ const BottomBarNavigation = () => {
           }}
         />
         <Tab.Screen
-          name="calendar"
+          name="Calendar"
           component={CalendarScreen}
           options={{
             tabBarIcon: ({ color }) => (
@@ -92,14 +109,26 @@ const BottomBarNavigation = () => {
           }}
         />
         <Tab.Screen
-          name="more"
-          component={MoreScreen}
+          name="Statistics"
+          component={NYIScreen}
           options={{
             tabBarIcon: ({ color }) => (
-              <NavigationBarIcon color={color} size={20} name={'more-v-a'} />
+              <NavigationBarIcon color={color} size={20} name={'area-chart'} />
             ),
             tabBarLabel: (props) => (
-              <NavigationBarLabel {...props}>More</NavigationBarLabel>
+              <NavigationBarLabel {...props}>Statistics</NavigationBarLabel>
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={NYIScreen}
+          options={{
+            tabBarIcon: ({ color }) => (
+              <NavigationBarIcon color={color} size={20} name={'person'} />
+            ),
+            tabBarLabel: (props) => (
+              <NavigationBarLabel {...props}>Profile</NavigationBarLabel>
             ),
           }}
         />
@@ -112,8 +141,7 @@ export default () => {
   return (
     <>
       <Stack.Navigator screenOptions={{ headerShown: false }} mode="modal">
-        <Stack.Screen name="Home" component={BottomBarNavigation} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="Tabs" component={BottomBarNavigation} />
         <Stack.Screen
           name="Add"
           component={AddScreen}

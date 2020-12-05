@@ -7,16 +7,22 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.10",
+    "@react-native-community/slider": "^3.0.3",
     "@react-navigation/bottom-tabs": "^5.11.2",
     "@react-navigation/native": "^5.8.10",
     "@react-navigation/stack": "^5.12.8",
+    "@types/react-native-calendars": "^1.20.12",
     "@types/react-native-vector-icons": "^6.4.6",
+    "date-fns": "^2.16.1",
     "react": "16.13.1",
     "react-native": "0.63.3",
+    "react-native-calendar-strip": "2.0.5",
+    "react-native-calendars": "^1.505.0",
     "react-native-gesture-handler": "^1.9.0",
     "react-native-paper": "^4.4.1",
     "react-native-reanimated": "^1.13.2",
@@ -30,15 +36,16 @@
     "@react-native-community/eslint-config": "^1.1.0",
     "@types/jest": "^25.2.3",
     "@types/react-native": "^0.63.2",
-    "@types/react-test-renderer": "^16.9.2",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "babel-jest": "^25.1.0",
     "eslint": "^6.5.1",
     "jest": "^25.1.0",
     "metro-react-native-babel-preset": "^0.59.0",
+    "patch-package": "^6.2.2",
     "react-test-renderer": "16.13.1",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "yarn-deduplicate": "^3.1.0"
   },
   "jest": {
     "preset": "react-native",

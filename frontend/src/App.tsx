@@ -19,7 +19,6 @@ const theme = {
     primary: '#79486D',
     accent: '#9E1818',
   },
-  roundness: 20,
 }
 
 const App = () => {
