@@ -27,7 +27,7 @@ func NewDayApiService() DayApiServicer {
 }
 
 // CreateDayEntry -
-func (s *DayApiService) CreateDayEntry(ctx context.Context, userId int64, day Day) (ImplResponse, error) {
+func (s *DayApiService) CreateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
 	// TODO - update CreateDayEntry with the required logic for this service method.
 	// Add api_day_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -41,7 +41,7 @@ func (s *DayApiService) CreateDayEntry(ctx context.Context, userId int64, day Da
 }
 
 // GetDayByUserAndRange -
-func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId int64, startDate string, endDate string) (ImplResponse, error) {
+func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ImplResponse, error) {
 	// TODO - update GetDayByUserAndRange with the required logic for this service method.
 	// Add api_day_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -55,7 +55,7 @@ func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId int64, 
 }
 
 // GetDaysByUserIdAndDate -
-func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId int64, date []string) (ImplResponse, error) {
+func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ImplResponse, error) {
 	// TODO - update GetDaysByUserIdAndDate with the required logic for this service method.
 	// Add api_day_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -69,7 +69,7 @@ func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId int64
 }
 
 // UpdateDayEntry -
-func (s *DayApiService) UpdateDayEntry(ctx context.Context, userId int64, day Day) (ImplResponse, error) {
+func (s *DayApiService) UpdateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
 	// TODO - update UpdateDayEntry with the required logic for this service method.
 	// Add api_day_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

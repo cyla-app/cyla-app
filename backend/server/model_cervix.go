@@ -12,8 +12,8 @@ package server
 // Cervix - Cervix information for a day
 type Cervix struct {
 
-	// Unique id of object
-	Id int64 `json:"id,omitempty"`
+	// UUID
+	Id string `json:"id,omitempty"`
 
 	Opening string `json:"opening,omitempty"`
 

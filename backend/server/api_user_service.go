@@ -41,7 +41,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, user User) (ImplRespons
 }
 
 // GetRestoreData -
-func (s *UserApiService) GetRestoreData(ctx context.Context, userId int64) (ImplResponse, error) {
+func (s *UserApiService) GetRestoreData(ctx context.Context, userId string) (ImplResponse, error) {
 	// TODO - update GetRestoreData with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -55,7 +55,7 @@ func (s *UserApiService) GetRestoreData(ctx context.Context, userId int64) (Impl
 }
 
 // GetUserById -
-func (s *UserApiService) GetUserById(ctx context.Context, userId int64) (ImplResponse, error) {
+func (s *UserApiService) GetUserById(ctx context.Context, userId string) (ImplResponse, error) {
 	// TODO - update GetUserById with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -69,7 +69,7 @@ func (s *UserApiService) GetUserById(ctx context.Context, userId int64) (ImplRes
 }
 
 // UpdateUser -
-func (s *UserApiService) UpdateUser(ctx context.Context, userId int64, user User) (ImplResponse, error) {
+func (s *UserApiService) UpdateUser(ctx context.Context, userId string, user User) (ImplResponse, error) {
 	// TODO - update UpdateUser with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

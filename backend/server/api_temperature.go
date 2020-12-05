@@ -42,11 +42,7 @@ func (c *TemperatureApiController) Routes() Routes {
 func (c *TemperatureApiController) GetTemperatureByDate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query := r.URL.Query()
-	userId, err := parseInt64Parameter(params["userId"])
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
+	userId := params["userId"]
 	date := query.Get("date")
 	result, err := c.service.GetTemperatureByDate(r.Context(), userId, date)
 	//If an error occured, encode the error with the status code

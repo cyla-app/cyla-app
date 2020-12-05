@@ -12,8 +12,8 @@ package server
 // Pain - Pain information for a day
 type Pain struct {
 
-	// Unique id of object
-	Id int64 `json:"id,omitempty"`
+	// UUID
+	Id string `json:"id,omitempty"`
 
 	Type string `json:"type,omitempty"`
 }

@@ -60,11 +60,7 @@ func (c *DayApiController) Routes() Routes {
 // CreateDayEntry -
 func (c *DayApiController) CreateDayEntry(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	userId, err := parseInt64Parameter(params["userId"])
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
+	userId := params["userId"]
 	day := &Day{}
 	if err := json.NewDecoder(r.Body).Decode(&day); err != nil {
 		w.WriteHeader(500)
@@ -86,11 +82,7 @@ func (c *DayApiController) CreateDayEntry(w http.ResponseWriter, r *http.Request
 func (c *DayApiController) GetDayByUserAndRange(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query := r.URL.Query()
-	userId, err := parseInt64Parameter(params["userId"])
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
+	userId := params["userId"]
 	startDate := query.Get("startDate")
 	endDate := query.Get("endDate")
 	result, err := c.service.GetDayByUserAndRange(r.Context(), userId, startDate, endDate)
@@ -108,11 +100,7 @@ func (c *DayApiController) GetDayByUserAndRange(w http.ResponseWriter, r *http.R
 func (c *DayApiController) GetDaysByUserIdAndDate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query := r.URL.Query()
-	userId, err := parseInt64Parameter(params["userId"])
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
+	userId := params["userId"]
 	date := strings.Split(query.Get("date"), ",")
 	result, err := c.service.GetDaysByUserIdAndDate(r.Context(), userId, date)
 	//If an error occured, encode the error with the status code
@@ -128,11 +116,7 @@ func (c *DayApiController) GetDaysByUserIdAndDate(w http.ResponseWriter, r *http
 // UpdateDayEntry -
 func (c *DayApiController) UpdateDayEntry(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	userId, err := parseInt64Parameter(params["userId"])
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
+	userId := params["userId"]
 	day := &Day{}
 	if err := json.NewDecoder(r.Body).Decode(&day); err != nil {
 		w.WriteHeader(500)

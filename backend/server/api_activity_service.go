@@ -27,7 +27,7 @@ func NewActivityApiService() ActivityApiServicer {
 }
 
 // GetSexActivityByDate -
-func (s *ActivityApiService) GetSexActivityByDate(ctx context.Context, userId int64, date string) (ImplResponse, error) {
+func (s *ActivityApiService) GetSexActivityByDate(ctx context.Context, userId string, date string) (ImplResponse, error) {
 	// TODO - update GetSexActivityByDate with the required logic for this service method.
 	// Add api_activity_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

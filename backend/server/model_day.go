@@ -12,8 +12,8 @@ package server
 // Day - A Day entry
 type Day struct {
 
-	// Unique id of object
-	Id int64 `json:"id,omitempty"`
+	// UUID
+	Id string `json:"id,omitempty"`
 
 	// Day key used to encrypt sensitive information for the day.
 	DayKey string `json:"day_key,omitempty"`

@@ -12,8 +12,8 @@ package server
 // SexualDesire - Sexual desire information for a day
 type SexualDesire struct {
 
-	// Unique id of object
-	Id int64 `json:"id,omitempty"`
+	// UUID
+	Id string `json:"id,omitempty"`
 
 	Intensity string `json:"intensity,omitempty"`
 }

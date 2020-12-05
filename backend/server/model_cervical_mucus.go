@@ -12,8 +12,8 @@ package server
 // CervicalMucus - Cervical Mucus information for a day
 type CervicalMucus struct {
 
-	// Unique id of object
-	Id int64 `json:"id,omitempty"`
+	// UUID
+	Id string `json:"id,omitempty"`
 
 	Feeling string `json:"feeling,omitempty"`
 

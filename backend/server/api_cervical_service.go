@@ -27,7 +27,7 @@ func NewCervicalApiService() CervicalApiServicer {
 }
 
 // GetCervicalByDate -
-func (s *CervicalApiService) GetCervicalByDate(ctx context.Context, userId int64, date string) (ImplResponse, error) {
+func (s *CervicalApiService) GetCervicalByDate(ctx context.Context, userId string, date string) (ImplResponse, error) {
 	// TODO - update GetCervicalByDate with the required logic for this service method.
 	// Add api_cervical_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

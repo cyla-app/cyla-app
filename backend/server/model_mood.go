@@ -12,8 +12,8 @@ package server
 // Mood - Mood information for a day
 type Mood struct {
 
-	// Unique id of object
-	Id int64 `json:"id,omitempty"`
+	// UUID
+	Id string `json:"id,omitempty"`
 
 	Type string `json:"type,omitempty"`
 }

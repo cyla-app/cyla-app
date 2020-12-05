@@ -12,8 +12,8 @@ package server
 // User - An User of the app
 type User struct {
 
-	// Unique id of object
-	Id int64 `json:"id,omitempty"`
+	// UUID
+	Id string `json:"id,omitempty"`
 
 	UserKeyBackup string `json:"user_key_backup,omitempty"`
 }

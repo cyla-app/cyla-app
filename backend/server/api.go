@@ -95,7 +95,7 @@ type UserApiRouter interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type ActivityApiServicer interface {
-	GetSexActivityByDate(context.Context, int64, string) (ImplResponse, error)
+	GetSexActivityByDate(context.Context, string, string) (ImplResponse, error)
 }
 
 // BleedingApiServicer defines the api actions for the BleedingApi service
@@ -103,7 +103,7 @@ type ActivityApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type BleedingApiServicer interface {
-	GetBleedingByDate(context.Context, int64, string) (ImplResponse, error)
+	GetBleedingByDate(context.Context, string, string) (ImplResponse, error)
 }
 
 // CervicalApiServicer defines the api actions for the CervicalApi service
@@ -111,7 +111,7 @@ type BleedingApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type CervicalApiServicer interface {
-	GetCervicalByDate(context.Context, int64, string) (ImplResponse, error)
+	GetCervicalByDate(context.Context, string, string) (ImplResponse, error)
 }
 
 // CervixApiServicer defines the api actions for the CervixApi service
@@ -119,7 +119,7 @@ type CervicalApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type CervixApiServicer interface {
-	GetCervixByDate(context.Context, int64, string) (ImplResponse, error)
+	GetCervixByDate(context.Context, string, string) (ImplResponse, error)
 }
 
 // DayApiServicer defines the api actions for the DayApi service
@@ -127,10 +127,10 @@ type CervixApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type DayApiServicer interface {
-	CreateDayEntry(context.Context, int64, Day) (ImplResponse, error)
-	GetDayByUserAndRange(context.Context, int64, string, string) (ImplResponse, error)
-	GetDaysByUserIdAndDate(context.Context, int64, []string) (ImplResponse, error)
-	UpdateDayEntry(context.Context, int64, Day) (ImplResponse, error)
+	CreateDayEntry(context.Context, string, Day) (ImplResponse, error)
+	GetDayByUserAndRange(context.Context, string, string, string) (ImplResponse, error)
+	GetDaysByUserIdAndDate(context.Context, string, []string) (ImplResponse, error)
+	UpdateDayEntry(context.Context, string, Day) (ImplResponse, error)
 }
 
 // DesireApiServicer defines the api actions for the DesireApi service
@@ -138,7 +138,7 @@ type DayApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type DesireApiServicer interface {
-	GetSexDesireByDate(context.Context, int64, string) (ImplResponse, error)
+	GetSexDesireByDate(context.Context, string, string) (ImplResponse, error)
 }
 
 // MoodApiServicer defines the api actions for the MoodApi service
@@ -146,7 +146,7 @@ type DesireApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type MoodApiServicer interface {
-	GetMoodByDate(context.Context, int64, string) (ImplResponse, error)
+	GetMoodByDate(context.Context, string, string) (ImplResponse, error)
 }
 
 // PainApiServicer defines the api actions for the PainApi service
@@ -154,7 +154,7 @@ type MoodApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type PainApiServicer interface {
-	GetPainByDate(context.Context, int64, string) (ImplResponse, error)
+	GetPainByDate(context.Context, string, string) (ImplResponse, error)
 }
 
 // TemperatureApiServicer defines the api actions for the TemperatureApi service
@@ -162,7 +162,7 @@ type PainApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type TemperatureApiServicer interface {
-	GetTemperatureByDate(context.Context, int64, string) (ImplResponse, error)
+	GetTemperatureByDate(context.Context, string, string) (ImplResponse, error)
 }
 
 // UserApiServicer defines the api actions for the UserApi service
@@ -171,7 +171,7 @@ type TemperatureApiServicer interface {
 // and updated with the logic required for the API.
 type UserApiServicer interface {
 	CreateUser(context.Context, User) (ImplResponse, error)
-	GetRestoreData(context.Context, int64) (ImplResponse, error)
-	GetUserById(context.Context, int64) (ImplResponse, error)
-	UpdateUser(context.Context, int64, User) (ImplResponse, error)
+	GetRestoreData(context.Context, string) (ImplResponse, error)
+	GetUserById(context.Context, string) (ImplResponse, error)
+	UpdateUser(context.Context, string, User) (ImplResponse, error)
 }

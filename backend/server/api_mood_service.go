@@ -27,7 +27,7 @@ func NewMoodApiService() MoodApiServicer {
 }
 
 // GetMoodByDate -
-func (s *MoodApiService) GetMoodByDate(ctx context.Context, userId int64, date string) (ImplResponse, error) {
+func (s *MoodApiService) GetMoodByDate(ctx context.Context, userId string, date string) (ImplResponse, error) {
 	// TODO - update GetMoodByDate with the required logic for this service method.
 	// Add api_mood_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

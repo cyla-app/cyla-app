@@ -27,7 +27,7 @@ func NewDesireApiService() DesireApiServicer {
 }
 
 // GetSexDesireByDate -
-func (s *DesireApiService) GetSexDesireByDate(ctx context.Context, userId int64, date string) (ImplResponse, error) {
+func (s *DesireApiService) GetSexDesireByDate(ctx context.Context, userId string, date string) (ImplResponse, error) {
 	// TODO - update GetSexDesireByDate with the required logic for this service method.
 	// Add api_desire_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

@@ -12,8 +12,8 @@ package server
 // Bleeding - Bleeding information for a day
 type Bleeding struct {
 
-	// Unique id of object
-	Id int64 `json:"id,omitempty"`
+	// UUID
+	Id string `json:"id,omitempty"`
 
 	Strength string `json:"strength,omitempty"`
 

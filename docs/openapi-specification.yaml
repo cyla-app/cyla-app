@@ -348,9 +348,8 @@ components:
       type: string
       format: byte
     Id:
-      type: integer
-      format: int64
-      description: Unique id of object
+      type: string
+      description: UUID
     User:
       type: object
       description: An User of the app

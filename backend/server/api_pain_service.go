@@ -27,7 +27,7 @@ func NewPainApiService() PainApiServicer {
 }
 
 // GetPainByDate -
-func (s *PainApiService) GetPainByDate(ctx context.Context, userId int64, date string) (ImplResponse, error) {
+func (s *PainApiService) GetPainByDate(ctx context.Context, userId string, date string) (ImplResponse, error) {
 	// TODO - update GetPainByDate with the required logic for this service method.
 	// Add api_pain_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

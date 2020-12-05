@@ -79,11 +79,7 @@ func (c *UserApiController) CreateUser(w http.ResponseWriter, r *http.Request) {
 // GetRestoreData -
 func (c *UserApiController) GetRestoreData(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	userId, err := parseInt64Parameter(params["userId"])
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
+	userId := params["userId"]
 	result, err := c.service.GetRestoreData(r.Context(), userId)
 	//If an error occured, encode the error with the status code
 	if err != nil {
@@ -98,11 +94,7 @@ func (c *UserApiController) GetRestoreData(w http.ResponseWriter, r *http.Reques
 // GetUserById -
 func (c *UserApiController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	userId, err := parseInt64Parameter(params["userId"])
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
+	userId := params["userId"]
 	result, err := c.service.GetUserById(r.Context(), userId)
 	//If an error occured, encode the error with the status code
 	if err != nil {
@@ -117,11 +109,7 @@ func (c *UserApiController) GetUserById(w http.ResponseWriter, r *http.Request) 
 // UpdateUser -
 func (c *UserApiController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	userId, err := parseInt64Parameter(params["userId"])
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
+	userId := params["userId"]
 	user := &User{}
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		w.WriteHeader(500)

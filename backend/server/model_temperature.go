@@ -12,8 +12,8 @@ package server
 // Temperature - Temperature information for a day
 type Temperature struct {
 
-	// Unique id of object
-	Id int64 `json:"id,omitempty"`
+	// UUID
+	Id string `json:"id,omitempty"`
 
 	Value string `json:"value,omitempty"`
 

@@ -27,7 +27,7 @@ func NewCervixApiService() CervixApiServicer {
 }
 
 // GetCervixByDate -
-func (s *CervixApiService) GetCervixByDate(ctx context.Context, userId int64, date string) (ImplResponse, error) {
+func (s *CervixApiService) GetCervixByDate(ctx context.Context, userId string, date string) (ImplResponse, error) {
 	// TODO - update GetCervixByDate with the required logic for this service method.
 	// Add api_cervix_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

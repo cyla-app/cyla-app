@@ -27,7 +27,7 @@ func NewTemperatureApiService() TemperatureApiServicer {
 }
 
 // GetTemperatureByDate -
-func (s *TemperatureApiService) GetTemperatureByDate(ctx context.Context, userId int64, date string) (ImplResponse, error) {
+func (s *TemperatureApiService) GetTemperatureByDate(ctx context.Context, userId string, date string) (ImplResponse, error) {
 	// TODO - update GetTemperatureByDate with the required logic for this service method.
 	// Add api_temperature_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
