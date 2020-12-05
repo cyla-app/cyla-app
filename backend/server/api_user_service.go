@@ -62,8 +62,8 @@ func (s *UserApiService) GetUserById(ctx context.Context, userId int64) (ImplRes
 	//TODO: Uncomment the next line to return response Response(200, User{}) or use other options such as http.Ok ...
 	//return Response(200, User{}), nil
 
-	//TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	//return Response(404, nil),nil
+	//TODO: Uncomment the next line to return response Response(404, string{}) or use other options such as http.Ok ...
+	//return Response(404, string{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("GetUserById method not implemented")
 }
