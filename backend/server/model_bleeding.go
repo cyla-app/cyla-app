@@ -13,9 +13,9 @@ package server
 type Bleeding struct {
 
 	// UUID
-	Id string `json:"id,omitempty"`
+	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Strength string `json:"strength,omitempty"`
+	Strength string `json:"strength,omitempty" mapstructure:"Strength"`
 
-	Exclude string `json:"exclude,omitempty"`
+	Exclude string `json:"exclude,omitempty" mapstructure:"Exclude"`
 }

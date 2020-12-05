@@ -13,13 +13,13 @@ package server
 type Cervix struct {
 
 	// UUID
-	Id string `json:"id,omitempty"`
+	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Opening string `json:"opening,omitempty"`
+	Opening string `json:"opening,omitempty" mapstructure:"Opening"`
 
-	Firmness string `json:"firmness,omitempty"`
+	Firmness string `json:"firmness,omitempty" mapstructure:"Firmness"`
 
-	Position string `json:"position,omitempty"`
+	Position string `json:"position,omitempty" mapstructure:"Position"`
 
-	Excluce string `json:"excluce,omitempty"`
+	Excluce string `json:"excluce,omitempty" mapstructure:"Excluce"`
 }

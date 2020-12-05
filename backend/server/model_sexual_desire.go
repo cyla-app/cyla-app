@@ -13,7 +13,7 @@ package server
 type SexualDesire struct {
 
 	// UUID
-	Id string `json:"id,omitempty"`
+	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Intensity string `json:"intensity,omitempty"`
+	Intensity string `json:"intensity,omitempty" mapstructure:"Intensity"`
 }

@@ -13,11 +13,11 @@ package server
 type CervicalMucus struct {
 
 	// UUID
-	Id string `json:"id,omitempty"`
+	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Feeling string `json:"feeling,omitempty"`
+	Feeling string `json:"feeling,omitempty" mapstructure:"Feeling"`
 
-	Texture string `json:"texture,omitempty"`
+	Texture string `json:"texture,omitempty" mapstructure:"Texture"`
 
-	Exclude string `json:"exclude,omitempty"`
+	Exclude string `json:"exclude,omitempty" mapstructure:"Exclude"`
 }

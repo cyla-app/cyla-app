@@ -13,7 +13,7 @@ package server
 type Mood struct {
 
 	// UUID
-	Id string `json:"id,omitempty"`
+	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Type string `json:"type,omitempty"`
+	Type string `json:"type,omitempty" mapstructure:"Type"`
 }

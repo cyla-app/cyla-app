@@ -13,7 +13,7 @@ package server
 type User struct {
 
 	// UUID
-	Id string `json:"id,omitempty"`
+	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	UserKeyBackup string `json:"user_key_backup,omitempty"`
+	UserKeyBackup string `json:"user_key_backup,omitempty" mapstructure:"UserKeyBackup"`
 }

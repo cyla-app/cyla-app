@@ -13,13 +13,13 @@ package server
 type Temperature struct {
 
 	// UUID
-	Id string `json:"id,omitempty"`
+	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Value string `json:"value,omitempty"`
+	Value string `json:"value,omitempty" mapstructure:"Value"`
 
-	Timestamp string `json:"timestamp,omitempty"`
+	Timestamp string `json:"timestamp,omitempty" mapstructure:"Timestamp"`
 
-	Note string `json:"note,omitempty"`
+	Note string `json:"note,omitempty" mapstructure:"Note"`
 
-	Exclude string `json:"exclude,omitempty"`
+	Exclude string `json:"exclude,omitempty" mapstructure:"Exclude"`
 }

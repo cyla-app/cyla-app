@@ -13,9 +13,9 @@ package server
 type SexualActivity struct {
 
 	// UUID
-	Id string `json:"id,omitempty"`
+	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Type string `json:"type,omitempty"`
+	Type string `json:"type,omitempty" mapstructure:"Type"`
 
-	Contraceptives string `json:"contraceptives,omitempty"`
+	Contraceptives string `json:"contraceptives,omitempty" mapstructure:"Contraceptives"`
 }

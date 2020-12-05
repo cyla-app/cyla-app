@@ -13,26 +13,26 @@ package server
 type Day struct {
 
 	// UUID
-	Id string `json:"id,omitempty"`
+	Id string `json:"id,omitempty" mapstructure:"Id"`
 
 	// Day key used to encrypt sensitive information for the day.
-	DayKey string `json:"day_key,omitempty"`
+	DayKey string `json:"day_key,omitempty" mapstructure:"DayKey"`
 
-	Version string `json:"version,omitempty"`
+	Version string `json:"version,omitempty" mapstructure:"Version"`
 
-	Date string `json:"date,omitempty"`
+	Date string `json:"date,omitempty" mapstructure:"Date"`
 
-	Bleeding Bleeding `json:"bleeding,omitempty"`
+	Bleeding Bleeding `json:"bleeding,omitempty" mapstructure:"Bleeding"`
 
-	Cervical CervicalMucus `json:"cervical,omitempty"`
+	Cervical CervicalMucus `json:"cervical,omitempty" mapstructure:"Cervical"`
 
-	Cervix Cervix `json:"cervix,omitempty"`
+	Cervix Cervix `json:"cervix,omitempty" mapstructure:"Cervix"`
 
-	SexActivity SexualActivity `json:"sexActivity,omitempty"`
+	SexActivity SexualActivity `json:"sexActivity,omitempty" mapstructure:"SexActivity"`
 
-	SexDesire SexualDesire `json:"sexDesire,omitempty"`
+	SexDesire SexualDesire `json:"sexDesire,omitempty" mapstructure:"SexDesire"`
 
-	Pain Pain `json:"pain,omitempty"`
+	Pain Pain `json:"pain,omitempty" mapstructure:"Pain"`
 
-	Mood Mood `json:"mood,omitempty"`
+	Mood Mood `json:"mood,omitempty" mapstructure:"Mood"`
 }
