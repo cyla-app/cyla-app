@@ -34,11 +34,7 @@ func (s *CylaRedisClient) SaveUser(ctx context.Context, user User) (string, erro
 		return "", err
 	}
 	user.Id = userId.String()
-	var redisUser map[string]interface{}
-	_ = mapstructure.Decode(user, &redisUser)
-	ret := s.HSet(ctx, fmt.Sprintf("user:%v", userId), redisUser)
-	fmt.Println(ret.Err())
-	return user.Id, ret.Err()
+	return user.Id, s.saveUserIntern(ctx, user)
 }
 
 func (s *CylaRedisClient) GetUser(ctx context.Context, userId string) (user User, err error) {
@@ -58,5 +54,18 @@ func (s *CylaRedisClient) GetRestoreDate(ctx context.Context, userId string) (ke
 	if ret.Err() == redis.Nil {
 		err = errors.New("user not found")
 	}
-	return EncryptedAttribute(ret.Val()), err
+	return ret.Val(), err
+}
+
+func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user User) error {
+	if user.Id != userId && user.Id != "" {
+		return errors.New("different userId in path and in request body")
+	}
+	return s.saveUserIntern(ctx, user)
+}
+
+func (s* CylaRedisClient) saveUserIntern(ctx context.Context,  user User) error {
+	var redisUser map[string]interface{}
+	_ = mapstructure.Decode(user, &redisUser)
+	return s.HSet(ctx, fmt.Sprintf("user:%v", user.Id), redisUser).Err()
 }

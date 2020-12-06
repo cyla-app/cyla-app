@@ -1,3 +1,3 @@
 package server
 
-type EncryptedAttribute string
+type EncryptedAttribute = string

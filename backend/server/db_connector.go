@@ -12,6 +12,7 @@ type UserPersistence interface {
 	SaveUser(ctx context.Context, user User) (userId string, err error)
 	GetUser(ctx context.Context, userId string) (User, error)
 	GetRestoreDate(ctx context.Context, userId string) (keyBackup EncryptedAttribute, err error)
+	UpdateUser(ctx context.Context, userId string, user User) error
 }
 
 var DBConnection DBConnector

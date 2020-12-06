@@ -11,8 +11,6 @@ package server
 
 import (
 	"context"
-	"errors"
-	"net/http"
 )
 
 // UserApiService is a service that implents the logic for the UserApiServicer
@@ -30,7 +28,7 @@ func NewUserApiService() UserApiServicer {
 func (s *UserApiService) CreateUser(ctx context.Context, user User) (ImplResponse, error) {
 	userId, err := DBConnection.SaveUser(ctx, user)
 	if err != nil {
-		return Response(400, err), nil
+		return Response(400, nil), err
 	} else {
 		return Response(200, userId), nil
 
@@ -59,14 +57,10 @@ func (s *UserApiService) GetUserById(ctx context.Context, userId string) (ImplRe
 
 // UpdateUser -
 func (s *UserApiService) UpdateUser(ctx context.Context, userId string, user User) (ImplResponse, error) {
-	// TODO - update UpdateUser with the required logic for this service method.
-	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	//TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
-	//return Response(200, nil),nil
-
-	//TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	//return Response(400, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("UpdateUser method not implemented")
+	err := DBConnection.UpdateUser(ctx, userId, user)
+	if err != nil {
+		return Response(400, nil), err
+	} else {
+		return Response(200, "Ok"), nil
+	}
 }
