@@ -17,3 +17,10 @@ type Mood struct {
 
 	Type EncryptedAttribute `json:"type,omitempty" mapstructure:"Type"`
 }
+
+func (s *Mood) GetIdFieldName() string {
+	return "Id"
+}
+func (s *Mood) GetTypeFieldName() string {
+	return "Type"
+}

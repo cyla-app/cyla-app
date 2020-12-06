@@ -21,4 +21,10 @@ type {{classname}} struct {
 	// {{{description}}}{{/description}}
 	{{name}} {{#isNullable}}*{{/isNullable}}{{{dataType}}} `json:"{{baseName}}{{^required}},omitempty{{/required}}"{{#vendorExtensions.x-go-custom-tag}} {{{.}}}{{/vendorExtensions.x-go-custom-tag}} mapstructure:"{{name}}"`
 {{/vars}}
-}{{/isEnum}}{{/model}}{{/models}}
+}
+{{#vars}}
+    func (s *{{classname}}) Get{{name}}FieldName() string {
+    return "{{name}}"
+    }
+{{/vars}}
+{{/isEnum}}{{/model}}{{/models}}

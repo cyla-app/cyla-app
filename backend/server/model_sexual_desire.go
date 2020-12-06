@@ -17,3 +17,10 @@ type SexualDesire struct {
 
 	Intensity EncryptedAttribute `json:"intensity,omitempty" mapstructure:"Intensity"`
 }
+
+func (s *SexualDesire) GetIdFieldName() string {
+	return "Id"
+}
+func (s *SexualDesire) GetIntensityFieldName() string {
+	return "Intensity"
+}

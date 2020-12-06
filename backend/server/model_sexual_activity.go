@@ -19,3 +19,13 @@ type SexualActivity struct {
 
 	Contraceptives EncryptedAttribute `json:"contraceptives,omitempty" mapstructure:"Contraceptives"`
 }
+
+func (s *SexualActivity) GetIdFieldName() string {
+	return "Id"
+}
+func (s *SexualActivity) GetTypeFieldName() string {
+	return "Type"
+}
+func (s *SexualActivity) GetContraceptivesFieldName() string {
+	return "Contraceptives"
+}

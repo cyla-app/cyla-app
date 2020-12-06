@@ -21,3 +21,16 @@ type CervicalMucus struct {
 
 	Exclude EncryptedAttribute `json:"exclude,omitempty" mapstructure:"Exclude"`
 }
+
+func (s *CervicalMucus) GetIdFieldName() string {
+	return "Id"
+}
+func (s *CervicalMucus) GetFeelingFieldName() string {
+	return "Feeling"
+}
+func (s *CervicalMucus) GetTextureFieldName() string {
+	return "Texture"
+}
+func (s *CervicalMucus) GetExcludeFieldName() string {
+	return "Exclude"
+}

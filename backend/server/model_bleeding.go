@@ -19,3 +19,13 @@ type Bleeding struct {
 
 	Exclude EncryptedAttribute `json:"exclude,omitempty" mapstructure:"Exclude"`
 }
+
+func (s *Bleeding) GetIdFieldName() string {
+	return "Id"
+}
+func (s *Bleeding) GetStrengthFieldName() string {
+	return "Strength"
+}
+func (s *Bleeding) GetExcludeFieldName() string {
+	return "Exclude"
+}
