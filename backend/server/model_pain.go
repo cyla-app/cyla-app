@@ -18,9 +18,9 @@ type Pain struct {
 	Type EncryptedAttribute `json:"type,omitempty" mapstructure:"Type"`
 }
 
-func (s *Pain) GetIdFieldName() string {
+func GetPainIdName() string {
 	return "Id"
 }
-func (s *Pain) GetTypeFieldName() string {
+func GetPainTypeName() string {
 	return "Type"
 }

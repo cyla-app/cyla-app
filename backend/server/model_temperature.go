@@ -24,18 +24,18 @@ type Temperature struct {
 	Exclude EncryptedAttribute `json:"exclude,omitempty" mapstructure:"Exclude"`
 }
 
-func (s *Temperature) GetIdFieldName() string {
+func GetTemperatureIdName() string {
 	return "Id"
 }
-func (s *Temperature) GetValueFieldName() string {
+func GetTemperatureValueName() string {
 	return "Value"
 }
-func (s *Temperature) GetTimestampFieldName() string {
+func GetTemperatureTimestampName() string {
 	return "Timestamp"
 }
-func (s *Temperature) GetNoteFieldName() string {
+func GetTemperatureNoteName() string {
 	return "Note"
 }
-func (s *Temperature) GetExcludeFieldName() string {
+func GetTemperatureExcludeName() string {
 	return "Exclude"
 }

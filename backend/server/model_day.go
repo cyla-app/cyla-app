@@ -37,36 +37,36 @@ type Day struct {
 	Mood Mood `json:"mood,omitempty" mapstructure:"Mood"`
 }
 
-func (s *Day) GetIdFieldName() string {
+func GetDayIdName() string {
 	return "Id"
 }
-func (s *Day) GetDayKeyFieldName() string {
+func GetDayDayKeyName() string {
 	return "DayKey"
 }
-func (s *Day) GetVersionFieldName() string {
+func GetDayVersionName() string {
 	return "Version"
 }
-func (s *Day) GetDateFieldName() string {
+func GetDayDateName() string {
 	return "Date"
 }
-func (s *Day) GetBleedingFieldName() string {
+func GetDayBleedingName() string {
 	return "Bleeding"
 }
-func (s *Day) GetCervicalFieldName() string {
+func GetDayCervicalName() string {
 	return "Cervical"
 }
-func (s *Day) GetCervixFieldName() string {
+func GetDayCervixName() string {
 	return "Cervix"
 }
-func (s *Day) GetSexActivityFieldName() string {
+func GetDaySexActivityName() string {
 	return "SexActivity"
 }
-func (s *Day) GetSexDesireFieldName() string {
+func GetDaySexDesireName() string {
 	return "SexDesire"
 }
-func (s *Day) GetPainFieldName() string {
+func GetDayPainName() string {
 	return "Pain"
 }
-func (s *Day) GetMoodFieldName() string {
+func GetDayMoodName() string {
 	return "Mood"
 }

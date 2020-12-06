@@ -23,7 +23,7 @@ type {{classname}} struct {
 {{/vars}}
 }
 {{#vars}}
-    func (s *{{classname}}) Get{{name}}FieldName() string {
+    func Get{{classname}}{{name}}Name() string {
     return "{{name}}"
     }
 {{/vars}}

@@ -24,18 +24,18 @@ type Cervix struct {
 	Excluce EncryptedAttribute `json:"excluce,omitempty" mapstructure:"Excluce"`
 }
 
-func (s *Cervix) GetIdFieldName() string {
+func GetCervixIdName() string {
 	return "Id"
 }
-func (s *Cervix) GetOpeningFieldName() string {
+func GetCervixOpeningName() string {
 	return "Opening"
 }
-func (s *Cervix) GetFirmnessFieldName() string {
+func GetCervixFirmnessName() string {
 	return "Firmness"
 }
-func (s *Cervix) GetPositionFieldName() string {
+func GetCervixPositionName() string {
 	return "Position"
 }
-func (s *Cervix) GetExcluceFieldName() string {
+func GetCervixExcluceName() string {
 	return "Excluce"
 }

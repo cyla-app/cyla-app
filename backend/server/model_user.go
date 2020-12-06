@@ -18,9 +18,9 @@ type User struct {
 	UserKeyBackup EncryptedAttribute `json:"user_key_backup,omitempty" mapstructure:"UserKeyBackup"`
 }
 
-func (s *User) GetIdFieldName() string {
+func GetUserIdName() string {
 	return "Id"
 }
-func (s *User) GetUserKeyBackupFieldName() string {
+func GetUserUserKeyBackupName() string {
 	return "UserKeyBackup"
 }
