@@ -10,6 +10,8 @@ import (
 	"os"
 )
 
+const userPrefixKey = "user"
+
 type CylaRedisClient struct {
 	*redis.Client
 }
@@ -39,7 +41,7 @@ func (s *CylaRedisClient) SaveUser(ctx context.Context, user User) (string, erro
 
 func (s *CylaRedisClient) GetUser(ctx context.Context, userId string) (user User, err error) {
 	var ret map[string]string
-	ret, err = s.HGetAll(ctx, fmt.Sprintf("user:%v", userId)).Result()
+	ret, err = s.HGetAll(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId)).Result()
 	if len(ret) == 0 {
 		return User{}, errors.New("user not found")
 	} else if err != nil {
@@ -50,7 +52,7 @@ func (s *CylaRedisClient) GetUser(ctx context.Context, userId string) (user User
 }
 
 func (s *CylaRedisClient) GetRestoreDate(ctx context.Context, userId string) (keyBackup EncryptedAttribute, err error) {
-	ret := s.HGet(ctx, fmt.Sprintf("user:%v", userId), GetUserUserKeyBackupName())
+	ret := s.HGet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId), GetUserUserKeyBackupName())
 	if ret.Err() == redis.Nil {
 		err = errors.New("user not found")
 	}
@@ -67,5 +69,5 @@ func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user Us
 func (s* CylaRedisClient) saveUserIntern(ctx context.Context,  user User) error {
 	var redisUser map[string]interface{}
 	_ = mapstructure.Decode(user, &redisUser)
-	return s.HSet(ctx, fmt.Sprintf("user:%v", user.Id), redisUser).Err()
+	return s.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser).Err()
 }
