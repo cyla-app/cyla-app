@@ -28,16 +28,13 @@ func NewUserApiService() UserApiServicer {
 
 // CreateUser -
 func (s *UserApiService) CreateUser(ctx context.Context, user User) (ImplResponse, error) {
-	// TODO - update CreateUser with the required logic for this service method.
-	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	userId, err := DBConnection.SaveUser(ctx, user)
+	if err != nil {
+		return Response(400, err),nil
+	} else {
+		return Response(200, userId), nil
 
-	//TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
-	//return Response(200, nil),nil
-
-	//TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	//return Response(400, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("CreateUser method not implemented")
+	}
 }
 
 // GetRestoreData -
@@ -56,16 +53,12 @@ func (s *UserApiService) GetRestoreData(ctx context.Context, userId string) (Imp
 
 // GetUserById -
 func (s *UserApiService) GetUserById(ctx context.Context, userId string) (ImplResponse, error) {
-	// TODO - update GetUserById with the required logic for this service method.
-	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	//TODO: Uncomment the next line to return response Response(200, User{}) or use other options such as http.Ok ...
-	//return Response(200, User{}), nil
-
-	//TODO: Uncomment the next line to return response Response(404, string{}) or use other options such as http.Ok ...
-	//return Response(404, string{}), nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("GetUserById method not implemented")
+	user, err := DBConnection.GetUser(ctx, userId)
+	if err != nil {
+		return Response(404, user), err
+	} else {
+		return Response(200, user), nil
+	}
 }
 
 // UpdateUser -
