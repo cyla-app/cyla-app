@@ -15,7 +15,7 @@ type SexualActivity struct {
 	// UUID
 	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Type string `json:"type,omitempty" mapstructure:"Type"`
+	Type EncryptedAttribute `json:"type,omitempty" mapstructure:"Type"`
 
-	Contraceptives string `json:"contraceptives,omitempty" mapstructure:"Contraceptives"`
+	Contraceptives EncryptedAttribute `json:"contraceptives,omitempty" mapstructure:"Contraceptives"`
 }

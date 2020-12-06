@@ -29,7 +29,6 @@ func NewRedisClient() (*CylaRedisClient, error) {
 
 }
 
-
 func (s *CylaRedisClient) SaveUser(ctx context.Context, user User) (string, error) {
 	userId, err := uuid.NewRandom()
 	if err != nil {
@@ -42,7 +41,6 @@ func (s *CylaRedisClient) SaveUser(ctx context.Context, user User) (string, erro
 	fmt.Println(ret.Err())
 	return user.Id, ret.Err()
 }
-
 
 func (s *CylaRedisClient) GetUser(ctx context.Context, userId string) (user User, err error) {
 	var ret map[string]string

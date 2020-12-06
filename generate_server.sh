@@ -16,6 +16,7 @@ docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
 	-o /local/${GO_SOURCE_PATH} \
 	--git-repo-id cyla-app --git-user-id cyla-app \
 	--package-name ${GEN_GO_PACKAGE_NAME} \
+	--import-mappings EncryptedAttribute=server.EncryptedAttribute \
 	--additional-properties=serverPort=5000,sourceFolder=${GEN_GO_PACKAGE_NAME}
 
 # Remove the api folder where usually the api specification is saved.

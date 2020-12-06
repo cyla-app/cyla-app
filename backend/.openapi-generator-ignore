@@ -9,3 +9,4 @@ Dockerfile
 go.mod
 api/*
 README.md
+server/api_user_service.go

@@ -15,5 +15,5 @@ type SexualDesire struct {
 	// UUID
 	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Intensity string `json:"intensity,omitempty" mapstructure:"Intensity"`
+	Intensity EncryptedAttribute `json:"intensity,omitempty" mapstructure:"Intensity"`
 }

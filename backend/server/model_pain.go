@@ -15,5 +15,5 @@ type Pain struct {
 	// UUID
 	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Type string `json:"type,omitempty" mapstructure:"Type"`
+	Type EncryptedAttribute `json:"type,omitempty" mapstructure:"Type"`
 }

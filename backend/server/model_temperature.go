@@ -15,11 +15,11 @@ type Temperature struct {
 	// UUID
 	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Value string `json:"value,omitempty" mapstructure:"Value"`
+	Value EncryptedAttribute `json:"value,omitempty" mapstructure:"Value"`
 
-	Timestamp string `json:"timestamp,omitempty" mapstructure:"Timestamp"`
+	Timestamp EncryptedAttribute `json:"timestamp,omitempty" mapstructure:"Timestamp"`
 
-	Note string `json:"note,omitempty" mapstructure:"Note"`
+	Note EncryptedAttribute `json:"note,omitempty" mapstructure:"Note"`
 
-	Exclude string `json:"exclude,omitempty" mapstructure:"Exclude"`
+	Exclude EncryptedAttribute `json:"exclude,omitempty" mapstructure:"Exclude"`
 }

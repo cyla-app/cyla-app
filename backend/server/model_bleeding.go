@@ -15,7 +15,7 @@ type Bleeding struct {
 	// UUID
 	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Strength string `json:"strength,omitempty" mapstructure:"Strength"`
+	Strength EncryptedAttribute `json:"strength,omitempty" mapstructure:"Strength"`
 
-	Exclude string `json:"exclude,omitempty" mapstructure:"Exclude"`
+	Exclude EncryptedAttribute `json:"exclude,omitempty" mapstructure:"Exclude"`
 }

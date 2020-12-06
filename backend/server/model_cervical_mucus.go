@@ -15,9 +15,9 @@ type CervicalMucus struct {
 	// UUID
 	Id string `json:"id,omitempty" mapstructure:"Id"`
 
-	Feeling string `json:"feeling,omitempty" mapstructure:"Feeling"`
+	Feeling EncryptedAttribute `json:"feeling,omitempty" mapstructure:"Feeling"`
 
-	Texture string `json:"texture,omitempty" mapstructure:"Texture"`
+	Texture EncryptedAttribute `json:"texture,omitempty" mapstructure:"Texture"`
 
-	Exclude string `json:"exclude,omitempty" mapstructure:"Exclude"`
+	Exclude EncryptedAttribute `json:"exclude,omitempty" mapstructure:"Exclude"`
 }

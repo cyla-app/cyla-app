@@ -19,7 +19,6 @@ server/api_pain_service.go
 server/api_temperature.go
 server/api_temperature_service.go
 server/api_user.go
-server/api_user_service.go
 server/helpers.go
 server/impl.go
 server/logger.go
