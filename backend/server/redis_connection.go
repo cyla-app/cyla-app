@@ -4,11 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
+	"os"
 )
 
 type CylaRedisClient struct {
@@ -50,8 +49,14 @@ func (s *CylaRedisClient) GetUser(ctx context.Context, userId string) (user User
 	} else if err != nil {
 		return User{}, err
 	}
-	fmt.Println(ret)
 	err = mapstructure.Decode(ret, &user)
-	fmt.Println(user)
 	return user, err
+}
+
+func (s *CylaRedisClient) GetRestoreDate(ctx context.Context, userId string) (keyBackup EncryptedAttribute, err error) {
+	ret := s.HGet(ctx, fmt.Sprintf("user:%v", userId), GetUserUserKeyBackupName())
+	if ret.Err() == redis.Nil {
+		err = errors.New("user not found")
+	}
+	return EncryptedAttribute(ret.Val()), err
 }
