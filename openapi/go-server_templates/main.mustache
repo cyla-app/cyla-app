@@ -10,6 +10,8 @@ import (
 
 func main() {
 	log.Printf("Server started")
+    // Initialize DB connection as global variable
+    {{packageName}}.InitializeDBConnection()
 {{#apiInfo}}{{#apis}}
 	{{classname}}Service := {{packageName}}.New{{classname}}Service()
 	{{classname}}Controller := {{packageName}}.New{{classname}}Controller({{classname}}Service)

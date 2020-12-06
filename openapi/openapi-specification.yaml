@@ -23,6 +23,10 @@ paths:
       responses:
         "200":
           description: User created
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Id"
         "400":
           description: Invalid client request
   /user/{userId}:
