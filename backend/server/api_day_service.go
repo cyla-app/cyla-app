@@ -28,16 +28,12 @@ func NewDayApiService() DayApiServicer {
 
 // CreateDayEntry -
 func (s *DayApiService) CreateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
-	// TODO - update CreateDayEntry with the required logic for this service method.
-	// Add api_day_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	//TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
-	//return Response(200, nil),nil
-
-	//TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	//return Response(404, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("CreateDayEntry method not implemented")
+	//TODO Server-error vs client-error
+	err := DBConnection.CreateDayEntry(ctx, userId, day)
+	if err != nil {
+		return Response(404, ""), err
+	}
+	return Response(200, "Ok"), nil
 }
 
 // GetDayByUserAndRange -
@@ -56,16 +52,13 @@ func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string,
 
 // GetDaysByUserIdAndDate -
 func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ImplResponse, error) {
-	// TODO - update GetDaysByUserIdAndDate with the required logic for this service method.
-	// Add api_day_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	//TODO Server-error vs client-error
+	days, err := DBConnection.GetDaysByUserIdAndDate(ctx, userId, date)
+	if err != nil {
+		return Response(404, []Day{}), err
+	}
 
-	//TODO: Uncomment the next line to return response Response(200, []Day{}) or use other options such as http.Ok ...
-	//return Response(200, []Day{}), nil
-
-	//TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	//return Response(404, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("GetDaysByUserIdAndDate method not implemented")
+	return Response(200, days), nil
 }
 
 // UpdateDayEntry -

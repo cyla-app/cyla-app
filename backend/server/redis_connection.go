@@ -12,6 +12,7 @@ import (
 )
 
 const userPrefixKey = "user"
+const dayPrefixKey = "day"
 
 type CylaRedisClient struct {
 	*redis.Client
@@ -31,7 +32,8 @@ func NewRedisClient() (*CylaRedisClient, error) {
 
 }
 
-func (s *CylaRedisClient) SaveUser(ctx context.Context, user User) (string, error) {
+func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, error) {
+	// TODO: Error if user exists already
 	userId, err := uuid.NewRandom()
 	if err != nil {
 		return "", err
@@ -71,4 +73,38 @@ func (s *CylaRedisClient) saveUserIntern(ctx context.Context, user User) error {
 	var redisUser map[string]interface{}
 	_ = mapstructure.Decode(user, &redisUser)
 	return s.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser).Err()
+}
+
+func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day Day) error {
+	var redisDay map[string]interface{}
+	_ = mapstructure.Decode(day, &redisDay)
+
+	//TODO: Consistency if user does not exist
+	// TODO: Error if date exists already
+	return s.HSet(ctx,
+		fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date),
+		redisDay).Err()
+}
+
+func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []Date) (days []Day, err error) {
+	fmt.Println(dates)
+	for _, date := range dates {
+		var ret map[string]string
+		ret, err = s.HGetAll(ctx, fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, date)).Result()
+		if len(ret) == 0 {
+			return nil, errors.New("day not found")
+		} else if err != nil {
+			return nil, err
+		}
+
+		day := Day{}
+		err = mapstructure.Decode(ret, &day)
+
+		if err != nil {
+			return nil, err
+		}
+		days = append(days, day)
+	}
+
+	return days, nil
 }
