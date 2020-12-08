@@ -5,7 +5,6 @@ import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { CompositeNavigationProp } from '@react-navigation/native'
-import PeriodCircle from '../components/PeriodCircle'
 import DayDataEntry from '../components/DayDataEntry'
 import DecryptionService from '../decryption/DecryptionService'
 import { TabsParamList } from '../navigation/TabBarNavigation'
@@ -29,7 +28,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
 
       <CalendarStrip
         onDaySelected={() => {
-          new DecryptionService().fetchUserBlob('test')
+          new DecryptionService().setupUserKey()
           navigation.navigate('Add')
         }}
       />

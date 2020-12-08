@@ -88,6 +88,9 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
         getPreferences().edit()
             .putBase64("userKeyCell", userKeyCell)
             .apply()
+
+        Toast.makeText(reactApplicationContext, "stored phrase: " + passphrase, Toast.LENGTH_LONG).show()
+
         return userKey
     }
 
@@ -98,7 +101,7 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
         val passphraseCipherText = getPreferences().getBase64("passphraseCipherText")!!
         val passphrase = decryptPassphrase(passphraseCipherText, passphraseIV)
 
-        Toast.makeText(reactApplicationContext, passphrase, Toast.LENGTH_LONG).show()
+        Toast.makeText(reactApplicationContext, "loaded phrase: " + passphrase, Toast.LENGTH_LONG).show()
 
         val userKeyCell = SealWithPassphrase(passphrase)
 
@@ -130,8 +133,9 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
         } else {
             storeNewUserKey(passphrase)
         }
-
+       
         // create account with userKeyCell
+        promise.resolve(null)
     }
 
 
@@ -139,6 +143,6 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     fun fetchUserBlob(userId: String, promise: Promise) {
 //        initializeUserKey(userId, "pass123phrase", promise)
 //        Toast.makeText(reactApplicationContext, userId, Toast.LENGTH_LONG).show()
-        promise.resolve(userId);
+        promise.resolve(userId)
     }
 }
