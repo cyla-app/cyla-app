@@ -6,6 +6,8 @@ import {
 import AddScreen from '../screens/AddScreen'
 import { NavigatorScreenParams } from '@react-navigation/native'
 import TabBarNavigation, { TabsParamList } from './TabBarNavigation'
+import { StatusBar } from 'react-native'
+import { useTheme } from 'react-native-paper'
 
 export type MainStackParamList = {
   Tabs: NavigatorScreenParams<TabsParamList>
@@ -16,8 +18,15 @@ export type MainStackParamList = {
 const Stack = createStackNavigator<MainStackParamList>()
 
 export default () => {
+  const { colors } = useTheme()
+
   return (
     <>
+      <StatusBar
+        barStyle={'dark-content'}
+        backgroundColor={colors.background}
+        animated
+      />
       <Stack.Navigator screenOptions={{ headerShown: false }} mode="modal">
         <Stack.Screen name="Tabs" component={TabBarNavigation} />
         <Stack.Screen
