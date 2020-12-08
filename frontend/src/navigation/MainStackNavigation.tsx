@@ -36,7 +36,7 @@ export default () => {
             ...TransitionPresets.ModalSlideFromBottomIOS,
             gestureEnabled: true,
             gestureResponseDistance: {
-              vertical: 200,
+              vertical: 500,
             },
             cardStyle: {
               backgroundColor: 'transparent',

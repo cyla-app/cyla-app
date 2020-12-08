@@ -3,10 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import DailyScreen from '../screens/DailyScreen'
 import CalendarScreen from '../screens/CalendarScreen'
 import NYIScreen from '../screens/NYIScreen'
-import DailyIcon from './tabbaricons/DailyIcon'
-import CalendarIcon from './tabbaricons/CalendarIcon'
-import StatisticsIcon from './tabbaricons/StatisticsIcon'
-import ProfileIcon from './tabbaricons/ProfileIcon'
+import DailyIcon from './icons/DailyIcon'
+import CalendarIcon from './icons/CalendarIcon'
+import StatisticsIcon from './icons/StatisticsIcon'
+import ProfileIcon from './icons/ProfileIcon'
 import AnimatedTabBar, {
   BubbleTabBarItemConfig,
   TabsConfig,
