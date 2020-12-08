@@ -4,17 +4,25 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import android.widget.Toast
+import app.cyla.api.apis.DayApi
 import app.cyla.api.apis.UserApi
 import app.cyla.api.models.User
 import app.cyla.decryption.AndroidEnclave.Companion.decryptPassphrase
 import app.cyla.decryption.AndroidEnclave.Companion.encryptPassphrase
 import app.cyla.decryption.ThemisOperations.Companion.createUserKey
 import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
+import app.cyla.decryption.models.Day
+import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.squareup.moshi.JsonAdapter
+
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import java.time.LocalDate
 
 
 class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
@@ -108,9 +116,27 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     }
 
     @ReactMethod
-    fun postDay(userId: String, promise: Promise) {
+    fun postDay(dayJson: String, promise: Promise) {
+        val moshi = Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
+        val jsonAdapter: JsonAdapter<Day> = moshi.adapter(Day::class.java)
+
+        // Transform for validation
+        val day: Day? = jsonAdapter.fromJson(dayJson)
+        println(day!!.bleeding!!.strength)
+
+        DayApi().createDayEntry(
+            getAppStorage().getUserId()!!, app.cyla.api.models.Day(
+                null,
+                ByteArray(0), // FIXME
+                LocalDate.now(),
+                SecureCell.SealWithKey(userKey).encrypt(dayJson.toByteArray())
+            )
+        )
+
 //        initializeUserKey(userId, "pass123phrase", promise)
 //        Toast.makeText(reactApplicationContext, userId, Toast.LENGTH_LONG).show()
-        promise.resolve(userId)
+        promise.resolve("userId")
     }
 }

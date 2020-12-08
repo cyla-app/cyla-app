@@ -106,13 +106,11 @@ export default ({ onAdd }: { onAdd: (day: Day) => void }) => {
       <Button
         onPress={() => {
           onAdd({
-            bleeding: undefined,
+            bleeding: {
+              strength: 5,
+            },
             cervical: undefined,
             cervix: undefined,
-            sexActivity: undefined,
-            sexDesire: undefined,
-            pain: undefined,
-            mood: undefined,
           })
         }}
         mode="contained"

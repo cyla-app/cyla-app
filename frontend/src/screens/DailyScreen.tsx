@@ -7,6 +7,7 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { CompositeNavigationProp } from '@react-navigation/native'
 import DayDataEntry from '../components/DayDataEntry'
 import { TabsParamList } from '../navigation/TabBarNavigation'
+import DecryptionService from '../decryption/DecryptionService'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -25,7 +26,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
 
       <DayDataEntry
         onAdd={(day) => {
-          console.log(day)
+          new DecryptionService().postDay(day)
         }}
       />
 

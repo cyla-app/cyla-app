@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native'
+import { Day } from '../../generated'
 
 // This type is determined by app.cyla.decryption.DecryptionModule
 type DecryptionModuleType = {
@@ -11,8 +12,8 @@ type DecryptionModuleType = {
 const DecryptionModule: DecryptionModuleType = NativeModules.DecryptionModule
 
 export default class DecryptionService {
-  async postDay(userId: string) {
-    await DecryptionModule.postDay(userId)
+  async postDay(day: Day) {
+    await DecryptionModule.postDay(JSON.stringify(day))
   }
 
   async setupUserKey(passphrase?: string) {

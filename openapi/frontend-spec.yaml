@@ -1,0 +1,101 @@
+openapi: 3.0.3
+info:
+  description: ""
+  version: 0.1.0
+  title: "Cyla App Frontend Types"
+servers: []
+paths: {}
+components:
+  schemas:
+    Day:
+      type: object
+      description: A Day entry
+      properties:
+        bleeding:
+          $ref: "#/components/schemas/Bleeding"
+        cervical:
+          $ref: "#/components/schemas/CervicalMucus"
+        cervix:
+          $ref: "#/components/schemas/Cervix"
+#        sexActivity:
+#          $ref: "#/components/schemas/SexualActivity"
+#        sexDesire:
+#          $ref: "#/components/schemas/SexualDesire"
+#        pain:
+#          $ref: "#/components/schemas/Pain"
+#        mood:
+#          $ref: "#/components/schemas/Mood"
+        excludeReason:
+          type: string
+          enum: [ sick, hungover, sleep ]
+    Bleeding:
+      type: object
+      description: Bleeding information for a day
+      properties:
+        strength:
+          type: integer
+          minimum: 1
+          maximum: 10
+    Temperature:
+      type: object
+      description: Temperature information for a day
+      properties:
+        value:
+          type: number
+        timestamp:
+          type: string
+          format: date
+          description: defined by RFC 3339, section 5.6, for example, 2017-07-21
+        note:
+          type: string
+          maxLength: 500
+    CervicalMucus:
+      type: object
+      description: Cervical Mucus information for a day
+      properties:
+        feeling:
+          type: string
+          enum: [dry, nothing, wet, slippery]
+        texture:
+          type: string
+          enum: [nothing, creamy, egg white]
+    Cervix:
+      type: object
+      description: Cervix information for a day
+      properties:
+        opening:
+          type: string
+          enum: [closed, medium, raised]
+        firmness:
+          type: string
+          enum: [low, soft]
+        position:
+          type: string
+          enum: [ low, medium, high ]
+#    Mood:
+#      type: object
+#      description: Mood information for a day
+#      properties:
+#        type:
+#          $ref: "#/components/schemas/EncryptedAttribute"
+#    Pain:
+#      type: object
+#      description: Pain information for a day
+#      properties:
+#        type:
+#          type: string
+#          enum: [ cramps, ovulation pain, headache, backache, nausea, tender breasts, migraine, other ]
+#    SexualDesire:
+#      type: object
+#      description: Sexual desire information for a day
+#      properties:
+#        intensity:
+#          $ref: "#/components/schemas/EncryptedAttribute"
+#    SexualActivity:
+#      type: object
+#      description: Sexual activity information for a day
+#      properties:
+#        type:
+#          $ref: "#/components/schemas/EncryptedAttribute"
+#        contraceptives:
+#          $ref: "#/components/schemas/EncryptedAttribute"
