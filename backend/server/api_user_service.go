@@ -26,7 +26,7 @@ func NewUserApiService() UserApiServicer {
 
 // CreateUser -
 func (s *UserApiService) CreateUser(ctx context.Context, user User) (ImplResponse, error) {
-	userId, err := DBConnection.SaveUser(ctx, user)
+	userId, err := DBConnection.CreateUser(ctx, user)
 	if err != nil {
 		return Response(400, nil), err
 	} else {

@@ -16,12 +16,12 @@ docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
 	-o /local/${GO_SOURCE_PATH} \
 	--git-repo-id cyla-app --git-user-id cyla-app \
 	--package-name ${GEN_GO_PACKAGE_NAME} \
-	--import-mappings EncryptedAttribute=server.EncryptedAttribute \
+	--import-mappings EncryptedAttribute=server.EncryptedAttribute,Date=server.Date \
 	--additional-properties=serverPort=5000,sourceFolder=${GEN_GO_PACKAGE_NAME}
 
 # Remove the api folder where usually the api specification is saved.
 rmdir "${GO_SOURCE_PATH}/api"
 
-# openapi-generator add some redundant dependencies. We use goimports (https://godoc.org/golang.org/x/tools/cmd/goimports) to clean those imports.
+# openapi-generator adds some redundant dependencies. We use goimports (https://godoc.org/golang.org/x/tools/cmd/goimports) to clean those imports.
 goimports -w ${GO_SOURCE_PATH}/**/*.go
 	 

@@ -12,22 +12,16 @@ package server
 // Day - A Day entry
 type Day struct {
 
-	// UUID
-	Id string `json:"id,omitempty" mapstructure:"Id"`
-
 	// Day key used to encrypt sensitive information for the day.
 	DayKey string `json:"day_key,omitempty" mapstructure:"DayKey"`
 
 	Version string `json:"version,omitempty" mapstructure:"Version"`
 
-	Date string `json:"date,omitempty" mapstructure:"Date"`
+	Date Date `json:"date,omitempty" mapstructure:"Date"`
 
 	DayInfo EncryptedAttribute `json:"dayInfo,omitempty" mapstructure:"DayInfo"`
 }
 
-func GetDayIdName() string {
-	return "Id"
-}
 func GetDayDayKeyName() string {
 	return "DayKey"
 }

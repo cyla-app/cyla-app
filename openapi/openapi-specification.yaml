@@ -207,6 +207,9 @@ components:
     EncryptedAttribute:
       type: string
       format: byte
+    Date:
+      type: string
+      format: date
     Id:
       type: string
       description: UUID
@@ -222,8 +225,6 @@ components:
       type: object
       description: A Day entry
       properties:
-        id:
-          $ref: "#/components/schemas/Id"
         day_key:
           format: byte
           type: string
@@ -232,7 +233,6 @@ components:
           format: byte
           type: string
         date:
-          format: date
-          type: string
+          $ref: "#/components/schemas/Date"
         dayInfo:
           $ref: "#/components/schemas/EncryptedAttribute"
