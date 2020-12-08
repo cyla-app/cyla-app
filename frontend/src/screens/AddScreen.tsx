@@ -5,6 +5,7 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import DayDataEntry from '../components/DayDataEntry'
 import { format } from 'date-fns'
+import DecryptionService from '../decryption/DecryptionService'
 
 type AddScreenNavigationProp = StackNavigationProp<MainStackParamList, 'Add'>
 

@@ -4,7 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
-import app.cyla.api.models.CervicalMucus;
+import app.cyla.api.models.User;
+import app.cyla.decryption.DecryptionModule;
 import com.cossacklabs.themis.InvalidArgumentException;
 import com.cossacklabs.themis.NullArgumentException;
 import com.cossacklabs.themis.SecureCell;
@@ -32,6 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
                     List<ReactPackage> packages = new PackageList(this).getPackages();
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     // packages.add(new MyReactNativePackage());
+                    packages.add(new MainPackage());
                     return packages;
                 }
 
@@ -57,7 +59,7 @@ public class MainApplication extends Application implements ReactApplication {
             e.printStackTrace();
         }
         
-        new CervicalMucus().getFeeling();
+        new User().getId();
     }
 
     void encryptDataForStoring() throws SecureCellException, NullArgumentException, InvalidArgumentException {

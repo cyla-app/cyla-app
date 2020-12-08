@@ -222,6 +222,8 @@ dependencies {
     }
 
     implementation 'com.cossacklabs.com:themis:0.13.1'
+    implementation "androidx.security:security-crypto:1.0.0-rc03" // FIXME: Update to stable
+
 }
 
 // Run this once to be able to run the application with BUCK
@@ -233,7 +235,7 @@ task copyDownloadableDepsToLibs(type: Copy) {
 
 openApiGenerate {
     generatorName = "kotlin"
-    inputSpec = "$rootDir/../../docs/openapi-specification.yaml".toString()
+    inputSpec = "$rootDir/../../openapi/openapi-specification.yaml".toString()
     outputDir = "$buildDir/generated/api-client".toString()
     packageName = "app.cyla.api"
     modelFilesConstrainedTo = [
