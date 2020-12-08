@@ -12,7 +12,9 @@ services:
     volumes:
     - ./store:/data
   app:
-    image: "air_with_dependencies:v1.15.1"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-cosmtrek-air
     working_dir: '/go/src/github.com/cyla-app/cyla-app'
     ports:
       - "5000:5000"
