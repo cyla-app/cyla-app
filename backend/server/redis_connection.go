@@ -4,12 +4,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 )
+
+func loadLuaScript(scriptPath string) *redis.Script {
+	arr, err := ioutil.ReadFile(scriptPath)
+	if err != nil {
+		panic(err)
+	}
+	return redis.NewScript(string(arr))
+}
+
+var addDayScript = loadLuaScript("resources/create_day_script.lua")
 
 const userPrefixKey = "user"
 const dayPrefixKey = "day"
@@ -23,11 +34,13 @@ func NewRedisClient() (*CylaRedisClient, error) {
 	if !ok {
 		return nil, errors.New("redis password not set")
 	} else {
-		return &CylaRedisClient{redis.NewClient(&redis.Options{
+		cylaClient := CylaRedisClient{redis.NewClient(&redis.Options{
 			Addr:     "redis:6379",
 			Password: redisPassword,
 			DB:       0,
-		})}, nil
+		})}
+		addDayScript.Load(context.Background(), cylaClient)
+		return &cylaClient, nil
 	}
 
 }
@@ -80,21 +93,20 @@ func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day
 	var redisDay map[string]interface{}
 	_ = mapstructure.Decode(day, &redisDay)
 
-	//TODO: Consistency if user does not exist
-	pipeline := s.TxPipeline()
-	numAddedCmd := pipeline.ZAddNX(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey), &redis.Z{Score: 0, Member: day.Date})
-	pipeline.HSet(ctx,
-		fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date),
-		redisDay)
-	_, err := pipeline.Exec(ctx)
+	valList, _ := flatStructToStringList(day)
+	opResult, err := addDayScript.Run(ctx, s,
+		[]string{
+			fmt.Sprintf("%v:%v", userPrefixKey, userId),
+			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
+			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date)},
+		append([]interface{}{day.Date}, valList...)).Int()
 	if err != nil {
 		return err
 	}
-	if numAddedCmd.Val() == 0 {
-		return errors.New("entry for date already in database")
-	}
-	if numAddedCmd.Val() == 0 {
-		return err
+	if opResult == 0 {
+		fmt.Println(opResult)
+		//TODO: Differentiate between no user and data already there?
+		return errors.New("entry for date already in database or user doesn't exist")
 	}
 	return nil
 
