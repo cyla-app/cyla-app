@@ -137,8 +137,7 @@ paths:
           schema:
             type: array
             items:
-              format: date
-              type: string
+              $ref: "#/components/schemas/Date"
       responses:
         "200":
           $ref: "#/components/responses/DaysFound"
@@ -157,15 +156,13 @@ paths:
           description: start date
           required: true
           schema:
-            format: date
-            type: string
+            $ref: "#/components/schemas/Date"
         - name: endDate
           in: query
           description: end date
           required: false
           schema:
-            format: date
-            type: string
+            $ref: "#/components/schemas/Date"
       responses:
         "200":
           $ref: "#/components/responses/DaysFound"
@@ -186,8 +183,7 @@ components:
       in: query
       required: true
       schema:
-        format: date
-        type: string
+        $ref: "#/components/schemas/Date"
   responses:
     DaysFound:
       description: (Empty) list of days found
