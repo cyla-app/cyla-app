@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import android.util.Log
 import android.widget.Toast
 import app.cyla.api.apis.UserApi
 import app.cyla.api.models.User
@@ -139,17 +140,26 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
         return plainText.toString(Charset.forName("UTF-8"))
     }
 
+    fun resetPreferences() {
+        getPreferences().edit().clear().apply()
+    }
+
     @ReactMethod
     fun setupUserKey(passphrase: String?, promise: Promise) {
-        val userKey: SymmetricKey = if (passphrase == null) {
-            loadExistingUserKey()
-        } else {
-            storeNewUserKey(passphrase)
+        try {
+            val userKey: SymmetricKey = if (passphrase == null) {
+                loadExistingUserKey()
+            } else {
+                storeNewUserKey(passphrase)
+            }
+
+            UserApi().createUser(User(null, userKey.toByteArray()))
+        } catch (e: Exception) {
+            Log.e("DecryptionModule", e.message, e)
+            resetPreferences()
+            promise.reject(e)
         }
         
-        UserApi().createUser(User(null, userKey.toByteArray()))
-
-        // create account with userKeyCell
         promise.resolve(null)
     }
 
