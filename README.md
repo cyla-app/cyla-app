@@ -13,6 +13,18 @@
 1. `npm instal`
 1. `npx react-native start`
 
+### Inspect app preferences
+
+Inspect encryption storage:
+```bash
+adb shell cat /data/data/app.cyla/shared_prefs/encryption_storage.xml
+```
+
+Inspect app storage:
+```bash
+adb shell cat /data/data/app.cyla/shared_prefs/app_storage.xml
+```
+
 ## Docker
 
 1. Create a `.env` file in the project root. Fill it according to `.env.example`.

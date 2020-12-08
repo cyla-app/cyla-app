@@ -11,6 +11,7 @@ import AnimatedTabBar, {
   BubbleTabBarItemConfig,
   TabsConfig,
 } from '@gorhom/animated-tabbar'
+import ProfileScreen from '../screens/ProfileScreen'
 
 export type TabsParamList = {
   Daily: undefined
@@ -91,7 +92,7 @@ export default () => {
         <Tab.Screen name="Daily" component={DailyScreen} />
         <Tab.Screen name="Calendar" component={CalendarScreen} />
         <Tab.Screen name="Statistics" component={NYIScreen} />
-        <Tab.Screen name="Profile" component={NYIScreen} />
+        <Tab.Screen name="Profile" component={ProfileScreen} />
       </Tab.Navigator>
     </>
   )
