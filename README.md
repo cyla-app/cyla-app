@@ -16,9 +16,7 @@
 ## Docker
 
 1. Create a `.env` file in the project root. Fill it according to `.env.example`.
-1. Build docker container: `sudo docker build backend/air_with_dependencies --tag air_with_dependencies:v1.15.1`
 1. Start all containers: `sudo docker-compose up`
-
 
 ### Docker Services
 
@@ -27,16 +25,15 @@
 
 Port: 5000
 
-#### db
-> PostgreSQL database
+#### redis
 
-Port: default
+> Used as key-value database
 
-#### adminer
-> DB inspection tool
+Port: 6379
 
-Port: 8080
+#### Inspecting database
 
-To login click [here](http://localhost:8080/?pgsql=db&username=postgres&db=cyla&password=postgres) and use the following settings (PW is postgres):
-
-![](./docs/adminer_login.png)
+1. First get the redis container id `docker ps`
+1. Then use the id to start redis-cli: `docker exec -i -t <id> redis-cli`
+1. Execute `keys *` to get all keys in redis.
+1. Then use the keys to call `hgetall "<key>"`
