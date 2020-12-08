@@ -27,4 +27,13 @@ Port: 5000
 
 #### redis
 
-TODO
+> Used as key-value database
+
+Port: 6379
+
+#### Inspecting database
+
+1. First get the redis container id `docker ps`
+1. Then use the id to start redis-cli: `docker exec -i -t <id> redis-cli`
+1. Execute `keys *` to get all keys in redis.
+1. Then use the keys to call `hgetall "<key>"`
