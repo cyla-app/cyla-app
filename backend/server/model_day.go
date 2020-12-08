@@ -22,19 +22,7 @@ type Day struct {
 
 	Date string `json:"date,omitempty" mapstructure:"Date"`
 
-	Bleeding Bleeding `json:"bleeding,omitempty" mapstructure:"Bleeding"`
-
-	Cervical CervicalMucus `json:"cervical,omitempty" mapstructure:"Cervical"`
-
-	Cervix Cervix `json:"cervix,omitempty" mapstructure:"Cervix"`
-
-	SexActivity SexualActivity `json:"sexActivity,omitempty" mapstructure:"SexActivity"`
-
-	SexDesire SexualDesire `json:"sexDesire,omitempty" mapstructure:"SexDesire"`
-
-	Pain Pain `json:"pain,omitempty" mapstructure:"Pain"`
-
-	Mood Mood `json:"mood,omitempty" mapstructure:"Mood"`
+	DayInfo EncryptedAttribute `json:"dayInfo,omitempty" mapstructure:"DayInfo"`
 }
 
 func GetDayIdName() string {
@@ -49,24 +37,6 @@ func GetDayVersionName() string {
 func GetDayDateName() string {
 	return "Date"
 }
-func GetDayBleedingName() string {
-	return "Bleeding"
-}
-func GetDayCervicalName() string {
-	return "Cervical"
-}
-func GetDayCervixName() string {
-	return "Cervix"
-}
-func GetDaySexActivityName() string {
-	return "SexActivity"
-}
-func GetDaySexDesireName() string {
-	return "SexDesire"
-}
-func GetDayPainName() string {
-	return "Pain"
-}
-func GetDayMoodName() string {
-	return "Mood"
+func GetDayDayInfoName() string {
+	return "DayInfo"
 }

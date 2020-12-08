@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
-	"os"
 )
 
 const userPrefixKey = "user"
@@ -66,7 +67,7 @@ func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user Us
 	return s.saveUserIntern(ctx, user)
 }
 
-func (s* CylaRedisClient) saveUserIntern(ctx context.Context,  user User) error {
+func (s *CylaRedisClient) saveUserIntern(ctx context.Context, user User) error {
 	var redisUser map[string]interface{}
 	_ = mapstructure.Decode(user, &redisUser)
 	return s.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser).Err()

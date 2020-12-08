@@ -21,37 +21,13 @@ func main() {
     // Initialize DB connection as global variable
     server.InitializeDBConnection()
 
-	ActivityApiService := server.NewActivityApiService()
-	ActivityApiController := server.NewActivityApiController(ActivityApiService)
-
-	BleedingApiService := server.NewBleedingApiService()
-	BleedingApiController := server.NewBleedingApiController(BleedingApiService)
-
-	CervicalApiService := server.NewCervicalApiService()
-	CervicalApiController := server.NewCervicalApiController(CervicalApiService)
-
-	CervixApiService := server.NewCervixApiService()
-	CervixApiController := server.NewCervixApiController(CervixApiService)
-
 	DayApiService := server.NewDayApiService()
 	DayApiController := server.NewDayApiController(DayApiService)
-
-	DesireApiService := server.NewDesireApiService()
-	DesireApiController := server.NewDesireApiController(DesireApiService)
-
-	MoodApiService := server.NewMoodApiService()
-	MoodApiController := server.NewMoodApiController(MoodApiService)
-
-	PainApiService := server.NewPainApiService()
-	PainApiController := server.NewPainApiController(PainApiService)
-
-	TemperatureApiService := server.NewTemperatureApiService()
-	TemperatureApiController := server.NewTemperatureApiController(TemperatureApiService)
 
 	UserApiService := server.NewUserApiService()
 	UserApiController := server.NewUserApiController(UserApiService)
 
-	router := server.NewRouter(ActivityApiController, BleedingApiController, CervicalApiController, CervixApiController, DayApiController, DesireApiController, MoodApiController, PainApiController, TemperatureApiController, UserApiController)
+	router := server.NewRouter(DayApiController, UserApiController)
 
 	log.Fatal(http.ListenAndServe(":5000", router))
 }
