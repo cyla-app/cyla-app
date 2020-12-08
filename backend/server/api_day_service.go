@@ -11,8 +11,6 @@ package server
 
 import (
 	"context"
-	"errors"
-	"net/http"
 )
 
 // DayApiService is a service that implents the logic for the DayApiServicer
@@ -38,16 +36,12 @@ func (s *DayApiService) CreateDayEntry(ctx context.Context, userId string, day D
 
 // GetDayByUserAndRange -
 func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ImplResponse, error) {
-	// TODO - update GetDayByUserAndRange with the required logic for this service method.
-	// Add api_day_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	days, err := DBConnection.GetDayByUserAndRange(ctx, userId, startDate, endDate)
+	if err != nil {
+		return Response(404, nil), err
+	}
 
-	//TODO: Uncomment the next line to return response Response(200, []Day{}) or use other options such as http.Ok ...
-	//return Response(200, []Day{}), nil
-
-	//TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	//return Response(404, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("GetDayByUserAndRange method not implemented")
+	return Response(200, days), nil
 }
 
 // GetDaysByUserIdAndDate -
@@ -63,14 +57,10 @@ func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId strin
 
 // UpdateDayEntry -
 func (s *DayApiService) UpdateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
-	// TODO - update UpdateDayEntry with the required logic for this service method.
-	// Add api_day_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	err := DBConnection.UpdateDayEntry(ctx, userId, day)
+	if err != nil {
+		return Response(404, nil), err
+	}
 
-	//TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
-	//return Response(200, nil),nil
-
-	//TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	//return Response(404, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("UpdateDayEntry method not implemented")
+	return Response(200, "Ok"), nil
 }

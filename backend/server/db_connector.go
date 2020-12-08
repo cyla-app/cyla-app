@@ -15,6 +15,9 @@ type UserPersistence interface {
 	UpdateUser(ctx context.Context, userId string, user User) error
 	CreateDayEntry(ctx context.Context, userId string, day Day) error
 	GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []Date) (days []Day, err error)
+	UpdateDayEntry(ctx context.Context, userId string, day Day) error
+	GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (days []Day, err error)
+
 }
 
 var DBConnection DBConnector

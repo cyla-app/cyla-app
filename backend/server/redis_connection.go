@@ -63,6 +63,7 @@ func (s *CylaRedisClient) GetRestoreDate(ctx context.Context, userId string) (ke
 }
 
 func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user User) error {
+	// TODO: Error if user doesn't exist
 	if user.Id != userId && user.Id != "" {
 		return errors.New("different userId in path and in request body")
 	}
@@ -80,15 +81,28 @@ func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day
 	_ = mapstructure.Decode(day, &redisDay)
 
 	//TODO: Consistency if user does not exist
-	// TODO: Error if date exists already
-	return s.HSet(ctx,
+	pipeline := s.TxPipeline()
+	numAddedCmd := pipeline.ZAddNX(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey), &redis.Z{Score: 0, Member: day.Date})
+	pipeline.HSet(ctx,
 		fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date),
-		redisDay).Err()
+		redisDay)
+	_, err := pipeline.Exec(ctx)
+	if err != nil {
+		return err
+	}
+	if numAddedCmd.Val() == 0 {
+		return errors.New("entry for date already in database")
+	}
+	if numAddedCmd.Val() == 0 {
+		return err
+	}
+	return nil
+
 }
 
 func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []Date) (days []Day, err error) {
-	fmt.Println(dates)
 	for _, date := range dates {
+		// TODO Add transaction pipeline
 		var ret map[string]string
 		ret, err = s.HGetAll(ctx, fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, date)).Result()
 		if len(ret) == 0 {
@@ -107,4 +121,38 @@ func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId str
 	}
 
 	return days, nil
+}
+
+func (s *CylaRedisClient) UpdateDayEntry(ctx context.Context, userId string, day Day) error {
+	//TODO: Error if date does not exist
+	return s.CreateDayEntry(ctx, userId, day)
+}
+
+func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (days []Day, err error) {
+	//Get existing days
+	fmt.Println(s.ZRange(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey), 0, -1))
+	fmt.Println(s.ZScore(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey), "2020-12-08"))
+	dateEntries, err := s.ZRangeByLex(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
+		&redis.ZRangeBy{Min: "[" + startDate,  Max: "[" + endDate}).Result()
+	if err != nil {
+		return nil, err
+	}
+	for _, date := range dateEntries {
+		//TODO pipeline gets
+		var ret map[string]string
+		ret, err := s.HGetAll(ctx, fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, date)).Result()
+		if err != nil {
+			return nil, err
+		}
+		day := Day{}
+		err = mapstructure.Decode(ret, &day)
+
+		if err != nil {
+			return nil, err
+		}
+		days = append(days, day)
+	}
+
+	return days, nil
+
 }
