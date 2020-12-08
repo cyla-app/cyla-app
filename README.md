@@ -4,10 +4,14 @@
 
 ## backend
 
+[OpenAPI](https://editor.swagger.io/?url=https://raw.githubusercontent.com/cyla-app/cyla-app/main/openapi/openapi-specification.yaml)
+
 1. `cd backend/`
 1. `go get -d`
 
 ## frontend
+
+[Data Model](https://editor.swagger.io/?url=https://raw.githubusercontent.com/cyla-app/cyla-app/main/openapi/frontend-spec.yaml)
 
 1. `cd frontend`
 1. `npm instal`
