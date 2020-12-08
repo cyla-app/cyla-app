@@ -46,7 +46,6 @@ func NewRedisClient() (*CylaRedisClient, error) {
 }
 
 func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, error) {
-	// TODO: Error if user exists already
 	userId, err := uuid.NewRandom()
 	if err != nil {
 		return "", err
@@ -93,8 +92,12 @@ func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day
 	var redisDay map[string]interface{}
 	_ = mapstructure.Decode(day, &redisDay)
 
-	valList, _ := flatStructToStringList(day)
-	opResult, err := addDayScript.Run(ctx, s,
+	valList, err := flatStructToStringList(day)
+	if err != nil {
+		return err
+	}
+	var opResult int
+	opResult, err = addDayScript.Run(ctx, s,
 		[]string{
 			fmt.Sprintf("%v:%v", userPrefixKey, userId),
 			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
@@ -142,8 +145,6 @@ func (s *CylaRedisClient) UpdateDayEntry(ctx context.Context, userId string, day
 
 func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (days []Day, err error) {
 	//Get existing days
-	fmt.Println(s.ZRange(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey), 0, -1))
-	fmt.Println(s.ZScore(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey), "2020-12-08"))
 	dateEntries, err := s.ZRangeByLex(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
 		&redis.ZRangeBy{Min: "[" + startDate,  Max: "[" + endDate}).Result()
 	if err != nil {
