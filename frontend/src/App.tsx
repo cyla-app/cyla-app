@@ -28,7 +28,14 @@ const App = () => {
 
   useEffect(() => {
     const retrieveUserKey = async () => {
-      setUserKeyReady(await new DecryptionService().isUserKeyReady())
+      const decryptionService = new DecryptionService()
+      const isReady = await decryptionService.isUserKeyReady()
+
+      setUserKeyReady(isReady)
+
+      if (isReady) {
+        await decryptionService.setupUserKey()
+      }
     }
 
     retrieveUserKey().catch((e) => {

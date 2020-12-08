@@ -3,7 +3,7 @@ import { NativeModules } from 'react-native'
 // This type is determined by app.cyla.decryption.DecryptionModule
 type DecryptionModuleType = {
   fetchUserBlob: (userId: string) => Promise<void>
-  setupUserKey: (passphrase: string) => Promise<void>
+  setupUserKey: (passphrase?: string) => Promise<void>
   isUserKeyReady: () => Promise<boolean>
 }
 
@@ -14,7 +14,7 @@ export default class DecryptionService {
     await DecryptionModule.fetchUserBlob(userId)
   }
 
-  async setupUserKey(passphrase: string) {
+  async setupUserKey(passphrase?: string) {
     await DecryptionModule.setupUserKey(passphrase)
   }
 
