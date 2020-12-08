@@ -28,7 +28,6 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
 
       <CalendarStrip
         onDaySelected={() => {
-          new DecryptionService().setupUserKey()
           navigation.navigate('Add')
         }}
       />

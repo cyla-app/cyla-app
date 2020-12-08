@@ -66,7 +66,7 @@ export default () => {
 
       <RadioButtonGroup
         value={excludeReason}
-        onValueChange={(value) => setExcludeReason(value)}
+        onValueChange={(value) => setExcludeReason(value as ExcludeReasonValue)}
         buttons={[
           {
             title: 'Sick',
@@ -91,7 +91,7 @@ export default () => {
       <RadioButtonGroup
         value={bleeding}
         onValueChange={(value) => {
-          setBleeding(value)
+          setBleeding(value as BleedingValue)
         }}
         buttons={[
           {

@@ -6,6 +6,8 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.widget.Toast
+import app.cyla.api.apis.UserApi
+import app.cyla.api.models.User
 import com.cossacklabs.themis.SecureCell.SealWithPassphrase
 import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.Promise
@@ -19,8 +21,15 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
+const val PREFERENCES_NAME = "encryption_storage"
+
+const val PREFERENCE_KEY_PASSPHRASE_IV = "passphraseIV"
+const val PREFERENCE_KEY_USER_KEY_CELL = "userKeyCell"
+const val PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT = "passphraseCipherText"
 
 const val KEYSTORE_ALIAS = "passphrase"
+const val KEY_STORE_INSTANCE = "AndroidKeyStore"
+const val CIPHER_TRANSFORMATION = "AES/GCM/NoPadding"
 
 fun SharedPreferences.getBase64(key: String): ByteArray? {
     val value = this.getString(key, null) ?: return null
@@ -33,6 +42,7 @@ fun SharedPreferences.Editor.putBase64(key: String, value: ByteArray): SharedPre
     return this
 }
 
+
 class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     override fun getName(): String {
         return "DecryptionModule"
@@ -40,7 +50,7 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
 
     private fun setupKeyGenerator(): KeyGenerator {
         val keyGenerator: KeyGenerator = KeyGenerator
-            .getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+            .getInstance(KeyProperties.KEY_ALGORITHM_AES, KEY_STORE_INSTANCE)
 
         val keyGenParameterSpec = KeyGenParameterSpec.Builder(
             KEYSTORE_ALIAS,
@@ -56,14 +66,17 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     }
 
     private fun setupEncryptionCipher(secretKey: SecretKey): Cipher {
-        val cipher: Cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        val cipher: Cipher = Cipher.getInstance(CIPHER_TRANSFORMATION);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
         return cipher
     }
 
+    private val s = PREFERENCES_NAME
+
     private fun getPreferences(): SharedPreferences {
-        return reactApplicationContext.getSharedPreferences("encryption_storage", Context.MODE_PRIVATE)
+        return reactApplicationContext.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     }
+
 
     private fun storeEncryptedPassphrase(passphrase: String) {
         val keyGenerator = setupKeyGenerator()
@@ -73,8 +86,8 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
         val cipherText = cipher.doFinal(passphrase.encodeToByteArray());
 
         getPreferences().edit()
-            .putBase64("passphraseIV", iv)
-            .putBase64("passphraseCipherText", cipherText)
+            .putBase64(PREFERENCE_KEY_PASSPHRASE_IV, iv)
+            .putBase64(PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT, cipherText)
             .apply()
     }
 
@@ -86,22 +99,22 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
         val userKeyCell = SealWithPassphrase(passphrase)
             .encrypt(userKey.toByteArray())
         getPreferences().edit()
-            .putBase64("userKeyCell", userKeyCell)
+            .putBase64(PREFERENCE_KEY_USER_KEY_CELL, userKeyCell)
             .apply()
 
-        Toast.makeText(reactApplicationContext, "stored phrase: " + passphrase, Toast.LENGTH_LONG).show()
+        Toast.makeText(reactApplicationContext, "stored phrase: $passphrase", Toast.LENGTH_LONG).show()
 
         return userKey
     }
 
 
     private fun loadExistingUserKey(): SymmetricKey {
-        val userKeyCellData = getPreferences().getBase64("userKeyCell")!!
-        val passphraseIV = getPreferences().getBase64("passphraseIV")!!
-        val passphraseCipherText = getPreferences().getBase64("passphraseCipherText")!!
+        val userKeyCellData = getPreferences().getBase64(PREFERENCE_KEY_USER_KEY_CELL)!!
+        val passphraseIV = getPreferences().getBase64(PREFERENCE_KEY_PASSPHRASE_IV)!!
+        val passphraseCipherText = getPreferences().getBase64(PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT)!!
         val passphrase = decryptPassphrase(passphraseCipherText, passphraseIV)
 
-        Toast.makeText(reactApplicationContext, "loaded phrase: " + passphrase, Toast.LENGTH_LONG).show()
+        Toast.makeText(reactApplicationContext, "loaded phrase: $passphrase", Toast.LENGTH_LONG).show()
 
         val userKeyCell = SealWithPassphrase(passphrase)
 
@@ -110,14 +123,14 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
 
 
     private fun decryptPassphrase(cipherText: ByteArray, iv: ByteArray): String {
-        val keyStore = KeyStore.getInstance("AndroidKeyStore");
+        val keyStore = KeyStore.getInstance(KEY_STORE_INSTANCE);
         keyStore.load(null);
 
         val secretKeyEntry = keyStore.getEntry(KEYSTORE_ALIAS, null) as KeyStore.SecretKeyEntry
 
         val secretKey = secretKeyEntry.secretKey
 
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        val cipher = Cipher.getInstance(CIPHER_TRANSFORMATION)
         val spec = GCMParameterSpec(128, iv)
         cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
 
@@ -133,9 +146,20 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
         } else {
             storeNewUserKey(passphrase)
         }
-       
+        
+        UserApi().createUser(User(null, userKey.toByteArray()))
+
         // create account with userKeyCell
         promise.resolve(null)
+    }
+
+    @ReactMethod
+    fun isUserKeyReady(promise: Promise) {
+        promise.resolve(
+            getPreferences().contains(PREFERENCE_KEY_PASSPHRASE_IV) &&
+                    getPreferences().contains(PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT) &&
+                    getPreferences().contains(PREFERENCE_KEY_USER_KEY_CELL)
+        )
     }
 
 
