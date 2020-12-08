@@ -12,6 +12,16 @@ import MainStackNavigation from './navigation/MainStackNavigation'
 import PasswordModal from './components/PasswordModal'
 import DecryptionService from './decryption/DecryptionService'
 
+declare global {
+  namespace ReactNativePaper {
+    interface ThemeColors {
+      buttonBackground: string
+    }
+
+    interface Theme {}
+  }
+}
+
 const theme = {
   ...NavigationDefaultTheme,
   ...PaperDefaultTheme,
@@ -20,6 +30,8 @@ const theme = {
     ...PaperDefaultTheme.colors,
     primary: '#79486D',
     accent: '#9E1818',
+    surface: '#FFF',
+    buttonBackground: 'rgb(217,156,186)',
   },
 }
 

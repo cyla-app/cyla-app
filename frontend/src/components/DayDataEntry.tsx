@@ -2,7 +2,8 @@ import { View } from 'react-native'
 import React, { useState } from 'react'
 import RadioButtonGroup from './RadioButtonGroup'
 import TemperatureEdit from './TemperatureEdit'
-import { Subheading } from 'react-native-paper'
+import { Button, Subheading } from 'react-native-paper'
+import { Day } from '../../generated'
 
 // import Slider from '@react-native-community/slider'
 
@@ -16,15 +17,10 @@ interface DayData {
 }
 
 const PropertyHeadline = ({ children }: { children: React.ReactNode }) => (
-  <Subheading
-    style={{
-      marginTop: 30,
-    }}>
-    {children}
-  </Subheading>
+  <Subheading>{children}</Subheading>
 )
 
-export default () => {
+export default ({ onAdd }: { onAdd: (day: Day) => void }) => {
   const [state, setState] = useState<DayData>({
     temperature: undefined,
     excludeReason: 'not defined',
@@ -55,7 +51,7 @@ export default () => {
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
-        margin: 10,
+        justifyContent: 'space-evenly',
       }}>
       <TemperatureEdit
         initialString={''}
@@ -107,13 +103,22 @@ export default () => {
         ]}
       />
 
-      {/*<Slider*/}
-      {/*  style={{ width: 200, height: 40 }}*/}
-      {/*  minimumValue={0}*/}
-      {/*  maximumValue={1}*/}
-      {/*  minimumTrackTintColor="#FFFFFF"*/}
-      {/*  maximumTrackTintColor="#000000"*/}
-      {/*/>*/}
+      <Button
+        onPress={() => {
+          onAdd({
+            bleeding: undefined,
+            cervical: undefined,
+            cervix: undefined,
+            sexActivity: undefined,
+            sexDesire: undefined,
+            pain: undefined,
+            mood: undefined,
+          })
+        }}
+        mode="contained"
+        style={{ borderRadius: 30 }}>
+        Add day
+      </Button>
     </View>
   )
 }

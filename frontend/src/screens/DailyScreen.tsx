@@ -6,7 +6,6 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { CompositeNavigationProp } from '@react-navigation/native'
 import DayDataEntry from '../components/DayDataEntry'
-import DecryptionService from '../decryption/DecryptionService'
 import { TabsParamList } from '../navigation/TabBarNavigation'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
@@ -24,26 +23,17 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
       }}>
       {/*<PeriodCircle />*/}
 
-      <DayDataEntry />
-
-      <CalendarStrip
-        onDaySelected={() => {
-          navigation.navigate('Add')
+      <DayDataEntry
+        onAdd={(day) => {
+          console.log(day)
         }}
       />
 
-      {/*<FAB*/}
-      {/*  style={{*/}
-      {/*    position: 'absolute',*/}
-      {/*    right: 0,*/}
-      {/*    bottom: 0,*/}
-      {/*    margin: 16,*/}
-      {/*  }}*/}
-      {/*  icon="plus"*/}
-      {/*  onPress={() => {*/}
-      {/*    navigation.navigate('Add', { key: 'Add' })*/}
-      {/*  }}*/}
-      {/*/>*/}
+      <CalendarStrip
+        onDaySelected={() => {
+          // navigation.navigate('Add')
+        }}
+      />
     </View>
   )
 }
