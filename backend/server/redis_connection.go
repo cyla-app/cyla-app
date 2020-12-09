@@ -24,8 +24,10 @@ func loadLuaScript(scriptPath string) *redis.Script {
 //TODO: Proper error handling
 //TODO: Better integration of scripts?
 //TODO: Refactor duplicate code of script calls
+//TODO: Add logging
 var addDayScript = loadLuaScript("resources/create_day_script.lua")
 var updateHResourceScript = loadLuaScript("resources/update_user_script.lua")
+var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
 
 const userPrefixKey = "user"
 const dayPrefixKey = "day"
@@ -46,6 +48,7 @@ func NewRedisClient() (*CylaRedisClient, error) {
 		})}
 		addDayScript.Load(context.Background(), cylaClient)
 		updateHResourceScript.Load(context.Background(), cylaClient)
+		getDayByRange.Load(context.Background(), cylaClient)
 		return &cylaClient, nil
 	}
 
@@ -179,28 +182,25 @@ func (s *CylaRedisClient) UpdateDayEntry(ctx context.Context, userId string, day
 }
 
 func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (days []Day, err error) {
-	//Get existing days
-	dateEntries, err := s.ZRangeByLex(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
-		&redis.ZRangeBy{Min: "[" + startDate,  Max: "[" + endDate}).Result()
+	days = make([]Day, 0)
+	//var thing interface{}
+	thing := getDayByRange.Run(ctx, s,
+		[]string{
+			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
+		},[]string{startDate, endDate}).Val()
+	var stringSlice [][]string
+	err = mapstructure.Decode(thing, &stringSlice)
 	if err != nil {
 		return nil, err
 	}
-	for _, date := range dateEntries {
-		//TODO pipeline gets
-		var ret map[string]string
-		ret, err := s.HGetAll(ctx, fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, date)).Result()
-		if err != nil {
-			return nil, err
-		}
-		day := Day{}
-		err = mapstructure.Decode(ret, &day)
-
-		if err != nil {
+	for _, entry := range stringSlice {
+		var day Day
+		err = stringListToFlatStruct(entry, &day)
+		if err !=  nil {
 			return nil, err
 		}
 		days = append(days, day)
 	}
-
 	return days, nil
 
 }
