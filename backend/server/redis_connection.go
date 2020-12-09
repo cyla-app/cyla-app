@@ -20,6 +20,9 @@ func loadLuaScript(scriptPath string) *redis.Script {
 	return redis.NewScript(string(arr))
 }
 
+
+//TODO: Proper error handling
+//TODO: Better integration of scripts?
 var addDayScript = loadLuaScript("resources/create_day_script.lua")
 var updateUserScript = loadLuaScript("resources/update_user_script.lua")
 
@@ -125,16 +128,23 @@ func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day
 }
 
 func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []Date) (days []Day, err error) {
+	//Pipeline to reduce communication with the redis server. This requires two for loops, as cmdStringList vals is empty
+	// until the pipeline is executed
+	pipeline := s.TxPipeline()
+	var cmdStringList []*redis.StringStringMapCmd
 	for _, date := range dates {
-		// TODO Add transaction pipeline
-		var ret map[string]string
-		ret, err = s.HGetAll(ctx, fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, date)).Result()
+		cmdStringList = append(cmdStringList, pipeline.HGetAll(ctx, fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, date)))
+	}
+	_, err = pipeline.Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, cmd := range cmdStringList {
+		ret := cmd.Val()
 		if len(ret) == 0 {
+			//TODO Add which day was not found
 			return nil, errors.New("day not found")
-		} else if err != nil {
-			return nil, err
 		}
-
 		day := Day{}
 		err = mapstructure.Decode(ret, &day)
 
