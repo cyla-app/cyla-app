@@ -4,7 +4,7 @@
 ---     [1]: Key to the entry on the db. E.g.: user:<userId> or user:<userId>:days:<date>
 --- ARGV:
 ---     [1:-1]: Fields and values for the updated entry. Order doens't matter, but they should be in corresponding pairs
----             (e.g. "backupInfo"-field-name followed by "bacupInfo"-field-value and so on)
+---             (e.g. "backupInfo"-field-name followed by "backupInfo"-field-value and so on)
 ---
 ---
 

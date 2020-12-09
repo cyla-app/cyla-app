@@ -26,8 +26,5 @@ func stringSliceToFlatStruct(stringList []string, structPointer interface{}) (er
 		ret[stringList[i]] = stringList[i+1]
 	}
 	err = mapstructure.Decode(ret, structPointer)
-	if err != nil {
-		return  err
-	}
-	return nil
+	return err
 }

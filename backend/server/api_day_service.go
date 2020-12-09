@@ -28,39 +28,55 @@ func NewDayApiService() DayApiServicer {
 func (s *DayApiService) CreateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
 	//TODO Server-error vs client-error
 	err := DBConnection.CreateDayEntry(ctx, userId, day)
-	if err != nil {
-		return Response(404, ""), err
+	if err == nil {
+		return Response(200, "Ok"), err
 	}
-	return Response(200, "Ok"), nil
+	httpError, ok := err.(*HttpError)
+	if ok {
+		return Response(httpError.Code, nil), httpError
+	} else {
+		return Response(500, nil), err
+	}
 }
 
 // GetDayByUserAndRange -
 func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ImplResponse, error) {
 	days, err := DBConnection.GetDayByUserAndRange(ctx, userId, startDate, endDate)
-	if err != nil {
-		return Response(404, nil), err
+	if err == nil {
+		return Response(200, days), err
 	}
-
-	return Response(200, days), nil
+	httpError, ok := err.(*HttpError)
+	if ok {
+		return Response(httpError.Code, nil), httpError
+	} else {
+		return Response(500, nil), err
+	}
 }
 
 // GetDaysByUserIdAndDate -
 func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ImplResponse, error) {
-	//TODO Server-error vs client-error
 	days, err := DBConnection.GetDaysByUserIdAndDate(ctx, userId, date)
-	if err != nil {
-		return Response(404, []Day{}), err
+	if err == nil {
+		return Response(200, days), err
 	}
-
-	return Response(200, days), nil
+	httpError, ok := err.(*HttpError)
+	if ok {
+		return Response(httpError.Code, nil), httpError
+	} else {
+		return Response(500, nil), err
+	}
 }
 
 // UpdateDayEntry -
 func (s *DayApiService) UpdateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
 	err := DBConnection.UpdateDayEntry(ctx, userId, day)
-	if err != nil {
-		return Response(404, nil), err
+	if err == nil {
+		return Response(200, "Ok"), err
 	}
-
-	return Response(200, "Ok"), nil
+	httpError, ok := err.(*HttpError)
+	if ok {
+		return Response(httpError.Code, nil), httpError
+	} else {
+		return Response(500, nil), err
+	}
 }
