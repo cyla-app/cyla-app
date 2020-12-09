@@ -17,7 +17,7 @@ func flatStructToStringList(inputStruct interface{}) (ret []interface{}, err err
 }
 
 // structPointer should be a pointer to an interface, in order to use mapstructure
-func stringListToFlatStruct(stringList []string, structPointer interface{}) (err error) {
+func stringSliceToFlatStruct(stringList []string, structPointer interface{}) (err error) {
 	ret := make(map[string]interface{})
 	if len(stringList) % 2 != 0 {
 		return errors.New("malformed slice. Length should be even")

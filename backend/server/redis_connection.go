@@ -183,19 +183,18 @@ func (s *CylaRedisClient) UpdateDayEntry(ctx context.Context, userId string, day
 
 func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (days []Day, err error) {
 	days = make([]Day, 0)
-	//var thing interface{}
-	thing := getDayByRange.Run(ctx, s,
+	opResult := getDayByRange.Run(ctx, s,
 		[]string{
 			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
 		},[]string{startDate, endDate}).Val()
-	var stringSlice [][]string
-	err = mapstructure.Decode(thing, &stringSlice)
+	var stringDaysSlice [][]string
+	err = mapstructure.Decode(opResult, &stringDaysSlice)
 	if err != nil {
 		return nil, err
 	}
-	for _, entry := range stringSlice {
+	for _, entry := range stringDaysSlice {
 		var day Day
-		err = stringListToFlatStruct(entry, &day)
+		err = stringSliceToFlatStruct(entry, &day)
 		if err !=  nil {
 			return nil, err
 		}
