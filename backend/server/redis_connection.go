@@ -23,8 +23,9 @@ func loadLuaScript(scriptPath string) *redis.Script {
 
 //TODO: Proper error handling
 //TODO: Better integration of scripts?
+//TODO: Refactor duplicate code of script calls
 var addDayScript = loadLuaScript("resources/create_day_script.lua")
-var updateUserScript = loadLuaScript("resources/update_user_script.lua")
+var updateHResourceScript = loadLuaScript("resources/update_user_script.lua")
 
 const userPrefixKey = "user"
 const dayPrefixKey = "day"
@@ -44,7 +45,7 @@ func NewRedisClient() (*CylaRedisClient, error) {
 			DB:       0,
 		})}
 		addDayScript.Load(context.Background(), cylaClient)
-		updateUserScript.Load(context.Background(), cylaClient)
+		updateHResourceScript.Load(context.Background(), cylaClient)
 		return &cylaClient, nil
 	}
 
@@ -90,7 +91,7 @@ func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user Us
 		return err
 	}
 	var opResult int
-	opResult, err = updateUserScript.Run(ctx, s,
+	opResult, err = updateHResourceScript.Run(ctx, s,
 		[]string{
 			fmt.Sprintf("%v:%v", userPrefixKey, user.Id),
 		},valList).Int()
@@ -112,9 +113,9 @@ func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day
 	var opResult int
 	opResult, err = addDayScript.Run(ctx, s,
 		[]string{
-			fmt.Sprintf("%v:%v", userPrefixKey, userId),
-			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
-			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date)},
+			fmt.Sprintf("%v:%v", userPrefixKey, userId), //User resource
+			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey), //sorted set for user's days
+			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date)}, //days resource
 		append([]interface{}{day.Date}, valList...)).Int()
 	if err != nil {
 		return err
@@ -158,8 +159,23 @@ func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId str
 }
 
 func (s *CylaRedisClient) UpdateDayEntry(ctx context.Context, userId string, day Day) error {
-	//TODO: Error if date does not exist
-	return s.CreateDayEntry(ctx, userId, day)
+	valList, err := flatStructToStringList(day)
+	if err != nil {
+		return err
+	}
+	var opResult int
+	opResult, err = updateHResourceScript.Run(ctx, s,
+		[]string{
+			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date),
+		},valList).Int()
+
+	if err != nil {
+		return err
+	}
+	if opResult == 0 {
+		return errors.New("day doesn't exist")
+	}
+	return nil
 }
 
 func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (days []Day, err error) {
