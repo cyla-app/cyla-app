@@ -21,6 +21,7 @@ func loadLuaScript(scriptPath string) *redis.Script {
 }
 
 var addDayScript = loadLuaScript("resources/create_day_script.lua")
+var updateUserScript = loadLuaScript("resources/update_user_script.lua")
 
 const userPrefixKey = "user"
 const dayPrefixKey = "day"
@@ -40,6 +41,7 @@ func NewRedisClient() (*CylaRedisClient, error) {
 			DB:       0,
 		})}
 		addDayScript.Load(context.Background(), cylaClient)
+		updateUserScript.Load(context.Background(), cylaClient)
 		return &cylaClient, nil
 	}
 
@@ -51,7 +53,9 @@ func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, er
 		return "", err
 	}
 	user.Id = userId.String()
-	return user.Id, s.saveUserIntern(ctx, user)
+	var redisUser map[string]interface{}
+	_ = mapstructure.Decode(user, &redisUser)
+	return user.Id, s.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser).Err()
 }
 
 func (s *CylaRedisClient) GetUser(ctx context.Context, userId string) (user User, err error) {
@@ -75,23 +79,29 @@ func (s *CylaRedisClient) GetRestoreDate(ctx context.Context, userId string) (ke
 }
 
 func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user User) error {
-	// TODO: Error if user doesn't exist
 	if user.Id != userId && user.Id != "" {
 		return errors.New("different userId in path and in request body")
 	}
-	return s.saveUserIntern(ctx, user)
-}
+	valList, err := flatStructToStringList(user)
+	if err != nil {
+		return err
+	}
+	var opResult int
+	opResult, err = updateUserScript.Run(ctx, s,
+		[]string{
+			fmt.Sprintf("%v:%v", userPrefixKey, user.Id),
+		},valList).Int()
 
-func (s *CylaRedisClient) saveUserIntern(ctx context.Context, user User) error {
-	var redisUser map[string]interface{}
-	_ = mapstructure.Decode(user, &redisUser)
-	return s.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser).Err()
+	if err != nil {
+		return err
+	}
+	if opResult == 0 {
+		return errors.New("user doesn't exist")
+	}
+	return nil
 }
 
 func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day Day) error {
-	var redisDay map[string]interface{}
-	_ = mapstructure.Decode(day, &redisDay)
-
 	valList, err := flatStructToStringList(day)
 	if err != nil {
 		return err
@@ -107,7 +117,6 @@ func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day
 		return err
 	}
 	if opResult == 0 {
-		fmt.Println(opResult)
 		//TODO: Differentiate between no user and data already there?
 		return errors.New("entry for date already in database or user doesn't exist")
 	}
