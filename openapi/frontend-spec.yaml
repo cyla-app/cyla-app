@@ -13,9 +13,7 @@ components:
       properties:
         temperature:
           $ref: "#/components/schemas/Temperature"
-        menstruation:
-          $ref: "#/components/schemas/Menstruation"
-        nonMenstrualBleeding:
+        bleeding:
           $ref: "#/components/schemas/Bleeding"
         cervical:
           $ref: "#/components/schemas/CervicalMucus"
@@ -35,23 +33,14 @@ components:
           $ref: "#/components/schemas/OvulationTest"
         excludeReason:
           type: string
-          enum: [ sick, hungover, sleep ]
-    Menstruation:
-      type: object
-      description: Period information for a day
-      properties:
-        current:
-          type: boolean
-        bleeding:
-          $ref: "#/components/schemas/Bleeding"
+          enum: [sick, hungover, sleep]
     Bleeding:
       type: object
       description: Bleeding information for a day
       properties:
-        strength:
-          type: integer
-          minimum: 0
-          maximum: 10
+        type:
+          type: string
+          enum = [period, spotting]
     Temperature:
       type: object
       description: Temperature information for a day
@@ -87,7 +76,7 @@ components:
           enum: [low, soft]
         position:
           type: string
-          enum: [ low, medium, high ]
+          enum: [low, medium, high]
     OvulationTest:
       type: object
       description: Result of an ovulation test for a day
@@ -100,15 +89,15 @@ components:
       properties:
         type:
           type: string
-          enum: [ happy, confident, calm, energetic, excited, PMS, mood swings, irritable, anxious, stressed, tired, sensitive, numb, sad, angry ]
-#          $ref: "#/components/schemas/EncryptedAttribute"
+          enum: [happy, confident, calm, energetic, excited, PMS, mood swings, irritable, anxious, stressed, tired, sensitive, numb, sad, angry]
+    #          $ref: "#/components/schemas/EncryptedAttribute"
     Pain:
       type: object
       description: Pain information for a day
       properties:
         type:
           type: string
-          enum: [ cramps, ovulation pain, headache, backache, nausea, tender breasts, migraine, other ]
+          enum: [cramps, ovulation pain, headache, backache, nausea, tender breasts, migraine, other]
     SexualDesire:
       type: object
       description: Sexual desire information for a day
@@ -117,13 +106,13 @@ components:
           type: integer
           minimum: 0
           maximum: 10
-#          $ref: "#/components/schemas/EncryptedAttribute"
+    #          $ref: "#/components/schemas/EncryptedAttribute"
     SexualActivity:
       type: object
       description: Information about a sexual activity
       properties:
-#        type:
-#          $ref: "#/components/schemas/EncryptedAttribute"
+        #        type:
+        #          $ref: "#/components/schemas/EncryptedAttribute"
         contraceptives:
           type: string
           enum: [ none, condom, female condom, pill, ring, patch, hormonal IUD, copper IUD, chemical, diaphragm, implant ]
