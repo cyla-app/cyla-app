@@ -40,7 +40,7 @@ components:
       properties:
         type:
           type: string
-          enum = [period, spotting]
+          enum: [period, spotting]
     Temperature:
       type: object
       description: Temperature information for a day
