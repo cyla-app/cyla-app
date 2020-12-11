@@ -60,7 +60,7 @@ components:
       properties:
         feeling:
           type: string
-          enum: [dry, nothing, wet, slippery]
+          enum: [nothing, dry, wet, slippery]
         texture:
           type: string
           enum: [nothing, creamy, egg white]
@@ -73,7 +73,7 @@ components:
           enum: [closed, medium, raised]
         firmness:
           type: string
-          enum: [low, soft]
+          enum: [firm, medium, soft]
         position:
           type: string
           enum: [low, medium, high]
