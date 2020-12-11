@@ -124,7 +124,7 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
 
         // Transform for validation
         val day: Day? = jsonAdapter.fromJson(dayJson)
-        println(day!!.bleeding!!.strength)
+//        println(day!!.bleeding!!.strength)
 
         DayApi().createDayEntry(
             getAppStorage().getUserId()!!, app.cyla.api.models.Day(
