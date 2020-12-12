@@ -5,6 +5,9 @@
 --- ARGV:
 ---     [1:-1]: Fields and values for the updated entry. Order doens't matter, but they should be in corresponding pairs
 ---             (e.g. "backupInfo"-field-name followed by "backupInfo"-field-value and so on)
+--- Return:
+---     0 if the resource doesn't exists and nothing can be updated,
+---     1 if the resource was updated
 ---
 ---
 

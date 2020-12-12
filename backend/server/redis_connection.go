@@ -134,7 +134,7 @@ func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day
 		return newHTTPErrorWithCauseError(500, "redis error", err)
 	}
 	if opResult == 0 {
-		return newHTTPError(404, "entry for date already in database or user doesn't exist")
+		return newHTTPError(409, "entry for date already in database or user doesn't exist")
 	}
 	return nil
 
