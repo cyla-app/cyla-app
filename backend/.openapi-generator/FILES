@@ -11,4 +11,5 @@ server/logger.go
 server/model_custom_types.go
 server/model_day.go
 server/model_user.go
+server/response.go
 server/routers.go

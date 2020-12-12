@@ -8,3 +8,7 @@ files:
     folder: server
     templateType: SupportingFiles
     destinationFilename: http_error.go
+  custom_templates/response.mustache:
+    folder: server
+    templateType: SupportingFiles
+    destinationFilename: response.go
