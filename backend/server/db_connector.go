@@ -5,18 +5,21 @@ import (
 )
 
 type DBConnector interface {
+	DayPersistence
 	UserPersistence
 }
 
-type UserPersistence interface {
-	CreateUser(ctx context.Context, user User) (userId string, err error)
-	GetUserById(ctx context.Context, userId string) (User, error)
-	GetRestoreData(ctx context.Context, userId string) (keyBackup EncryptedAttribute, err error)
-	UpdateUser(ctx context.Context, userId string, user User) error
+type DayPersistence interface {
 	CreateDayEntry(ctx context.Context, userId string, day Day) error
-	GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []Date) (days []Day, err error)
+	GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ret []Day, err error)
+	GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ret []Day, err error)
 	UpdateDayEntry(ctx context.Context, userId string, day Day) error
-	GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (days []Day, err error)
+}
+type UserPersistence interface {
+	CreateUser(ctx context.Context, user User) (ret string, err error)
+	GetRestoreData(ctx context.Context, userId string) (ret EncryptedAttribute, err error)
+	GetUserById(ctx context.Context, userId string) (ret User, err error)
+	UpdateUser(ctx context.Context, userId string, user User) error
 }
 
 var DBConnection DBConnector

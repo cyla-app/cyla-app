@@ -1,0 +1,33 @@
+package {{packageName}}
+
+import (
+"context"
+)
+
+{{#apiInfo}}
+type DBConnector interface {
+    {{#apis}}
+    {{baseName}}Persistence
+    {{/apis}}
+}
+
+{{#apis}}
+    type {{baseName}}Persistence interface {
+    {{#operations}}
+        {{#operation}}
+            {{operationId}}(ctx context.Context{{#allParams}}, {{paramName}} {{dataType}}{{/allParams}}) {{#returnType}}(ret {{returnType}}, err error){{/returnType}}{{^returnType}}error{{/returnType}}
+        {{/operation}}
+    {{/operations}}
+    }
+{{/apis}}
+{{/apiInfo}}
+
+var DBConnection DBConnector
+
+func InitializeDBConnection() {
+var err error
+DBConnection, err = New{{#lambda.titlecase}}{{databaseType}}{{/lambda.titlecase}}Client()
+if err != nil {
+panic(err)
+}
+}

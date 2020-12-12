@@ -4,6 +4,7 @@ server/api_day.go
 server/api_day_service.go
 server/api_user.go
 server/api_user_service.go
+server/db_connector.go
 server/helpers.go
 server/http_error.go
 server/impl.go

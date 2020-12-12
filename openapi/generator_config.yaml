@@ -1,4 +1,12 @@
 templateDir: /local/openapi/go-server_templates
+additionalProperties:
+  serverPort: 5000
+  sourceFolder: server
+packageName: server
+importMappings:
+  # We import the mappings for the custom alis types as a mini-hack so the generator doesn't consider them simply strings.
+  EncryptedAttribute: server.EncryptedAttribute
+  Date: server.Date
 files:
   custom_templates/custom_types.mustache:
     folder: server
@@ -12,3 +20,7 @@ files:
     folder: server
     templateType: SupportingFiles
     destinationFilename: response.go
+  custom_templates/db_connector.mustache:
+    folder: server
+    templateType: SupportingFiles
+    destinationFilename: db_connector.go

@@ -2,8 +2,8 @@
 
 GO_SOURCE_PATH="backend"
 
-# Name for the package and location of the generated server stub
-GEN_GO_PACKAGE_NAME="server"
+# Type of db we are using. The generator doesn't generate the interface towards the db, only its creation.
+DB_TYPE="redis"
 
 # Uses the openapi generator (https://github.com/OpenAPITools/openapi-generator) to generate a stub server using docs/openapi-specification.yaml
 # Most output files are saved at GO_SOURCE_PATH/server.
@@ -15,10 +15,8 @@ docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
 	-i /local/openapi/openapi-specification.yaml \
 	-g go-server \
 	-o /local/${GO_SOURCE_PATH} \
-	--git-repo-id cyla-app --git-user-id cyla-app \
-	--package-name ${GEN_GO_PACKAGE_NAME} \
-	--import-mappings EncryptedAttribute=server.EncryptedAttribute,Date=server.Date \
-	--additional-properties=serverPort=5000,sourceFolder=${GEN_GO_PACKAGE_NAME}
+  --additional-properties=databaseType=${DB_TYPE} \
+	--git-repo-id cyla-app --git-user-id cyla-app
 
 # Remove the api folder where usually the api specification is saved.
 rmdir "${GO_SOURCE_PATH}/api"
