@@ -3,23 +3,22 @@ package server
 import "fmt"
 
 type HttpError struct {
-	Code int
+	Code     int
 	causeMsg string
-	msg string
-
+	msg      string
 }
 
 func newHTTPError(code int, msg string) error {
 	return &HttpError{
 		Code: code,
-		msg: fmt.Sprintf("%d error - %v", code, msg),
+		msg:  fmt.Sprintf("%d error - %v", code, msg),
 	}
 }
 
 func newHTTPErrorWithCauseError(code int, msg string, cause error) error {
 	return &HttpError{
 		Code: code,
-		msg: fmt.Sprintf("%d error - %v: %v", code, msg, cause),
+		msg:  fmt.Sprintf("%d error - %v: %v", code, msg, cause),
 	}
 }
 

@@ -107,7 +107,7 @@ func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user Us
 	opResult, err = updateHResourceScript.Run(ctx, s,
 		[]string{
 			fmt.Sprintf("%v:%v", userPrefixKey, user.Id),
-		},valList).Int()
+		}, valList).Int()
 
 	if opResult == 0 {
 		return newHTTPError(404, "user not found")
@@ -126,8 +126,8 @@ func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day
 	var opResult int
 	opResult, err = addDayScript.Run(ctx, s,
 		[]string{
-			fmt.Sprintf("%v:%v", userPrefixKey, userId), //User resource
-			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey), //sorted set for user's days
+			fmt.Sprintf("%v:%v", userPrefixKey, userId),                                //User resource
+			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),               //sorted set for user's days
 			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date)}, //days resource
 		append([]interface{}{day.Date}, valList...)).Int()
 	if err != nil {
@@ -178,7 +178,7 @@ func (s *CylaRedisClient) UpdateDayEntry(ctx context.Context, userId string, day
 	opResult, err = updateHResourceScript.Run(ctx, s,
 		[]string{
 			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date),
-		},valList).Int()
+		}, valList).Int()
 
 	if opResult == 0 {
 		return newHTTPError(404, "day doesn't exist")
@@ -198,7 +198,7 @@ func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId strin
 	opResult, err := getDayByRange.Run(ctx, s,
 		[]string{
 			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
-		},[]string{startDate, endDate}).Result()
+		}, []string{startDate, endDate}).Result()
 	if err != nil {
 		return nil, newHTTPErrorWithCauseError(500, "error during execution of pipeline", err)
 	}
@@ -211,7 +211,7 @@ func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId strin
 	for _, entry := range stringDaysSlice {
 		var day Day
 		err = stringSliceToFlatStruct(entry, &day)
-		if err !=  nil {
+		if err != nil {
 			return nil, newHTTPErrorWithCauseError(500, "could not marshall day", err)
 		}
 		days = append(days, day)

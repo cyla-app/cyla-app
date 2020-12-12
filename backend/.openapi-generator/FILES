@@ -1,7 +1,6 @@
 main.go
 server/api.go
 server/api_day.go
-server/api_day_service.go
 server/api_user.go
 server/helpers.go
 server/impl.go

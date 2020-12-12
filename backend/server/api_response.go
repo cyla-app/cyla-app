@@ -1,11 +1,11 @@
 package server
 
-
+//TODO: Generate automatically
 func httpResponse(err error) (ImplResponse, error) {
 	return httpResponseWithBody(nil, err)
 }
 
-func httpResponseWithBody(body interface{}, err error) (ImplResponse, error){
+func httpResponseWithBody(body interface{}, err error) (ImplResponse, error) {
 	if err == nil {
 		if &body == nil {
 			body = "Ok"
@@ -19,4 +19,3 @@ func httpResponseWithBody(body interface{}, err error) (ImplResponse, error){
 		return Response(500, nil), err
 	}
 }
-
