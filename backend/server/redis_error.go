@@ -9,15 +9,21 @@ type HttpError struct {
 
 }
 
-func newHTTPError(code int, msg string, cause error) error {
+func newHTTPError(code int, msg string) error {
 	return &HttpError{
 		Code: code,
-		causeMsg: cause.Error(),
-		msg: msg,
+		msg: fmt.Sprintf("%d error - %v", code, msg),
+	}
+}
+
+func newHTTPErrorWithCauseError(code int, msg string, cause error) error {
+	return &HttpError{
+		Code: code,
+		msg: fmt.Sprintf("%d error - %v: %v", code, msg, cause),
 	}
 }
 
 func (s *HttpError) Error() string {
-	return fmt.Sprintf("%d error %v %v", s.Code, s.msg, s.causeMsg)
+	return s.msg
 
 }
