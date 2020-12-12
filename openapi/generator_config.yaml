@@ -1,0 +1,10 @@
+templateDir: /local/openapi/go-server_templates
+files:
+  custom_templates/custom_types.mustache:
+    folder: server
+    templateType: SupportingFiles
+    destinationFilename: model_custom_types.go
+  custom_templates/http_error.mustache:
+    folder: server
+    templateType: SupportingFiles
+    destinationFilename: http_error.go

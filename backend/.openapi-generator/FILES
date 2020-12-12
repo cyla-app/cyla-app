@@ -1,10 +1,14 @@
 main.go
 server/api.go
 server/api_day.go
+server/api_day_service.go
 server/api_user.go
+server/api_user_service.go
 server/helpers.go
+server/http_error.go
 server/impl.go
 server/logger.go
+server/model_custom_types.go
 server/model_day.go
 server/model_user.go
 server/routers.go

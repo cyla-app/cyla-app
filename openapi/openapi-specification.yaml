@@ -214,15 +214,19 @@ components:
             type: string
   schemas:
     EncryptedAttribute:
+      title: encryptedAttribute
       type: string
       format: byte
     Date:
+      title: date
       type: string
       format: date
     Id:
+      title: id
       type: string
       description: UUID
     User:
+      title: user
       type: object
       description: An User of the app
       properties:
@@ -231,6 +235,7 @@ components:
         user_key_backup:
           $ref: "#/components/schemas/EncryptedAttribute"
     Day:
+      title: day
       type: object
       description: A Day entry
       properties:

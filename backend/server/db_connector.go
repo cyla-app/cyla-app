@@ -11,7 +11,7 @@ type DBConnector interface {
 type UserPersistence interface {
 	CreateUser(ctx context.Context, user User) (userId string, err error)
 	GetUserById(ctx context.Context, userId string) (User, error)
-	GetRestoreDate(ctx context.Context, userId string) (keyBackup EncryptedAttribute, err error)
+	GetRestoreData(ctx context.Context, userId string) (keyBackup EncryptedAttribute, err error)
 	UpdateUser(ctx context.Context, userId string, user User) error
 	CreateDayEntry(ctx context.Context, userId string, day Day) error
 	GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []Date) (days []Day, err error)

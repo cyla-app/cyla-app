@@ -87,7 +87,7 @@ func (s *CylaRedisClient) GetUserById(ctx context.Context, userId string) (user 
 	return user, nil
 }
 
-func (s *CylaRedisClient) GetRestoreDate(ctx context.Context, userId string) (keyBackup EncryptedAttribute, err error) {
+func (s *CylaRedisClient) GetRestoreData(ctx context.Context, userId string) (keyBackup EncryptedAttribute, err error) {
 	ret := s.HGet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId), GetUserUserKeyBackupName())
 	if ret.Err() == redis.Nil {
 		err = newHTTPError(404, "user not found")

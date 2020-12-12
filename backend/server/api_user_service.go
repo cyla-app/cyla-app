@@ -26,20 +26,20 @@ func NewUserApiService() UserApiServicer {
 
 // CreateUser -
 func (s *UserApiService) CreateUser(ctx context.Context, user User) (ImplResponse, error) {
-	userId, err := DBConnection.CreateUser(ctx, user)
-	return httpResponseWithBody(userId, err)
+	ret, err := DBConnection.CreateUser(ctx, user)
+	return httpResponseWithBody(ret, err)
 }
 
 // GetRestoreData -
 func (s *UserApiService) GetRestoreData(ctx context.Context, userId string) (ImplResponse, error) {
-	backupKey, err := DBConnection.GetRestoreDate(ctx, userId)
-	return httpResponseWithBody(backupKey, err)
+	ret, err := DBConnection.GetRestoreData(ctx, userId)
+	return httpResponseWithBody(ret, err)
 }
 
 // GetUserById -
 func (s *UserApiService) GetUserById(ctx context.Context, userId string) (ImplResponse, error) {
-	user, err := DBConnection.GetUserById(ctx, userId)
-	return httpResponseWithBody(user, err)
+	ret, err := DBConnection.GetUserById(ctx, userId)
+	return httpResponseWithBody(ret, err)
 }
 
 // UpdateUser -

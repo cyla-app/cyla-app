@@ -9,10 +9,11 @@ GEN_GO_PACKAGE_NAME="server"
 # Most output files are saved at GO_SOURCE_PATH/server.
 set -eo pipefail
 
+# The option --import-mappings is a small hack to use the type alias instead of pure string
 docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
+  -c /local/openapi/generator_config.yaml \
 	-i /local/openapi/openapi-specification.yaml \
 	-g go-server \
-	-t /local/openapi/go-server_templates \
 	-o /local/${GO_SOURCE_PATH} \
 	--git-repo-id cyla-app --git-user-id cyla-app \
 	--package-name ${GEN_GO_PACKAGE_NAME} \

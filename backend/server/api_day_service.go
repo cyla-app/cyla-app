@@ -32,14 +32,14 @@ func (s *DayApiService) CreateDayEntry(ctx context.Context, userId string, day D
 
 // GetDayByUserAndRange -
 func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ImplResponse, error) {
-	days, err := DBConnection.GetDayByUserAndRange(ctx, userId, startDate, endDate)
-	return httpResponseWithBody(days, err)
+	ret, err := DBConnection.GetDayByUserAndRange(ctx, userId, startDate, endDate)
+	return httpResponseWithBody(ret, err)
 }
 
 // GetDaysByUserIdAndDate -
 func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ImplResponse, error) {
-	days, err := DBConnection.GetDaysByUserIdAndDate(ctx, userId, date)
-	return httpResponseWithBody(days, err)
+	ret, err := DBConnection.GetDaysByUserIdAndDate(ctx, userId, date)
+	return httpResponseWithBody(ret, err)
 }
 
 // UpdateDayEntry -
