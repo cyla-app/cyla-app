@@ -25,58 +25,25 @@ func NewUserApiService() UserApiServicer {
 }
 
 // CreateUser -
-//TODO remove code duplication for error handling
 func (s *UserApiService) CreateUser(ctx context.Context, user User) (ImplResponse, error) {
 	userId, err := DBConnection.CreateUser(ctx, user)
-	if err == nil {
-		return Response(200, userId), err
-	}
-	httpError, ok := err.(*HttpError)
-	if ok {
-		return Response(httpError.Code, nil), httpError
-	} else {
-		return Response(500, nil), err
-	}
+	return httpResponseWithBody(userId, err)
 }
 
 // GetRestoreData -
 func (s *UserApiService) GetRestoreData(ctx context.Context, userId string) (ImplResponse, error) {
 	backupKey, err := DBConnection.GetRestoreDate(ctx, userId)
-	if err == nil {
-		return Response(200, backupKey), err
-	}
-	httpError, ok := err.(*HttpError)
-	if ok {
-		return Response(httpError.Code, nil), httpError
-	} else {
-		return Response(500, nil), err
-	}
+	return httpResponseWithBody(backupKey, err)
 }
 
 // GetUserById -
 func (s *UserApiService) GetUserById(ctx context.Context, userId string) (ImplResponse, error) {
-	user, err := DBConnection.GetUser(ctx, userId)
-	if err == nil {
-		return Response(200, user), err
-	}
-	httpError, ok := err.(*HttpError)
-	if ok {
-		return Response(httpError.Code, nil), httpError
-	} else {
-		return Response(500, nil), err
-	}
+	user, err := DBConnection.GetUserById(ctx, userId)
+	return httpResponseWithBody(user, err)
 }
 
 // UpdateUser -
 func (s *UserApiService) UpdateUser(ctx context.Context, userId string, user User) (ImplResponse, error) {
 	err := DBConnection.UpdateUser(ctx, userId, user)
-	if err == nil {
-		return Response(200, "Ok"), err
-	}
-	httpError, ok := err.(*HttpError)
-	if ok {
-		return Response(httpError.Code, nil), httpError
-	} else {
-		return Response(500, nil), err
-	}
+	return httpResponse(err)
 }

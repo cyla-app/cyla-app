@@ -71,7 +71,7 @@ func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, er
 	return user.Id, nil
 }
 
-func (s *CylaRedisClient) GetUser(ctx context.Context, userId string) (user User, err error) {
+func (s *CylaRedisClient) GetUserById(ctx context.Context, userId string) (user User, err error) {
 	var ret map[string]string
 	ret, err = s.HGetAll(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId)).Result()
 	if len(ret) == 0 {

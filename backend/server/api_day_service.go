@@ -26,57 +26,24 @@ func NewDayApiService() DayApiServicer {
 
 // CreateDayEntry -
 func (s *DayApiService) CreateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
-	//TODO Server-error vs client-error
 	err := DBConnection.CreateDayEntry(ctx, userId, day)
-	if err == nil {
-		return Response(200, "Ok"), err
-	}
-	httpError, ok := err.(*HttpError)
-	if ok {
-		return Response(httpError.Code, nil), httpError
-	} else {
-		return Response(500, nil), err
-	}
+	return httpResponse(err)
 }
 
 // GetDayByUserAndRange -
 func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ImplResponse, error) {
 	days, err := DBConnection.GetDayByUserAndRange(ctx, userId, startDate, endDate)
-	if err == nil {
-		return Response(200, days), err
-	}
-	httpError, ok := err.(*HttpError)
-	if ok {
-		return Response(httpError.Code, nil), httpError
-	} else {
-		return Response(500, nil), err
-	}
+	return httpResponseWithBody(days, err)
 }
 
 // GetDaysByUserIdAndDate -
 func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ImplResponse, error) {
 	days, err := DBConnection.GetDaysByUserIdAndDate(ctx, userId, date)
-	if err == nil {
-		return Response(200, days), err
-	}
-	httpError, ok := err.(*HttpError)
-	if ok {
-		return Response(httpError.Code, nil), httpError
-	} else {
-		return Response(500, nil), err
-	}
+	return httpResponseWithBody(days, err)
 }
 
 // UpdateDayEntry -
 func (s *DayApiService) UpdateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
 	err := DBConnection.UpdateDayEntry(ctx, userId, day)
-	if err == nil {
-		return Response(200, "Ok"), err
-	}
-	httpError, ok := err.(*HttpError)
-	if ok {
-		return Response(httpError.Code, nil), httpError
-	} else {
-		return Response(500, nil), err
-	}
+	return httpResponse(err)
 }
