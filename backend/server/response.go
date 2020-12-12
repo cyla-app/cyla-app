@@ -15,7 +15,7 @@ func httpResponse(err error) (ImplResponse, error) {
 
 func httpResponseWithBody(body interface{}, err error) (ImplResponse, error) {
 	if err == nil {
-		if &body == nil {
+		if body == nil {
 			body = "Ok"
 		}
 		return Response(200, body), err
