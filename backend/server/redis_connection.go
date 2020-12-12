@@ -191,6 +191,9 @@ func (s *CylaRedisClient) UpdateDayEntry(ctx context.Context, userId string, day
 }
 
 func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) ([]Day, error) {
+	if endDate == "" {
+		endDate = startDate
+	}
 	days := make([]Day, 0)
 	opResult, err := getDayByRange.Run(ctx, s,
 		[]string{
