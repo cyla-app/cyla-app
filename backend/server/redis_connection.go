@@ -20,7 +20,6 @@ func loadLuaScript(scriptPath string) *redis.Script {
 	return redis.NewScript(string(arr))
 }
 
-//TODO: Refactor duplicate code of script calls
 var addDayScript = loadLuaScript("resources/create_day_script.lua")
 var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua")
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
@@ -97,7 +96,7 @@ func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user Us
 	if user.Id != userId && user.Id != "" {
 		return newHTTPError(400, "different userId in path and in request body")
 	}
-	valList, err := flatStructToStringList(user)
+	valList, err := flatStructToSlice(user)
 	if err != nil {
 		return newHTTPErrorWithCauseError(500, "could not marshall user", err)
 	}
@@ -117,7 +116,7 @@ func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user Us
 }
 
 func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day Day) error {
-	valList, err := flatStructToStringList(day)
+	valList, err := flatStructToSlice(day)
 	if err != nil {
 		return newHTTPErrorWithCauseError(500, "could not marshall day", err)
 	}
@@ -168,7 +167,7 @@ func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId str
 }
 
 func (s *CylaRedisClient) UpdateDayEntry(ctx context.Context, userId string, day Day) error {
-	valList, err := flatStructToStringList(day)
+	valList, err := flatStructToSlice(day)
 	if err != nil {
 		return newHTTPErrorWithCauseError(500, "could not marshall day", err)
 	}
