@@ -25,9 +25,9 @@ type DBConnector interface {
 var DBConnection DBConnector
 
 func InitializeDBConnection() {
-var err error
-DBConnection, err = New{{#lambda.titlecase}}{{databaseType}}{{/lambda.titlecase}}Client()
-if err != nil {
-panic(err)
-}
+    var err error
+    DBConnection, err = New{{#lambda.titlecase}}{{databaseType}}{{/lambda.titlecase}}Client()
+    if err != nil {
+        log.Fatalf("Error when initializing DB client: %s", err)
+    }
 }

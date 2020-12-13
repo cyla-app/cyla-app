@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"log"
 )
 
 type DBConnector interface {
@@ -28,6 +29,6 @@ func InitializeDBConnection() {
 	var err error
 	DBConnection, err = NewRedisClient()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error when initializing DB client: %s", err)
 	}
 }

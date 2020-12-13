@@ -9,6 +9,8 @@
 
 package server
 
+import "log"
+
 func httpResponse(err error) (ImplResponse, error) {
 	return httpResponseWithBody(nil, err)
 }
@@ -20,6 +22,7 @@ func httpResponseWithBody(body interface{}, err error) (ImplResponse, error) {
 		}
 		return Response(200, body), err
 	}
+	log.Printf("Error when handling request: %s", err)
 	httpError, ok := err.(*HttpError)
 	if ok {
 		return Response(httpError.Code, nil), httpError

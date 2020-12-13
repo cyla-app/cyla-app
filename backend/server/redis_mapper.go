@@ -6,7 +6,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-//TODO: pointer functions
 func flatStructToStringList(inputStruct interface{}) (ret []interface{}, err error) {
 	var mapTmp map[string]interface{}
 	err = mapstructure.Decode(inputStruct, &mapTmp)

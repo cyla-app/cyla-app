@@ -20,9 +20,7 @@ func loadLuaScript(scriptPath string) *redis.Script {
 	return redis.NewScript(string(arr))
 }
 
-//TODO: Better integration of scripts?
 //TODO: Refactor duplicate code of script calls
-//TODO: Add logging
 var addDayScript = loadLuaScript("resources/create_day_script.lua")
 var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua")
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
@@ -109,11 +107,11 @@ func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user Us
 			fmt.Sprintf("%v:%v", userPrefixKey, user.Id),
 		}, valList).Int()
 
-	if opResult == 0 {
-		return newHTTPError(404, "user not found")
-	}
 	if err != nil {
 		return newHTTPError(500, "redis error")
+	}
+	if opResult == 0 {
+		return newHTTPError(404, "user not found")
 	}
 	return nil
 }
@@ -217,5 +215,4 @@ func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId strin
 		days = append(days, day)
 	}
 	return days, nil
-
 }
