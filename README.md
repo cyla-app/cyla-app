@@ -4,14 +4,30 @@
 
 ## backend
 
+[OpenAPI](https://editor.swagger.io/?url=https://raw.githubusercontent.com/cyla-app/cyla-app/main/openapi/openapi-specification.yaml)
+
 1. `cd backend/`
 1. `go get -d`
 
 ## frontend
 
+[Data Model](https://editor.swagger.io/?url=https://raw.githubusercontent.com/cyla-app/cyla-app/main/openapi/frontend-spec.yaml)
+
 1. `cd frontend`
 1. `npm instal`
 1. `npx react-native start`
+
+### Inspect app preferences
+
+Inspect encryption storage:
+```bash
+adb shell cat /data/data/app.cyla/shared_prefs/encryption_storage.xml
+```
+
+Inspect app storage:
+```bash
+adb shell cat /data/data/app.cyla/shared_prefs/app_storage.xml
+```
 
 ## Docker
 

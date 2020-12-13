@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  description: ""
+  version: 0.1.0
+  title: "Cyla App Frontend Types"
+servers: []
+paths: {}
+components:
+  schemas:
+    Day:
+      type: object
+      description: A Day entry
+      properties:
+        temperature:
+          $ref: "#/components/schemas/Temperature"
+        bleeding:
+          $ref: "#/components/schemas/Bleeding"
+        cervical:
+          $ref: "#/components/schemas/CervicalMucus"
+        cervix:
+          $ref: "#/components/schemas/Cervix"
+        sexActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/SexualActivity"
+        sexDesire:
+          $ref: "#/components/schemas/SexualDesire"
+        pain:
+          $ref: "#/components/schemas/Pain"
+        mood:
+          $ref: "#/components/schemas/Mood"
+        ovulationTest:
+          $ref: "#/components/schemas/OvulationTest"
+        excludeReason:
+          type: string
+          enum: [sick, hungover, sleep]
+    Bleeding:
+      type: object
+      description: Bleeding information for a day
+      properties:
+        type:
+          type: string
+          enum: [period, spotting]
+    Temperature:
+      type: object
+      description: Temperature information for a day
+      properties:
+        value:
+          type: number
+        timestamp:
+          type: string
+          format: date
+          description: defined by RFC 3339, section 5.6, for example, 2017-07-21
+        note:
+          type: string
+          maxLength: 500
+    CervicalMucus:
+      type: object
+      description: Cervical Mucus information for a day
+      properties:
+        feeling:
+          type: string
+          enum: [nothing, dry, wet, slippery]
+        texture:
+          type: string
+          enum: [nothing, creamy, egg white]
+    Cervix:
+      type: object
+      description: Cervix information for a day
+      properties:
+        opening:
+          type: string
+          enum: [closed, medium, raised]
+        firmness:
+          type: string
+          enum: [firm, medium, soft]
+        position:
+          type: string
+          enum: [low, medium, high]
+    OvulationTest:
+      type: object
+      description: Result of an ovulation test for a day
+      properties:
+        result:
+          type: boolean
+    Mood:
+      type: object
+      description: Mood information for a day
+      properties:
+        type:
+          type: string
+          enum: [happy, confident, calm, energetic, excited, PMS, mood swings, irritable, anxious, stressed, tired, sensitive, numb, sad, angry]
+    #          $ref: "#/components/schemas/EncryptedAttribute"
+    Pain:
+      type: object
+      description: Pain information for a day
+      properties:
+        type:
+          type: string
+          enum: [cramps, ovulation pain, headache, backache, nausea, tender breasts, migraine, other]
+    SexualDesire:
+      type: object
+      description: Sexual desire information for a day
+      properties:
+        intensity:
+          type: integer
+          minimum: 0
+          maximum: 10
+    #          $ref: "#/components/schemas/EncryptedAttribute"
+    SexualActivity:
+      type: object
+      description: Information about a sexual activity
+      properties:
+        #        type:
+        #          $ref: "#/components/schemas/EncryptedAttribute"
+        contraceptives:
+          type: string
+          enum: [ none, condom, female condom, pill, ring, patch, hormonal IUD, copper IUD, chemical, diaphragm, implant ]
+#          $ref: "#/components/schemas/EncryptedAttribute"

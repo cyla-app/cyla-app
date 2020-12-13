@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-import { ToggleButton } from 'react-native-paper'
+import { ToggleButton, useTheme } from 'react-native-paper'
 import React from 'react'
 
 export default function <ValueType extends string>({
@@ -15,35 +15,39 @@ export default function <ValueType extends string>({
     title: string
   }>
 }) {
+  const theme = useTheme()
+
   return (
     <ToggleButton.Group onValueChange={onValueChange} value={value}>
       <View
         style={{
           flexDirection: 'row',
         }}>
-        {buttons.map((button) => (
-          <View
-            key={button.value}
-            style={{
-              flexDirection: 'column',
-              marginLeft: 15,
-              marginRight: 15,
-            }}>
-            <ToggleButton
+        {buttons.map((button) => {
+          return (
+            <View
+              key={button.value}
               style={{
-                width: 60,
-              }}
-              icon={button.icon}
-              value={button.value}
-            />
-            <Text
-              style={{
-                textAlign: 'center',
+                flexDirection: 'column',
+                marginLeft: 15,
+                marginRight: 15,
               }}>
-              {button.title}
-            </Text>
-          </View>
-        ))}
+              <ToggleButton
+                style={{
+                  width: 60,
+                }}
+                icon={button.icon}
+                value={button.value}
+              />
+              <Text
+                style={{
+                  textAlign: 'center',
+                }}>
+                {button.title}
+              </Text>
+            </View>
+          )
+        })}
       </View>
     </ToggleButton.Group>
   )

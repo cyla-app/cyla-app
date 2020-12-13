@@ -95,7 +95,7 @@ export default () => {
       // }}
       // Enable the option to swipe between months. Default = false
       // enableSwipeMonths={false}
-      pastScrollRange={12}
+      pastScrollRange={3}
       // Max amount of months allowed to scroll to the future. Default = 50
       futureScrollRange={1}
       // Enable or disable scrolling of calendar list

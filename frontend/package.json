@@ -8,8 +8,8 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "generate": "openapi --input ../docs/openapi-specification.yaml --output ./generated --exportCore false --exportServices false",
-    "postinstall": "patch-package"
+    "generate": "rm -rf ./generated/* && openapi --input ../openapi/frontend-spec.yaml --output ./generated --exportCore false --exportServices false",
+    "postinstall": "patch-package && yarn run generate"
   },
   "dependencies": {
     "@gorhom/animated-tabbar": "^2.1.0",

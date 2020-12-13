@@ -1,5 +1,6 @@
 import { Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
+import { useTheme } from 'react-native-paper'
 
 export default ({
   initialString,
@@ -20,6 +21,7 @@ export default ({
     setTemperatureString(newTemperatureString)
   }
 
+  const theme = useTheme()
   return (
     <View
       style={{
@@ -33,12 +35,12 @@ export default ({
       <TextInput
         style={{
           width: 100,
-          height: 55,
           fontWeight: 'bold',
           fontFamily: 'monospace',
           fontSize: 30,
           alignSelf: 'center',
         }}
+        selectionColor={theme.colors.primary}
         value={temperatureString}
         onChangeText={(text) => {
           setTemperature(parseFloat(text), text)

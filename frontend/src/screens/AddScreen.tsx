@@ -5,7 +5,6 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import DayDataEntry from '../components/DayDataEntry'
 import { format } from 'date-fns'
-import DecryptionService from '../decryption/DecryptionService'
 
 type AddScreenNavigationProp = StackNavigationProp<MainStackParamList, 'Add'>
 
@@ -21,9 +20,13 @@ export default ({ navigation }: { navigation: AddScreenNavigationProp }) => {
           title={format(new Date(), 'Mo MMMM yyyy ')}
         />
 
-        <DayDataEntry />
-
         <Card.Content>
+          <DayDataEntry
+            onAdd={(day) => {
+              console.log(day)
+            }}
+          />
+
           <Button
             onPress={() => {}}
             mode="contained"
