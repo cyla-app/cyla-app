@@ -5,9 +5,10 @@ import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { CompositeNavigationProp } from '@react-navigation/native'
-import DayDataEntry from '../components/DayDataEntry'
 import { TabsParamList } from '../navigation/TabBarNavigation'
 import DecryptionService from '../decryption/DecryptionService'
+import { Day } from '../../generated'
+import EntryDay from '../components/EntryDay'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -24,8 +25,8 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
       }}>
       {/*<PeriodCircle />*/}
 
-      <DayDataEntry
-        onAdd={(day) => {
+      <EntryDay
+        onSave={(day: Day) => {
           new DecryptionService()
             .postDay(day)
             .catch((e: Error) => Alert.alert(e.message))

@@ -3,8 +3,8 @@ import { StyleSheet, View } from 'react-native'
 import React from 'react'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
-import DayDataEntry from '../components/DayDataEntry'
 import { format } from 'date-fns'
+import EntryDay from '../components/EntryDay'
 
 type AddScreenNavigationProp = StackNavigationProp<MainStackParamList, 'Add'>
 
@@ -21,8 +21,8 @@ export default ({ navigation }: { navigation: AddScreenNavigationProp }) => {
         />
 
         <Card.Content>
-          <DayDataEntry
-            onAdd={(day) => {
+          <EntryDay
+            onSave={(day) => {
               console.log(day)
             }}
           />

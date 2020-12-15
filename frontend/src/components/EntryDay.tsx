@@ -17,7 +17,7 @@ const PropertyHeadline = ({ children }: { children: React.ReactNode }) => (
   <Subheading>{children}</Subheading>
 )
 
-export default ({ onAdd }: { onAdd: (day: Day) => void }) => {
+export default ({ onSave }: { onSave: (day: Day) => void }) => {
   const [temperature, setTemperature] = useState<Temperature['value']>(0)
   const [bleedingStrength, setBleedingStrength] = useState<Bleeding.strength>(
     Bleeding.strength.NONE,
@@ -70,7 +70,7 @@ export default ({ onAdd }: { onAdd: (day: Day) => void }) => {
 
       <Button
         onPress={() => {
-          onAdd({
+          onSave({
             temperature: {
               value: temperature,
               timestamp: new Date().toISOString(),
