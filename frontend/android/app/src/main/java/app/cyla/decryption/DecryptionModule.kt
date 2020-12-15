@@ -19,10 +19,10 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.squareup.moshi.JsonAdapter
-
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.time.LocalDate
+import java.util.concurrent.CompletableFuture
 
 
 class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
@@ -32,6 +32,12 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     }
 
     private lateinit var userKey: SymmetricKey
+    private val moshi = Moshi.Builder()
+        .add(KotlinJsonAdapterFactory())
+        .add(OffsetDateTimeAdapter())
+        .add(OffsetDateTimeAdapter())
+        .build()
+    private val jsonDayAdapter: JsonAdapter<Day> = moshi.adapter(Day::class.java)
 
     override fun getName(): String {
         return "DecryptionModule"
@@ -117,26 +123,26 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
 
     @ReactMethod
     fun postDay(dayJson: String, promise: Promise) {
-        val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()
-        val jsonAdapter: JsonAdapter<Day> = moshi.adapter(Day::class.java)
-
-        // Transform for validation
-        val day: Day? = jsonAdapter.fromJson(dayJson)
-//        println(day!!.bleeding!!.strength)
-
-        DayApi().createDayEntry(
-            getAppStorage().getUserId()!!, app.cyla.api.models.Day(
-                null,
-                ByteArray(0), // FIXME
-                LocalDate.now(),
-                SecureCell.SealWithKey(userKey).encrypt(dayJson.toByteArray())
+        CompletableFuture.supplyAsync {
+            // Transform for validation  
+            jsonDayAdapter.fromJson(dayJson)
+            
+            DayApi().createDayEntry(
+                getAppStorage().getUserId()!!, app.cyla.api.models.Day(
+                    null,
+                    ByteArray(0), // FIXME
+                    LocalDate.now(),
+                    SecureCell.SealWithKey(userKey).encrypt(dayJson.toByteArray())
+                )
             )
-        )
+            promise.resolve(null)
+        }.exceptionally { throwable ->
+            promise.reject(throwable)
+        }
+    }
 
-//        initializeUserKey(userId, "pass123phrase", promise)
-//        Toast.makeText(reactApplicationContext, userId, Toast.LENGTH_LONG).show()
-        promise.resolve("userId")
+    @ReactMethod
+    fun fetchDays(promise: Promise) {
+
     }
 }
