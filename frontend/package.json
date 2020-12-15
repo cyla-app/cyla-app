@@ -8,7 +8,7 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "generate": "rm -rf ./generated/* && openapi --input ../openapi/frontend-spec.yaml --output ./generated --exportCore false --exportServices false",
+    "generate": "rimraf ./generated/* && openapi --input ../openapi/frontend-spec.yaml --output ./generated --exportCore false --exportServices false",
     "postinstall": "patch-package && yarn run generate"
   },
   "dependencies": {
@@ -48,6 +48,7 @@
     "metro-react-native-babel-preset": "^0.59.0",
     "patch-package": "^6.2.2",
     "react-test-renderer": "16.13.1",
+    "rimraf": "^3.0.2",
     "typescript": "^3.8.3",
     "yarn-deduplicate": "^3.1.0"
   },
