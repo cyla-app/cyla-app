@@ -268,13 +268,9 @@ task generateFrontendSpec(type: org.openapitools.generator.gradle.plugin.tasks.G
             "Day",
             "Temperature",
             "Cervix",
-            "CervicalMucus",
+            "Mucus",
             "Bleeding",
-            "Mood",
-            "OvulationTest",
-            "Pain",
-            "SexualActivity",
-            "SexualDesire"
+            "ExcludeReason"
     ]
     configOptions = [
             dateLibrary: "java8"

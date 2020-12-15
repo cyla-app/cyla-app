@@ -38,7 +38,7 @@ components:
       description: Bleeding information for a day
       properties:
         strength:
-          type: integer
+          type: string
           enum: [ 'none', 'weak', 'medium', 'strong' ]
       required:
         - strength
