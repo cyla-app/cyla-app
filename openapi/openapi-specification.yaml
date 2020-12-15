@@ -224,8 +224,7 @@ components:
           type: string
           description: Day key used to encrypt sensitive information for the day.
         version:
-          format: byte
-          type: string
+          type: integer
         date:
           $ref: "#/components/schemas/DayDate"
         dayInfo:

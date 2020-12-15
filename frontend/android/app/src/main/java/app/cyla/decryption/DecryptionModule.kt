@@ -128,6 +128,7 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
 
             val day = Day()
             day.date = LocalDate.now()
+            day.version = 0
             day.dayInfo = ThemisOperations.encryptData(userKey, dayJson)
 
             dayApi.modifyDayEntry(
