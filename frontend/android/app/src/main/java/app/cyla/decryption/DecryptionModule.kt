@@ -64,7 +64,7 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     }
 
     private fun createNewUserKey(passphrase: String): Pair<String, SymmetricKey> {
-        val (cipherText, iv) = encryptPassphrase(passphrase)
+        val (cipherText, iv) = encryptPassphrase(reactApplicationContext, passphrase)
         val (userKey, userKeyCell) = createUserKey(passphrase)
 
         getEncryptionStorage().edit()
