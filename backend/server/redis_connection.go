@@ -155,7 +155,7 @@ func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId str
 			return nil, newHTTPError(404, fmt.Sprintf("could not find day with date %v", dates[i]))
 		}
 		day := Day{}
-		err = mapstructure.Decode(ret, &day)
+		err = mapstructure.WeakDecode(ret, &day)
 
 		if err != nil {
 			return nil, newHTTPErrorWithCauseError(500, "could not unmarshall day", err)
