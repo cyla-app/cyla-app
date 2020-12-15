@@ -3,72 +3,34 @@ import React, { useState } from 'react'
 import RadioButtonGroup from './RadioButtonGroup'
 import TemperatureEdit from './TemperatureEdit'
 import { Button, Subheading } from 'react-native-paper'
-import { Day } from '../../generated'
+import {
+  Day,
+  //Temperature,
+  CervicalMucus,
+  Cervix,
+  Mood,
+  OvulationTest,
+  Pain,
+  SexualActivity,
+  SexualDesire,
+} from '../../generated'
 
 // import Slider from '@react-native-community/slider'
 
 type ExcludeReasonValue = 'not defined' | 'sick' | 'sleep' | 'hungover'
 type BleedingValue = 'not defined' | 'period' | 'spotting'
-type CervicalMucusFeeling = 'nothing' | 'dry' | 'wet' | 'slippery'
-type CervicalMucusStructure = 'nothing' | 'creamy' | 'egg white'
-type CervixOpening = 'not defined' | 'closed' | 'medium' | 'raised'
-type CervixFirmness = 'not defined' | 'firm' | 'medium' | 'soft'
-type CervixPosition = 'not defined' | 'low' | 'medium' | 'high'
-type SexualActivityUsingContraceptive =
-  | 'none'
-  | 'condom'
-  | 'female condom'
-  | 'pill'
-  | 'ring'
-  | 'patch'
-  | 'hormonal IUD'
-  | 'copper IUD'
-  | 'chemical'
-  | 'diaphragm'
-  | 'implant'
-type SexualDesire = -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
-type Pain =
-  | 'not defined'
-  | 'cramps'
-  | 'ovulation pain'
-  | 'headache'
-  | 'backache'
-  | 'nausea'
-  | 'tender breasts'
-  | 'migraine'
-  | 'other'
-type Mood =
-  | 'not defined'
-  | 'happy'
-  | 'confident'
-  | 'calm'
-  | 'energetic'
-  | 'excited'
-  | 'PMS'
-  | 'mood swings'
-  | 'irritable'
-  | 'anxious'
-  | 'stressed'
-  | 'tired'
-  | 'sensitive'
-  | 'numb'
-  | 'sad'
-  | 'angry'
 
 interface DayData {
   temperature?: number
   excludeReason: ExcludeReasonValue
   bleeding: BleedingValue
-  cervicalMucusFeeling: CervicalMucusFeeling
-  cervicalMucusStructure: CervicalMucusStructure
-  cervixOpening: CervixOpening
-  cervixFirmness: CervixFirmness
-  cervixPosition: CervixPosition
-  sexActivity: SexualActivityUsingContraceptive[]
+  cervicalMucus: CervicalMucus
+  cervix: Cervix
+  sexActivity: SexualActivity[]
   sexDesire: SexualDesire
   pain: Pain
   mood: Mood
-  ovulationTest: boolean
+  ovulationTest: OvulationTest
 }
 
 const PropertyHeadline = ({ children }: { children: React.ReactNode }) => (
@@ -80,19 +42,23 @@ export default ({ onAdd }: { onAdd: (day: Day) => void }) => {
     temperature: undefined,
     excludeReason: 'not defined',
     bleeding: 'not defined',
-    cervicalMucusFeeling: 'nothing',
-    cervicalMucusStructure: 'nothing',
-    cervixOpening: 'not defined',
-    cervixFirmness: 'not defined',
-    cervixPosition: 'not defined',
+    cervicalMucus: {
+      feeling: CervicalMucus.feeling.NOTHING,
+      texture: CervicalMucus.texture.NOTHING,
+    },
+    cervix: {
+      opening: undefined,
+      firmness: undefined,
+      position: undefined,
+    },
     sexActivity: new Array(),
-    sexDesire: -1,
-    pain: 'not defined',
-    mood: 'not defined',
-    ovulationTest: undefined,
+    sexDesire: { intensity: undefined },
+    pain: { type: undefined },
+    mood: { type: undefined },
+    ovulationTest: { result: undefined },
   })
 
-  const { excludeReason, bleeding, cervicalMucusFeeling } = state
+  const { excludeReason, bleeding, cervix, cervicalMucus } = state
 
   const setTemperature = (newTemperature: number) => {
     setState({ ...state, temperature: newTemperature })
@@ -110,13 +76,57 @@ export default ({ onAdd }: { onAdd: (day: Day) => void }) => {
       bleeding: newBleeding,
     })
 
+  /*const setCervixOpening = (newOpening: Cervix.opening) =>
+    setState({
+      ...state,
+      cervix: {
+        opening: newOpening,
+        firmness: cervix.firmness,
+        position: cervix.position,
+      },
+    })
+
+  const setCervixFirmness = (newFirmness: Cervix.firmness) =>
+    setState({
+      ...state,
+      cervix: {
+        opening: cervix.opening,
+        firmness: newFirmness,
+        position: cervix.position,
+      },
+    })
+
+  const setCervixPosition = (newPosition: Cervix.position) =>
+    setState({
+      ...state,
+      cervix: {
+        opening: cervix.opening,
+        firmness: cervix.firmness,
+        position: newPosition,
+      },
+    })
+
   const setCervicalMucusFeeling = (
-    newCervicalMucusFeeling: CervicalMucusFeeling,
+    newCervicalMucusFeeling: CervicalMucus.feeling,
   ) =>
     setState({
       ...state,
-      cervicalMucusFeeling: newCervicalMucusFeeling,
+      cervicalMucus: {
+        feeling: newCervicalMucusFeeling,
+        texture: cervicalMucus.texture,
+      },
     })
+
+  const setCervicalMucusTexture = (
+    newCervicalMucusTexture: CervicalMucus.texture,
+  ) =>
+    setState({
+      ...state,
+      cervicalMucus: {
+        feeling: cervicalMucus.feeling,
+        texture: newCervicalMucusTexture,
+      },
+    })*/
 
   return (
     <View
@@ -176,32 +186,126 @@ export default ({ onAdd }: { onAdd: (day: Day) => void }) => {
         ]}
       />
 
-      <PropertyHeadline>CervicalMucus</PropertyHeadline>
+      {/*<PropertyHeadline>Cervical Mucus</PropertyHeadline>
 
       <RadioButtonGroup
-        value={cervicalMucusFeeling}
+        value={cervix.opening}
         onValueChange={(value) => {
-          setCervicalMucusFeeling(value as CervicalMucusFeeling)
+          setCervixOpening(value as Cervix.opening)
+        }}
+        // TODO pick fitting icons
+        buttons={[
+          {
+            title: 'Closed',
+            value: Cervix.opening.CLOSED,
+            icon: 'water',
+          },
+          {
+            title: 'Medium',
+            value: Cervix.opening.MEDIUM,
+            icon: 'water',
+          },
+          {
+            title: 'Raised',
+            value: Cervix.opening.RAISED,
+            icon: 'water',
+          },
+        ]}
+      />
+      <RadioButtonGroup
+        value={cervix.firmness}
+        onValueChange={(value) => {
+          setCervixFirmness(value as Cervix.firmness)
+        }}
+        // TODO pick fitting icons
+        buttons={[
+          {
+            title: 'Firm',
+            value: Cervix.firmness.FIRM,
+            icon: 'water',
+          },
+          {
+            title: 'Medium',
+            value: Cervix.firmness.MEDIUM,
+            icon: 'water',
+          },
+          {
+            title: 'Soft',
+            value: Cervix.firmness.SOFT,
+            icon: 'water',
+          },
+        ]}
+      />
+      <RadioButtonGroup
+        value={cervix.position}
+        onValueChange={(value) => {
+          setCervixPosition(value as Cervix.position)
+        }}
+        // TODO pick fitting icons
+        buttons={[
+          {
+            title: 'Low',
+            value: Cervix.position.LOW,
+            icon: 'water',
+          },
+          {
+            title: 'Medium',
+            value: Cervix.position.MEDIUM,
+            icon: 'water',
+          },
+          {
+            title: 'High',
+            value: Cervix.position.HIGH,
+            icon: 'water',
+          },
+        ]}
+      />
+
+      <PropertyHeadline>Cervical Mucus</PropertyHeadline>
+
+      <RadioButtonGroup
+        value={cervicalMucus.feeling}
+        onValueChange={(value) => {
+          setCervicalMucusFeeling(value as CervicalMucus.feeling)
         }}
         // TODO pick fitting icons
         buttons={[
           {
             title: 'Dry',
-            value: 'dry',
+            value: CervicalMucus.feeling.DRY,
             icon: 'water',
           },
           {
             title: 'Wet',
-            value: 'wet',
+            value: CervicalMucus.feeling.WET,
             icon: 'water',
           },
           {
             title: 'Slippery',
-            value: 'slippery',
+            value: CervicalMucus.feeling.SLIPPERY,
             icon: 'water',
           },
         ]}
       />
+      <RadioButtonGroup
+        value={cervicalMucus.texture}
+        onValueChange={(value) => {
+          setCervicalMucusTexture(value as CervicalMucus.texture)
+        }}
+        // TODO pick fitting icons
+        buttons={[
+          {
+            title: 'Creamy',
+            value: CervicalMucus.texture.CREAMY,
+            icon: 'water',
+          },
+          {
+            title: 'Egg White',
+            value: CervicalMucus.texture.EGG_WHITE,
+            icon: 'water',
+          },
+        ]}
+      />*/}
 
       <Button
         onPress={() => {
