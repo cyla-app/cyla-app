@@ -281,18 +281,19 @@ task generateFrontendSpec(type: org.openapitools.generator.gradle.plugin.tasks.G
     ]
 }
 
+// Compile kotlin before generating code
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     it.dependsOn(swaggerSources.api.code)
     it.dependsOn(generateFrontendSpec)
 }
 
+// Compile java before generating code
 afterEvaluate {
     android.applicationVariants.all { variant ->
         variant.javaCompileProvider.get().dependsOn(swaggerSources.api.code)
         variant.javaCompileProvider.get().dependsOn(generateFrontendSpec)
     }
 }
-
 
 android {
     sourceSets {
