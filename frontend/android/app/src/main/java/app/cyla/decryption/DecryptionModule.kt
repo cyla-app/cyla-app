@@ -4,26 +4,21 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import android.widget.Toast
-import app.cyla.api.apis.DayApi
-import app.cyla.api.apis.UserApi
-import app.cyla.api.models.User
+import app.cyla.api.DayApi
+import app.cyla.api.UserApi
+import app.cyla.api.model.Day
+import app.cyla.api.model.User
 import app.cyla.decryption.AndroidEnclave.Companion.decryptPassphrase
 import app.cyla.decryption.AndroidEnclave.Companion.encryptPassphrase
 import app.cyla.decryption.ThemisOperations.Companion.createUserKey
 import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
-import app.cyla.decryption.models.Day
-import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SymmetricKey
-import com.facebook.react.bridge.Promise
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.*
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
-
 
 class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     companion object {
@@ -35,9 +30,10 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
         .add(OffsetDateTimeAdapter())
-        .add(OffsetDateTimeAdapter())
         .build()
-    private val jsonDayAdapter: JsonAdapter<Day> = moshi.adapter(Day::class.java)
+    private val jsonDayAdapter: JsonAdapter<app.cyla.decryption.models.Day> =
+        moshi.adapter(app.cyla.decryption.models.Day::class.java)
+    private val dayApi = DayApi()
 
     override fun getName(): String {
         return "DecryptionModule"
@@ -80,7 +76,10 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
 
         Toast.makeText(reactApplicationContext, "stored: $passphrase", Toast.LENGTH_LONG).show()
 
-        val userId = UserApi().createUser(User(null, userKey.toByteArray()))
+        val user = User()
+        user.id = null
+        user.userKeyBackup = userKey.toByteArray()
+        val userId = UserApi().createUser(user)
         getAppStorage().edit()
             .putUserId(userId)
             .apply()
@@ -126,14 +125,14 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
         CompletableFuture.supplyAsync {
             // Transform for validation  
             jsonDayAdapter.fromJson(dayJson)
-            
-            DayApi().createDayEntry(
-                getAppStorage().getUserId()!!, app.cyla.api.models.Day(
-                    null,
-                    ByteArray(0), // FIXME
-                    LocalDate.now(),
-                    SecureCell.SealWithKey(userKey).encrypt(dayJson.toByteArray())
-                )
+
+            val day = Day()
+            day.date = LocalDate.now()
+            day.dayInfo = ThemisOperations.encryptData(userKey, dayJson)
+
+            dayApi.createDayEntry(
+                getAppStorage().getUserId()!!,
+                day
             )
             promise.resolve(null)
         }.exceptionally { throwable ->
@@ -142,7 +141,23 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     }
 
     @ReactMethod
-    fun fetchDays(promise: Promise) {
+    fun fetchDays(months: Int, promise: Promise) {
+        val userId = getAppStorage().getUserId()
 
+        CompletableFuture.supplyAsync {
+            val days = dayApi.getDayByUserAndRange(userId!!, LocalDate.now().minusMonths(1), LocalDate.now())
+
+            val plainTextDays = days.mapNotNull {
+                ThemisOperations.decryptData(userKey, it.dayInfo)
+            }
+
+            val writableNativeArray = WritableNativeArray()
+            for (plainTextDay in plainTextDays) {
+                writableNativeArray.pushString(plainTextDay)
+            }
+            promise.resolve(writableNativeArray)
+        }.exceptionally { throwable ->
+            promise.reject(throwable)
+        }
     }
 }

@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
-import app.cyla.api.models.User;
 import app.cyla.decryption.DecryptionModule;
 import com.cossacklabs.themis.InvalidArgumentException;
 import com.cossacklabs.themis.NullArgumentException;
@@ -58,8 +57,6 @@ public class MainApplication extends Application implements ReactApplication {
         } catch (SecureCellException e) {
             e.printStackTrace();
         }
-        
-        new User().getId();
     }
 
     void encryptDataForStoring() throws SecureCellException, NullArgumentException, InvalidArgumentException {
