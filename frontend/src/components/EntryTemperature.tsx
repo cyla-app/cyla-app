@@ -2,13 +2,12 @@ import { Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
 import { useTheme } from 'react-native-paper'
 
-export default ({
-  initialString,
-  onTemperatureChange,
-}: {
+type PropsType = {
   initialString: string
-  onTemperatureChange: (temperature: number) => void
-}) => {
+  onTemperatureChanged: (temperature: number) => void
+}
+
+export default ({ initialString, onTemperatureChanged }: PropsType) => {
   const [temperatureString, setTemperatureString] = useState<string>(
     initialString,
   )
@@ -17,7 +16,7 @@ export default ({
     newTemperature: number,
     newTemperatureString: string,
   ) => {
-    onTemperatureChange(newTemperature)
+    onTemperatureChanged(newTemperature)
     setTemperatureString(newTemperatureString)
   }
 

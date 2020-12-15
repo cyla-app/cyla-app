@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { Alert, View } from 'react-native'
 import CalendarStrip from '../components/CalendarStrip'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
@@ -26,7 +26,9 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
 
       <DayDataEntry
         onAdd={(day) => {
-          new DecryptionService().postDay(day)
+          new DecryptionService()
+            .postDay(day)
+            .catch((e: Error) => Alert.alert(e.message))
         }}
       />
 

@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-import { ToggleButton, useTheme } from 'react-native-paper'
+import { ToggleButton } from 'react-native-paper'
 import React from 'react'
 
 export default function <ValueType extends string>({
@@ -8,16 +8,15 @@ export default function <ValueType extends string>({
   buttons,
 }: {
   value: ValueType
-  onValueChange: (value: string) => void
+  onValueChange: (value: ValueType) => void
   buttons: Array<{
     value: ValueType
     icon: string
     title: string
   }>
 }) {
-  const theme = useTheme()
-
   return (
+    /* @ts-ignore */
     <ToggleButton.Group onValueChange={onValueChange} value={value}>
       <View
         style={{

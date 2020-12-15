@@ -10,7 +10,7 @@ export default () => {
   useEffect(() => {
     const getUserId = async () => {
       setUserId(await new DecryptionService().getUserId())
-      setDays(await new DecryptionService().fetchDays(1))
+      setDays(await new DecryptionService().fetchDaysByMonths(1))
     }
 
     getUserId()
