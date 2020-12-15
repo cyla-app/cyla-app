@@ -6,7 +6,27 @@
 local dates = redis.call("ZRANGEBYLEX", KEYS[1], "[" .. ARGV[1], "[" .. ARGV[2])
 local allDays = {}
 for _, date in ipairs(dates) do
-    table.insert(allDays, redis.call("HGETALL", KEYS[1] .. ":" .. date))
+    local day = redis.call("HGETALL", KEYS[1] .. ":" .. date)
+
+	local result = {}
+	local nextkey
+	for i, v in ipairs(day) do
+		if i % 2 == 1 then
+			nextkey = v
+		else
+			--- result[nextkey] = v
+			
+			table.insert(result, nextkey)
+			if nextkey == "Version" then
+			    table.insert(result, tonumber(v) + 0)
+			else
+			    table.insert(result, v)
+			end
+		end
+	end
+    
+    ---table.insert(allDays, day)
+    table.insert(allDays, result)
 end
 return allDays
 

@@ -20,7 +20,7 @@ func loadLuaScript(scriptPath string) *redis.Script {
 	return redis.NewScript(string(arr))
 }
 
-var addDayScript = loadLuaScript("resources/change_day_script.lua")
+var changeDayScript = loadLuaScript("resources/change_day_script.lua")
 var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua")
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
 
@@ -41,7 +41,7 @@ func NewRedisClient() (*CylaRedisClient, error) {
 			Password: redisPassword,
 			DB:       0,
 		})}
-		addDayScript.Load(context.Background(), cylaClient)
+		changeDayScript.Load(context.Background(), cylaClient)
 		updateHResourceScript.Load(context.Background(), cylaClient)
 		getDayByRange.Load(context.Background(), cylaClient)
 		return &cylaClient, nil
@@ -121,7 +121,7 @@ func (s *CylaRedisClient) ModifyDayEntry(ctx context.Context, userId string, day
 		return newHTTPErrorWithCauseError(500, "could not marshall day", err)
 	}
 	var opResult int
-	opResult, err = addDayScript.Run(ctx, s,
+	opResult, err = changeDayScript.Run(ctx, s,
 		[]string{
 			fmt.Sprintf("%v:%v", userPrefixKey, userId),                                //User resource
 			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),               //sorted set for user's days
@@ -179,7 +179,9 @@ func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId strin
 		return nil, newHTTPErrorWithCauseError(500, "error during execution of pipeline", err)
 	}
 
-	var stringDaysSlice [][]string
+	fmt.Printf("(%+v)\n", opResult)
+	var stringDaysSlice [][]interface{}
+
 	err = mapstructure.Decode(opResult, &stringDaysSlice)
 	if err != nil {
 		return nil, newHTTPErrorWithCauseError(500, "could not marshall results", err)

@@ -15,7 +15,7 @@ type Day struct {
 	// Day key used to encrypt sensitive information for the day.
 	DayKey string `json:"day_key,omitempty" mapstructure:"DayKey"`
 
-	Version int32 `json:"version,omitempty" mapstructure:"Version"`
+	Version int32 `json:"version" mapstructure:"Version"`
 
 	Date DayDate `json:"date" mapstructure:"Date"`
 

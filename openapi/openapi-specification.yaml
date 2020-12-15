@@ -230,5 +230,6 @@ components:
         dayInfo:
           $ref: "#/components/schemas/EncryptedAttribute"
       required:
+        - version
         - dayInfo
         - date
