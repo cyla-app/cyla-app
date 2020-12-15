@@ -3,5 +3,6 @@
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="FLOW" />
   </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_14" default="false" project-jdk-name="Android API 30 Platform" project-jdk-type="Android SDK" />
   <component name="ReactNativePackager" nodePath="project" reactNativePackagePath="$PROJECT_DIR$/frontend/node_modules/react-native" workingDirectory="$PROJECT_DIR$/frontend" />
 </project>

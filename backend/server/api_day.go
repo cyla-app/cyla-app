@@ -31,12 +31,6 @@ func NewDayApiController(s DayApiServicer) Router {
 func (c *DayApiController) Routes() Routes {
 	return Routes{
 		{
-			"CreateDayEntry",
-			strings.ToUpper("Post"),
-			"/day/{userId}",
-			c.CreateDayEntry,
-		},
-		{
 			"GetDayByUserAndRange",
 			strings.ToUpper("Get"),
 			"/day/{userId}/byRange",
@@ -49,33 +43,12 @@ func (c *DayApiController) Routes() Routes {
 			c.GetDaysByUserIdAndDate,
 		},
 		{
-			"UpdateDayEntry",
-			strings.ToUpper("Put"),
+			"ModifyDayEntry",
+			strings.ToUpper("Post"),
 			"/day/{userId}",
-			c.UpdateDayEntry,
+			c.ModifyDayEntry,
 		},
 	}
-}
-
-// CreateDayEntry -
-func (c *DayApiController) CreateDayEntry(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userId := params["userId"]
-	day := &Day{}
-	if err := json.NewDecoder(r.Body).Decode(&day); err != nil {
-		w.WriteHeader(500)
-		return
-	}
-
-	result, err := c.service.CreateDayEntry(r.Context(), userId, *day)
-	//If an error occured, encode the error with the status code
-	if err != nil {
-		EncodeJSONResponse(err.Error(), &result.Code, w)
-		return
-	}
-	//If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
-
 }
 
 // GetDayByUserAndRange -
@@ -113,8 +86,8 @@ func (c *DayApiController) GetDaysByUserIdAndDate(w http.ResponseWriter, r *http
 
 }
 
-// UpdateDayEntry -
-func (c *DayApiController) UpdateDayEntry(w http.ResponseWriter, r *http.Request) {
+// ModifyDayEntry -
+func (c *DayApiController) ModifyDayEntry(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userId := params["userId"]
 	day := &Day{}
@@ -123,7 +96,7 @@ func (c *DayApiController) UpdateDayEntry(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	result, err := c.service.UpdateDayEntry(r.Context(), userId, *day)
+	result, err := c.service.ModifyDayEntry(r.Context(), userId, *day)
 	//If an error occured, encode the error with the status code
 	if err != nil {
 		EncodeJSONResponse(err.Error(), &result.Code, w)

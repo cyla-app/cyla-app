@@ -17,10 +17,10 @@
 
 --- Refactor into a single EXISTS call
 local isUserExist = redis.call('EXISTS', KEYS[1])
-local isDayPresent = redis.call('EXISTS', KEYS[3]);
-if isDayPresent == 1 or isUserExist == 0 then
+if isUserExist == 0 then
     return 0
 else
     redis.call('ZADD', KEYS[2], 0, ARGV[1]);
-    return redis.call('HSET', KEYS[3], unpack(ARGV, 2, #ARGV))
+    redis.call('HSET', KEYS[3], unpack(ARGV, 2, #ARGV))
+    return 1
 end

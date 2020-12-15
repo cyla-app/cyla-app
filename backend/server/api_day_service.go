@@ -24,12 +24,6 @@ func NewDayApiService() DayApiServicer {
 	return &DayApiService{}
 }
 
-// CreateDayEntry -
-func (s *DayApiService) CreateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
-	err := DBConnection.CreateDayEntry(ctx, userId, day)
-	return httpResponse(err)
-}
-
 // GetDayByUserAndRange -
 func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ImplResponse, error) {
 	ret, err := DBConnection.GetDayByUserAndRange(ctx, userId, startDate, endDate)
@@ -42,8 +36,8 @@ func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId strin
 	return httpResponseWithBody(ret, err)
 }
 
-// UpdateDayEntry -
-func (s *DayApiService) UpdateDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
-	err := DBConnection.UpdateDayEntry(ctx, userId, day)
+// ModifyDayEntry -
+func (s *DayApiService) ModifyDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
+	err := DBConnection.ModifyDayEntry(ctx, userId, day)
 	return httpResponse(err)
 }

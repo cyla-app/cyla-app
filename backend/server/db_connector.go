@@ -11,10 +11,9 @@ type DBConnector interface {
 }
 
 type DayPersistence interface {
-	CreateDayEntry(ctx context.Context, userId string, day Day) error
 	GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ret []Day, err error)
 	GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ret []Day, err error)
-	UpdateDayEntry(ctx context.Context, userId string, day Day) error
+	ModifyDayEntry(ctx context.Context, userId string, day Day) error
 }
 type UserPersistence interface {
 	CreateUser(ctx context.Context, user User) (ret string, err error)

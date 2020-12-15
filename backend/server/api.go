@@ -18,10 +18,9 @@ import (
 // The DayApiRouter implementation should parse necessary information from the http request,
 // pass the data to a DayApiServicer to perform the required actions, then write the service results to the http response.
 type DayApiRouter interface {
-	CreateDayEntry(http.ResponseWriter, *http.Request)
 	GetDayByUserAndRange(http.ResponseWriter, *http.Request)
 	GetDaysByUserIdAndDate(http.ResponseWriter, *http.Request)
-	UpdateDayEntry(http.ResponseWriter, *http.Request)
+	ModifyDayEntry(http.ResponseWriter, *http.Request)
 }
 
 // UserApiRouter defines the required methods for binding the api requests to a responses for the UserApi
@@ -39,10 +38,9 @@ type UserApiRouter interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type DayApiServicer interface {
-	CreateDayEntry(context.Context, string, Day) (ImplResponse, error)
 	GetDayByUserAndRange(context.Context, string, string, string) (ImplResponse, error)
 	GetDaysByUserIdAndDate(context.Context, string, []string) (ImplResponse, error)
-	UpdateDayEntry(context.Context, string, Day) (ImplResponse, error)
+	ModifyDayEntry(context.Context, string, Day) (ImplResponse, error)
 }
 
 // UserApiServicer defines the api actions for the UserApi service

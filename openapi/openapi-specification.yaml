@@ -93,8 +93,8 @@ paths:
     post:
       tags:
         - day
-      description: Add a day for an user
-      operationId: createDayEntry
+      description: Adds a day for an user or updates it
+      operationId: modifyDayEntry
       parameters:
         - $ref: "#/components/parameters/userId"
       requestBody:
@@ -107,31 +107,10 @@ paths:
       responses:
         "200":
           description: Day succesfully created
-        "409":
-          description: Conflicting request. Either day already exists or user doesn't
+        "404":
+          description: User not found
         "500":
           description: Error when creating day
-    put:
-      tags:
-        - day
-      description: Update a day for an user
-      operationId: updateDayEntry
-      parameters:
-        - $ref: "#/components/parameters/userId"
-      requestBody:
-        description: Updated day
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Day"
-      responses:
-        "200":
-          description: Day updated successfully
-        "404":
-          description: Day or user not found
-        "500":
-          description: Error when updating user
   /day/{userId}/byDate:
     get:
       tags:

@@ -20,7 +20,7 @@ func loadLuaScript(scriptPath string) *redis.Script {
 	return redis.NewScript(string(arr))
 }
 
-var addDayScript = loadLuaScript("resources/create_day_script.lua")
+var addDayScript = loadLuaScript("resources/change_day_script.lua")
 var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua")
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
 
@@ -115,7 +115,7 @@ func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user Us
 	return nil
 }
 
-func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day Day) error {
+func (s *CylaRedisClient) ModifyDayEntry(ctx context.Context, userId string, day Day) error {
 	valList, err := flatStructToSlice(day)
 	if err != nil {
 		return newHTTPErrorWithCauseError(500, "could not marshall day", err)
@@ -131,7 +131,7 @@ func (s *CylaRedisClient) CreateDayEntry(ctx context.Context, userId string, day
 		return newHTTPErrorWithCauseError(500, "redis error", err)
 	}
 	if opResult == 0 {
-		return newHTTPError(409, "entry for date already in database or user doesn't exist")
+		return newHTTPError(404, "user doesn't exist")
 	}
 	return nil
 
@@ -164,27 +164,6 @@ func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId str
 	}
 
 	return days, nil
-}
-
-func (s *CylaRedisClient) UpdateDayEntry(ctx context.Context, userId string, day Day) error {
-	valList, err := flatStructToSlice(day)
-	if err != nil {
-		return newHTTPErrorWithCauseError(500, "could not marshall day", err)
-	}
-	var opResult int
-	opResult, err = updateHResourceScript.Run(ctx, s,
-		[]string{
-			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, day.Date),
-		}, valList).Int()
-
-	if opResult == 0 {
-		return newHTTPError(404, "day doesn't exist")
-	}
-
-	if err != nil {
-		return newHTTPErrorWithCauseError(500, "error during execution of pipeline", err)
-	}
-	return nil
 }
 
 func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) ([]Day, error) {
