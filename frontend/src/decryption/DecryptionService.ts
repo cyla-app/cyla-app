@@ -7,11 +7,18 @@ type DecryptionModuleType = {
   setupUserKey: (passphrase?: string) => Promise<void>
   isUserKeyReady: () => Promise<boolean>
   getUserId: () => Promise<string>
+  fetchDays: (months: number) => Promise<string[]>
 }
 
 const DecryptionModule: DecryptionModuleType = NativeModules.DecryptionModule
 
 export default class DecryptionService {
+  async fetchDays(months: number): Promise<Day[]> {
+    return (await DecryptionModule.fetchDays(months)).map((json) =>
+      JSON.parse(json),
+    )
+  }
+
   async postDay(day: Day) {
     await DecryptionModule.postDay(JSON.stringify(day))
   }
