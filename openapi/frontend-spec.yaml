@@ -47,10 +47,11 @@ components:
       properties:
         value:
           type: number
+          format: float
+          multipleOf: 0.01
         timestamp:
           type: string
-          format: date
-          description: defined by RFC 3339, section 5.6, for example, 2017-07-21
+          format: date-time
         note:
           type: string
           maxLength: 500
