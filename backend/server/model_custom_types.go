@@ -10,4 +10,4 @@
 package server
 
 type EncryptedAttribute = string
-type Date = string
+type DayDate = string

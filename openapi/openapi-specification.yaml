@@ -127,7 +127,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/MyDate"
+              $ref: "#/components/schemas/DayDate"
       responses:
         "200":
           $ref: "#/components/responses/DaysFound"
@@ -148,13 +148,13 @@ paths:
           description: start date
           required: true
           schema:
-            $ref: "#/components/schemas/MyDate"
+            $ref: "#/components/schemas/DayDate"
         - name: endDate
           in: query
           description: end date
           required: false
           schema:
-            $ref: "#/components/schemas/MyDate"
+            $ref: "#/components/schemas/DayDate"
       responses:
         "200":
           $ref: "#/components/responses/DaysFound"
@@ -175,7 +175,7 @@ components:
       in: query
       required: true
       schema:
-        $ref: "#/components/schemas/MyDate"
+        $ref: "#/components/schemas/DayDate"
   responses:
     DaysFound:
       description: (Empty) list of days found
@@ -196,8 +196,9 @@ components:
       title: encryptedAttribute
       type: string
       format: byte
-    MyDate:
+    DayDate:
       title: date
+      description:  ISO-8601-formatted date for an day entry. Only the date, no time is given.
       type: string
       format: date
     Id:
@@ -226,7 +227,7 @@ components:
           format: byte
           type: string
         date:
-          $ref: "#/components/schemas/MyDate"
+          $ref: "#/components/schemas/DayDate"
         dayInfo:
           $ref: "#/components/schemas/EncryptedAttribute"
       required:

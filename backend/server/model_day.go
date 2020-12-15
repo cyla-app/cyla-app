@@ -17,9 +17,9 @@ type Day struct {
 
 	Version string `json:"version,omitempty" mapstructure:"Version"`
 
-	Date Date `json:"date,omitempty" mapstructure:"Date"`
+	Date DayDate `json:"date" mapstructure:"Date"`
 
-	DayInfo EncryptedAttribute `json:"dayInfo,omitempty" mapstructure:"DayInfo"`
+	DayInfo EncryptedAttribute `json:"dayInfo" mapstructure:"DayInfo"`
 }
 
 func GetDayDayKeyName() string {

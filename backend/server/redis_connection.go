@@ -137,7 +137,7 @@ func (s *CylaRedisClient) ModifyDayEntry(ctx context.Context, userId string, day
 
 }
 
-func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []Date) (days []Day, err error) {
+func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []DayDate) (days []Day, err error) {
 	//Pipeline to reduce communication with the redis server. This requires two for loops, as cmdStringList vals is empty
 	// until the pipeline is executed
 	pipeline := s.TxPipeline()
@@ -166,7 +166,7 @@ func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId str
 	return days, nil
 }
 
-func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) ([]Day, error) {
+func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate DayDate, endDate DayDate) ([]Day, error) {
 	if endDate == "" {
 		endDate = startDate
 	}

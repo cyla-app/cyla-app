@@ -6,7 +6,7 @@ packageName: server
 importMappings:
   # We import the mappings for the custom alis types as a mini-hack so the generator doesn't consider them simply strings.
   EncryptedAttribute: server.EncryptedAttribute
-  Date: server.Date
+  DayDate: server.DayDate
 files:
   custom_templates/custom_types.mustache:
     folder: server
