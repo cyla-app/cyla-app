@@ -130,7 +130,7 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
             day.date = LocalDate.now()
             day.dayInfo = ThemisOperations.encryptData(userKey, dayJson)
 
-            dayApi.createDayEntry(
+            dayApi.modifyDayEntry(
                 getAppStorage().getUserId()!!,
                 day
             )
@@ -141,7 +141,7 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     }
 
     @ReactMethod
-    fun fetchDays(months: Int, promise: Promise) {
+    fun fetchDaysByMonths(months: Int, promise: Promise) {
         val userId = getAppStorage().getUserId()
 
         CompletableFuture.supplyAsync {
@@ -153,7 +153,8 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
 
             val writableNativeArray = WritableNativeArray()
             for (plainTextDay in days) {
-                writableNativeArray.pushString(ThemisOperations.decryptData(userKey, it.dayInfo))
+                val json = ThemisOperations.decryptData(userKey, plainTextDay.dayInfo)
+                writableNativeArray.pushString(json)
             }
             promise.resolve(writableNativeArray)
         }.exceptionally { throwable ->
