@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 import {
   DefaultTheme as PaperDefaultTheme,
@@ -9,8 +9,7 @@ import {
   NavigationContainer,
 } from '@react-navigation/native'
 import MainStackNavigation from './navigation/MainStackNavigation'
-import PasswordModal from './components/PasswordModal'
-import DecryptionService from './decryption/DecryptionService'
+import CreateUserModal from './modals/CreateUserModal'
 
 declare global {
   namespace ReactNativePaper {
@@ -36,35 +35,10 @@ const theme = {
 }
 
 const App = () => {
-  const [userKeyReady, setUserKeyReady] = useState(true)
-
-  useEffect(() => {
-    const retrieveUserKey = async () => {
-      const decryptionService = new DecryptionService()
-      const isReady = await decryptionService.isUserKeyReady()
-
-      setUserKeyReady(isReady)
-
-      if (isReady) {
-        await decryptionService.setupUserKey()
-      }
-    }
-
-    retrieveUserKey().catch((e) => {
-      console.error(e)
-    })
-  }, [])
-
   return (
     <PaperProvider theme={theme}>
       <NavigationContainer theme={theme}>
-        {!userKeyReady && (
-          <PasswordModal
-            onSave={(passphrase: string) => {
-              new DecryptionService().setupUserKey(passphrase)
-            }}
-          />
-        )}
+        <CreateUserModal />
         <MainStackNavigation />
       </NavigationContainer>
     </PaperProvider>
