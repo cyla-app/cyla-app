@@ -179,7 +179,6 @@ func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId strin
 		return nil, newHTTPErrorWithCauseError(500, "error during execution of pipeline", err)
 	}
 
-	fmt.Printf("(%+v)\n", opResult)
 	var stringDaysSlice [][]interface{}
 
 	err = mapstructure.Decode(opResult, &stringDaysSlice)
