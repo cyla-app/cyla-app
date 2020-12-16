@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 
 import {
   DefaultTheme as PaperDefaultTheme,
@@ -9,7 +9,9 @@ import {
   NavigationContainer,
 } from '@react-navigation/native'
 import MainStackNavigation from './navigation/MainStackNavigation'
-import { StatusBar } from 'react-native'
+import { RefreshControl, ScrollView, StatusBar, View } from 'react-native'
+import { Provider } from 'react-redux'
+import { store } from './slices'
 
 declare global {
   namespace ReactNativePaper {
@@ -37,6 +39,19 @@ const theme = {
 
 const App = () => {
   const { colors } = theme
+  const [refreshing, setRefreshing] = useState(false)
+  const onRefresh = useCallback(() => {
+    setRefreshing(true)
+
+    const wait = (timeout: number) => {
+      return new Promise((resolve) => {
+        setTimeout(resolve, timeout)
+      })
+    }
+
+    wait(2000).then(() => setRefreshing(false))
+  }, [])
+
   return (
     <PaperProvider theme={theme}>
       <StatusBar
@@ -44,9 +59,16 @@ const App = () => {
         backgroundColor={colors.background}
         animated
       />
-      <NavigationContainer theme={theme}>
-        <MainStackNavigation />
-      </NavigationContainer>
+      <Provider store={store}>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }>
+          <NavigationContainer theme={theme}>
+            <MainStackNavigation />
+          </NavigationContainer>
+        </ScrollView>
+      </Provider>
     </PaperProvider>
   )
 }
