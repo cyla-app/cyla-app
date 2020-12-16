@@ -1,35 +1,38 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { CalendarList } from 'react-native-calendars'
 import { useTheme } from 'react-native-paper'
 
 export default () => {
   const { colors } = useTheme()
-  const theme = {
-    backgroundColor: colors.background,
-    calendarBackground: colors.background,
-    textSectionTitleColor: colors.text,
-    textSectionTitleDisabledColor: colors.disabled,
-    selectedDayBackgroundColor: colors.background,
-    selectedDayTextColor: colors.primary,
-    todayTextColor: colors.primary,
-    dayTextColor: colors.text,
-    textDisabledColor: colors.disabled,
-    dotColor: colors.primary,
-    selectedDotColor: colors.primary,
-    arrowColor: colors.text,
-    disabledArrowColor: colors.disabled,
-    monthTextColor: colors.text,
-    indicatorColor: colors.primary,
-    textDayFontFamily: undefined,
-    textMonthFontFamily: undefined,
-    textDayHeaderFontFamily: undefined,
-    textDayFontWeight: undefined,
-    textMonthFontWeight: undefined,
-    textDayHeaderFontWeight: undefined,
-    textDayFontSize: 16,
-    textMonthFontSize: 16,
-    textDayHeaderFontSize: 16,
-  }
+  const theme = useMemo(
+    () => ({
+      backgroundColor: colors.background,
+      calendarBackground: colors.background,
+      textSectionTitleColor: colors.text,
+      textSectionTitleDisabledColor: colors.disabled,
+      selectedDayBackgroundColor: colors.background,
+      selectedDayTextColor: colors.primary,
+      todayTextColor: colors.primary,
+      dayTextColor: colors.text,
+      textDisabledColor: colors.disabled,
+      dotColor: colors.primary,
+      selectedDotColor: colors.primary,
+      arrowColor: colors.text,
+      disabledArrowColor: colors.disabled,
+      monthTextColor: colors.text,
+      indicatorColor: colors.primary,
+      textDayFontFamily: undefined,
+      textMonthFontFamily: undefined,
+      textDayHeaderFontFamily: undefined,
+      textDayFontWeight: undefined,
+      textMonthFontWeight: undefined,
+      textDayHeaderFontWeight: undefined,
+      textDayFontSize: 16,
+      textMonthFontSize: 16,
+      textDayHeaderFontSize: 16,
+    }),
+    [colors],
+  )
 
   return (
     <CalendarList

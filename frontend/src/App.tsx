@@ -30,7 +30,8 @@ const theme = {
     primary: '#79486D',
     accent: '#9E1818',
     surface: '#FFF',
-    buttonBackground: 'rgb(217,156,186)',
+    backdrop: '#000',
+    buttonBackground: 'rgb(239,228,237)',
   },
 }
 

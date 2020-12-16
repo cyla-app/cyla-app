@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-import { ToggleButton } from 'react-native-paper'
+import { ToggleButton, useTheme } from 'react-native-paper'
 import React from 'react'
 
 export default function <ValueType extends string>({
@@ -34,6 +34,7 @@ export default function <ValueType extends string>({
               <ToggleButton
                 style={{
                   width: 60,
+                  // backgroundColor: useTheme().colors.buttonBackground,
                 }}
                 icon={button.icon}
                 value={button.value}
