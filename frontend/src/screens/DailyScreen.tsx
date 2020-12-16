@@ -33,7 +33,9 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
         }}>
         <EntryDay
           onSave={(day: Day) => {
-            CylaModule.postDay(day).catch((e: Error) => Alert.alert(e.message))
+            CylaModule.postDay(new Date(), day).catch((e: Error) =>
+              Alert.alert(e.message),
+            )
           }}
         />
       </ScrollView>

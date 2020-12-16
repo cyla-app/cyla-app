@@ -1,9 +1,10 @@
 import { NativeModules } from 'react-native'
 import { Day } from '../../generated'
+import { format } from 'date-fns'
 
 // This type is determined by app.cyla.decryption.CylaModule
 type CylaModuleType = {
-  postDay: (userId: string) => Promise<void>
+  postDay: (iso8601date: string, userId: string) => Promise<void>
   setupUserKey: (passphrase?: string) => Promise<void>
   isUserSignedIn: () => Promise<boolean>
   getUserId: () => Promise<string>
@@ -18,8 +19,11 @@ class CylaModule {
     return jsons.map((json) => JSON.parse(json))
   }
 
-  async postDay(day: Day) {
-    await CylaNativeModule.postDay(JSON.stringify(day))
+  async postDay(date: Date, day: Day) {
+    await CylaNativeModule.postDay(
+      format(date, 'yyyy-MM-dd'),
+      JSON.stringify(day),
+    )
   }
 
   async setupUserKey(passphrase?: string) {

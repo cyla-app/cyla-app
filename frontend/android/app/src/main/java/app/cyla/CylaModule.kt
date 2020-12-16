@@ -32,8 +32,8 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         .add(KotlinJsonAdapterFactory())
         .add(OffsetDateTimeAdapter())
         .build()
-    private val jsonDayAdapter: JsonAdapter<app.cyla.decryption.models.Day> =
-        moshi.adapter(app.cyla.decryption.models.Day::class.java)
+//    private val jsonDayAdapter: JsonAdapter<app.cyla.decryption.models.Day> =
+//        moshi.adapter(app.cyla.decryption.models.Day::class.java)
     private val dayApi = DayApi()
 
     override fun getName(): String {
@@ -122,13 +122,13 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun postDay(dayJson: String, promise: Promise) {
+    fun postDay(iso8601date: String, dayJson: String, promise: Promise) {
         CompletableFuture.supplyAsync {
             // Transform for validation  
-            jsonDayAdapter.fromJson(dayJson)
+//            jsonDayAdapter.fromJson(dayJson)
 
             val day = Day()
-            day.date = LocalDate.now()
+            day.date = LocalDate.parse(iso8601date)
             day.version = 0
             day.dayInfo = ThemisOperations.encryptData(userKey, dayJson)
 

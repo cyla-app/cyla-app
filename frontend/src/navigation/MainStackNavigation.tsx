@@ -3,19 +3,20 @@ import {
   createStackNavigator,
   TransitionPresets,
 } from '@react-navigation/stack'
-import AddScreen from '../screens/AddScreen'
 import { NavigatorScreenParams } from '@react-navigation/native'
 import TabBarNavigation, { TabsParamList } from './TabBarNavigation'
 import CylaModule from '../modules/CylaModule'
 import SignUpScreen from '../screens/SignUpScreen'
 import { Text } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
+import { Day } from '../../generated'
+import DetailScreen from '../screens/DetailScreen'
 
 export type MainStackParamList = {
   SignUp: undefined
   Tabs: NavigatorScreenParams<TabsParamList>
   Profile: undefined
-  Add: undefined
+  Detail: { day: Day }
 }
 
 const Stack = createStackNavigator<MainStackParamList>()
@@ -70,8 +71,8 @@ export default () => {
         <>
           <Stack.Screen name="Tabs" component={TabBarNavigation} />
           <Stack.Screen
-            name="Add"
-            component={AddScreen}
+            name="Detail"
+            component={DetailScreen}
             options={{
               ...TransitionPresets.ModalSlideFromBottomIOS,
               gestureEnabled: true,

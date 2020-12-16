@@ -18,6 +18,7 @@ declare global {
   namespace ReactNativePaper {
     interface ThemeColors {
       buttonBackground: string
+      periodRed: string
     }
 
     interface Theme {}
@@ -34,6 +35,7 @@ const theme = {
     accent: '#9E1818',
     surface: '#FFF',
     backdrop: '#000',
+    periodRed: '#9E1818',
     buttonBackground: 'rgb(239,228,237)',
   },
 }

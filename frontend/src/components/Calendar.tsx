@@ -2,7 +2,12 @@ import React, { useMemo } from 'react'
 import { CalendarList } from 'react-native-calendars'
 import { useTheme } from 'react-native-paper'
 
-export default () => {
+type PropsType = {
+  periodDays: string[]
+  onDayPress: (date: string) => void
+}
+
+export default ({ periodDays, onDayPress }: PropsType) => {
   const { colors } = useTheme()
   const theme = useMemo(
     () => ({
@@ -34,20 +39,26 @@ export default () => {
     [colors],
   )
 
+  const markedDates = periodDays.map((date) => {
+    return [
+      date,
+      {
+        customStyles: {
+          container: {
+            borderColor: colors.periodRed,
+            borderWidth: 1.5,
+          },
+          text: {},
+        },
+      },
+    ]
+  })
+  console.log(markedDates)
+
   return (
     <CalendarList
       markingType={'custom'}
-      markedDates={{
-        '2020-12-18': {
-          customStyles: {
-            container: {
-              borderColor: colors.primary,
-              borderWidth: 1.5,
-            },
-            text: {},
-          },
-        },
-      }}
+      markedDates={Object.fromEntries(markedDates)}
       theme={theme}
       // Initially visible month. Default = Date()
       current={new Date()}
@@ -56,8 +67,9 @@ export default () => {
       // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
       maxDate={undefined}
       // Handler which gets executed on day press. Default = undefined
-      onDayPress={(day) => {
-        console.log('selected day', day)
+      onDayPress={(calendarDay) => {
+        console.log('selected day', calendarDay)
+        onDayPress(calendarDay.dateString)
       }}
       // Handler which gets executed on day long press. Default = undefined
       onDayLongPress={(day) => {

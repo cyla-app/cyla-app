@@ -11,6 +11,9 @@ components:
       type: object
       description: A Day entry
       properties:
+        date:
+          type: string
+          format: date
         temperature:
           $ref: "#/components/schemas/Temperature"
         bleeding:
@@ -33,6 +36,8 @@ components:
         #  $ref: "#/components/schemas/OvulationTest"
         excludeReason:
           $ref: "#/components/schemas/ExcludeReason"
+      required:
+        - date
     Bleeding:
       type: object
       description: Bleeding information for a day
