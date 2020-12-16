@@ -14,7 +14,7 @@ import EntryTemperature from './EntryTemperature'
 import EntryMucus from './EntryMucus'
 
 const PropertyHeadline = ({ children }: { children: React.ReactNode }) => (
-  <Subheading>{children}</Subheading>
+  <Subheading style={{ marginTop: 10 }}>{children}</Subheading>
 )
 
 export default ({ onSave }: { onSave: (day: Day) => void }) => {
@@ -83,7 +83,7 @@ export default ({ onSave }: { onSave: (day: Day) => void }) => {
           })
         }}
         mode="contained"
-        style={{ borderRadius: 30 }}>
+        style={{ borderRadius: 30, margin: 10 }}>
         Add day
       </Button>
     </View>

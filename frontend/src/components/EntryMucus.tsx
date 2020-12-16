@@ -27,17 +27,17 @@ export default ({
           {
             title: 'Dry',
             value: Mucus.feeling.DRY,
-            icon: 'water',
-          },
-          {
-            title: 'Wet',
-            value: Mucus.feeling.WET,
-            icon: 'water',
+            icon: 'hair-dryer',
           },
           {
             title: 'Slippery',
             value: Mucus.feeling.SLIPPERY,
-            icon: 'water',
+            icon: 'wave',
+          },
+          {
+            title: 'Wet',
+            value: Mucus.feeling.WET,
+            icon: 'waves',
           },
         ]}
       />
@@ -46,17 +46,16 @@ export default ({
         onValueChange={(value) => {
           onTextureChanged(value)
         }}
-        // TODO pick fitting icons
         buttons={[
           {
             title: 'Creamy',
             value: Mucus.texture.CREAMY,
-            icon: 'water',
+            icon: 'ice-cream',
           },
           {
             title: 'Egg White',
             value: Mucus.texture.EGG_WHITE,
-            icon: 'water',
+            icon: 'egg',
           },
         ]}
       />

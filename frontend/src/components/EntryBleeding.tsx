@@ -25,6 +25,11 @@ export default ({ strength, onStrengthChanged }: PropsType) => {
           value: Bleeding.strength.MEDIUM,
           icon: 'water',
         },
+        {
+          title: 'Strong',
+          value: Bleeding.strength.STRONG,
+          icon: 'water',
+        },
       ]}
     />
   )

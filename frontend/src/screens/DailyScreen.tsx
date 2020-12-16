@@ -9,6 +9,7 @@ import { TabsParamList } from '../navigation/TabBarNavigation'
 import CylaModule from '../decryption/CylaModule'
 import { Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
+import { useTheme } from 'react-native-paper'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -16,6 +17,7 @@ type DailyScreenNavigationProp = CompositeNavigationProp<
 >
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
+  const { backdrop } = useTheme().colors
   return (
     <View
       style={{
@@ -36,11 +38,17 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
         />
       </ScrollView>
 
-      <CalendarStrip
-        onDaySelected={() => {
-          // navigation.navigate('Add')
-        }}
-      />
+      <View
+        style={{
+          borderTopColor: backdrop,
+          borderTopWidth: 0.5,
+        }}>
+        <CalendarStrip
+          onDaySelected={() => {
+            // navigation.navigate('Add')
+          }}
+        />
+      </View>
     </View>
   )
 }
