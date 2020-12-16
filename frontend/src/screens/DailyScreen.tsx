@@ -6,7 +6,7 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { CompositeNavigationProp } from '@react-navigation/native'
 import { TabsParamList } from '../navigation/TabBarNavigation'
-import DecryptionService from '../decryption/DecryptionService'
+import CylaModule from '../decryption/CylaModule'
 import { Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
 
@@ -27,9 +27,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
 
       <EntryDay
         onSave={(day: Day) => {
-          new DecryptionService()
-            .postDay(day)
-            .catch((e: Error) => Alert.alert(e.message))
+          CylaModule.postDay(day).catch((e: Error) => Alert.alert(e.message))
         }}
       />
 

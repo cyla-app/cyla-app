@@ -9,7 +9,7 @@ import {
   NavigationContainer,
 } from '@react-navigation/native'
 import MainStackNavigation from './navigation/MainStackNavigation'
-import CreateUserModal from './modals/CreateUserModal'
+import { StatusBar } from 'react-native'
 
 declare global {
   namespace ReactNativePaper {
@@ -35,10 +35,15 @@ const theme = {
 }
 
 const App = () => {
+  const { colors } = theme
   return (
     <PaperProvider theme={theme}>
+      <StatusBar
+        barStyle={'dark-content'}
+        backgroundColor={colors.background}
+        animated
+      />
       <NavigationContainer theme={theme}>
-        <CreateUserModal />
         <MainStackNavigation />
       </NavigationContainer>
     </PaperProvider>

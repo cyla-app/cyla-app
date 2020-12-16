@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   createStackNavigator,
   TransitionPresets,
@@ -6,10 +6,13 @@ import {
 import AddScreen from '../screens/AddScreen'
 import { NavigatorScreenParams } from '@react-navigation/native'
 import TabBarNavigation, { TabsParamList } from './TabBarNavigation'
-import { StatusBar } from 'react-native'
-import { useTheme } from 'react-native-paper'
+import CylaModule from '../decryption/CylaModule'
+import SignUpScreen from '../screens/SignUpScreen'
+import { Text } from 'react-native'
+import { ActivityIndicator } from 'react-native-paper'
 
 export type MainStackParamList = {
+  SignUp: undefined
   Tabs: NavigatorScreenParams<TabsParamList>
   Profile: undefined
   Add: undefined
@@ -18,34 +21,72 @@ export type MainStackParamList = {
 const Stack = createStackNavigator<MainStackParamList>()
 
 export default () => {
-  const { colors } = useTheme()
+  const [loading, setLoading] = useState<boolean>(true)
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const checkIfSignedIn = async () => {
+      setLoading(true)
+      const decryptionService = CylaModule
+      const isSignedIn = await decryptionService.isUserSignedIn()
+
+      if (isSignedIn) {
+        await decryptionService.setupUserKey()
+      }
+
+      setIsSignedIn(isSignedIn)
+      setLoading(false)
+    }
+
+    checkIfSignedIn().catch((e: Error) => {
+      setError(e.message)
+    })
+  }, [])
+
+  if (error) {
+    return <Text>error</Text>
+  }
+
+  if (loading) {
+    return <ActivityIndicator animating={true} />
+  }
 
   return (
-    <>
-      <StatusBar
-        barStyle={'dark-content'}
-        backgroundColor={colors.background}
-        animated
-      />
-      <Stack.Navigator screenOptions={{ headerShown: false }} mode="modal">
-        <Stack.Screen name="Tabs" component={TabBarNavigation} />
+    <Stack.Navigator screenOptions={{ headerShown: false }} mode="modal">
+      {!isSignedIn ? (
         <Stack.Screen
-          name="Add"
-          component={AddScreen}
+          name="SignUp"
+          component={() => (
+            <SignUpScreen onSignIn={() => setIsSignedIn(true)} />
+          )}
           options={{
-            ...TransitionPresets.ModalSlideFromBottomIOS,
-            gestureEnabled: true,
-            gestureResponseDistance: {
-              vertical: 500,
-            },
-            cardStyle: {
-              backgroundColor: 'transparent',
-              marginTop: 150,
-              flex: 1,
-            },
+            title: 'Sign in',
+            animationTypeForReplace: 'pop',
           }}
         />
-      </Stack.Navigator>
-    </>
+      ) : (
+        // User is signed in
+        <>
+          <Stack.Screen name="Tabs" component={TabBarNavigation} />
+          <Stack.Screen
+            name="Add"
+            component={AddScreen}
+            options={{
+              ...TransitionPresets.ModalSlideFromBottomIOS,
+              gestureEnabled: true,
+              gestureResponseDistance: {
+                vertical: 500,
+              },
+              cardStyle: {
+                backgroundColor: 'transparent',
+                marginTop: 150,
+                flex: 1,
+              },
+            }}
+          />
+        </>
+      )}
+    </Stack.Navigator>
   )
 }
