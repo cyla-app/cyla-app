@@ -6,7 +6,7 @@ import {
 import AddScreen from '../screens/AddScreen'
 import { NavigatorScreenParams } from '@react-navigation/native'
 import TabBarNavigation, { TabsParamList } from './TabBarNavigation'
-import CylaModule from '../decryption/CylaModule'
+import CylaModule from '../modules/CylaModule'
 import SignUpScreen from '../screens/SignUpScreen'
 import { Text } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'

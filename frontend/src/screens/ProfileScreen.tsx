@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Text } from 'react-native'
-import CylaModule from '../decryption/CylaModule'
+import CylaModule from '../modules/CylaModule'
 import { Day } from '../../generated'
 
 export default () => {

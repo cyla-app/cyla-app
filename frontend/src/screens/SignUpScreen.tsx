@@ -1,4 +1,4 @@
-import CylaModule from '../decryption/CylaModule'
+import CylaModule from '../modules/CylaModule'
 import React, { useState } from 'react'
 import { Text, View, ViewStyle } from 'react-native'
 import PasswordEntry from '../components/PasswordEntry'
