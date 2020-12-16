@@ -53,7 +53,6 @@ export default ({ periodDays, onDayPress }: PropsType) => {
       },
     ]
   })
-  console.log(markedDates)
 
   return (
     <CalendarList
