@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, View } from 'react-native'
+import { Alert, ScrollView, View } from 'react-native'
 import CalendarStrip from '../components/CalendarStrip'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
@@ -21,15 +21,20 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
       style={{
         flex: 1,
         flexDirection: 'column',
-        alignContent: 'space-between',
+        alignContent: 'flex-end',
       }}>
       {/*<PeriodCircle />*/}
 
-      <EntryDay
-        onSave={(day: Day) => {
-          CylaModule.postDay(day).catch((e: Error) => Alert.alert(e.message))
-        }}
-      />
+      <ScrollView
+        style={{
+          flex: 1,
+        }}>
+        <EntryDay
+          onSave={(day: Day) => {
+            CylaModule.postDay(day).catch((e: Error) => Alert.alert(e.message))
+          }}
+        />
+      </ScrollView>
 
       <CalendarStrip
         onDaySelected={() => {

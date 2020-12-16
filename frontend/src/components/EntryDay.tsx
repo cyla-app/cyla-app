@@ -35,10 +35,7 @@ export default ({ onSave }: { onSave: (day: Day) => void }) => {
   return (
     <View
       style={{
-        flex: 1,
-        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'space-evenly',
       }}>
       <EntryTemperature
         initialString={''}

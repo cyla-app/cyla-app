@@ -27,7 +27,8 @@ export default ({ onDaySelected }: { onDaySelected: () => void }) => {
       }}
       iconContainer={{ flex: 0.1 }}
       useNativeDriver
-      style={{ height: 100, paddingTop: 20, paddingBottom: 0 }}
+      style={{ paddingBottom: 8, paddingTop: 8 }}
+      innerStyle={[]}
     />
   )
 }
