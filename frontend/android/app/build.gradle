@@ -225,7 +225,7 @@ dependencies {
 
     // Dependencies openapi
     swaggerCodegen 'org.openapitools:openapi-generator-cli:5.0.0-beta3'
-    
+
     // Dependencies openapi kotlin
 
     implementation "com.squareup.moshi:moshi-kotlin:1.9.2"
@@ -254,7 +254,12 @@ swaggerSources {
         inputFile = file("$rootDir/../../openapi/openapi-specification.yaml")
         code {
             language = 'java'
-            rawOptions = ["--api-package", "app.cyla.api", "--model-package", "app.cyla.api.model", "--additional-properties=dateLibrary=java8"]
+            rawOptions = [
+                    "--package-name", "app.cyla.api",
+                    "--invoker-package", "app.cyla.invoker",
+                    "--api-package", "app.cyla.api",
+                    "--model-package", "app.cyla.api.model",
+                    "--additional-properties=dateLibrary=java8"]
         }
     }
 }

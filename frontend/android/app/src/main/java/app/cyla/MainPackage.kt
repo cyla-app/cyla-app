@@ -1,7 +1,6 @@
 package app.cyla
 
 import android.view.View
-import app.cyla.decryption.DecryptionModule
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
@@ -20,7 +19,7 @@ class MainPackage : ReactPackage {
         reactContext: ReactApplicationContext
     ): List<NativeModule> {
         val modules: MutableList<NativeModule> = ArrayList()
-        modules.add(DecryptionModule(reactContext))
+        modules.add(CylaModule(reactContext))
         return modules
     }
 }

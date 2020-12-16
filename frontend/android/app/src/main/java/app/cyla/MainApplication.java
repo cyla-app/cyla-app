@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
-import app.cyla.decryption.DecryptionModule;
 import com.cossacklabs.themis.InvalidArgumentException;
 import com.cossacklabs.themis.NullArgumentException;
 import com.cossacklabs.themis.SecureCell;

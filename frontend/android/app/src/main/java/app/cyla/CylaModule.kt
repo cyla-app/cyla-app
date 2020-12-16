@@ -1,4 +1,4 @@
-package app.cyla.decryption
+package app.cyla
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,6 +8,7 @@ import app.cyla.api.DayApi
 import app.cyla.api.UserApi
 import app.cyla.api.model.Day
 import app.cyla.api.model.User
+import app.cyla.decryption.*
 import app.cyla.decryption.AndroidEnclave.Companion.decryptPassphrase
 import app.cyla.decryption.AndroidEnclave.Companion.encryptPassphrase
 import app.cyla.decryption.ThemisOperations.Companion.createUserKey
@@ -20,7 +21,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 
-class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
+class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     companion object {
         private const val APP_PREFERENCES_NAME = "app_storage"
         private const val ENCRYPTION_PREFERENCES_NAME = "encryption_storage"
@@ -36,7 +37,7 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     private val dayApi = DayApi()
 
     override fun getName(): String {
-        return "DecryptionModule"
+        return "CylaModule"
     }
 
     private fun getEncryptionStorage(): SharedPreferences {
@@ -116,7 +117,7 @@ class DecryptionModule(reactContext: ReactApplicationContext?) : ReactContextBas
     }
 
     @ReactMethod
-    fun isUserKeyReady(promise: Promise) {
+    fun isUserSignedIn(promise: Promise) {
         promise.resolve(getEncryptionStorage().doRequiredAttributesExist())
     }
 
