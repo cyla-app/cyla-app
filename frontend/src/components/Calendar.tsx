@@ -97,7 +97,7 @@ export default () => {
       // enableSwipeMonths={false}
       pastScrollRange={3}
       // Max amount of months allowed to scroll to the future. Default = 50
-      futureScrollRange={1}
+      futureScrollRange={0}
       // Enable or disable scrolling of calendar list
       scrollEnabled={true}
       // Enable or disable vertical scroll indicator. Default = false
