@@ -1,23 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { RefreshControl, ScrollView, Text } from 'react-native'
 import CylaModule from '../modules/CylaModule'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchAllDays } from '../daysSlice'
+import { useSelector } from 'react-redux'
+import { useRefresh } from '../daysSlice'
 import { RootState } from '../App'
+import { ActivityIndicator } from 'react-native-paper'
 
 export default () => {
   const [userId, setUserId] = useState<string>('')
-  const days = useSelector<RootState>((state) => state.days)
-  const dispatch = useDispatch()
+  const days = useSelector<RootState>((state) => state.days.days)
 
-  const [refreshing, setRefreshing] = useState(false)
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true)
-
-    dispatch(fetchAllDays())
-
-    setRefreshing(false)
-  }, [dispatch])
+  const [loading, refresh] = useRefresh()
 
   useEffect(() => {
     const getUserId = async () => {
@@ -27,12 +20,16 @@ export default () => {
     getUserId()
   }, [])
 
+  if (loading) {
+    return <ActivityIndicator />
+  }
+
   return (
     <ScrollView
       contentContainerStyle={{ flex: 1 }}
-      scrollEnabled={true}
+      scrollEnabled={false}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl refreshing={loading} onRefresh={refresh} />
       }>
       <Text>{userId}</Text>
       <Text>{JSON.stringify(days)}</Text>

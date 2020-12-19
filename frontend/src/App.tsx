@@ -11,7 +11,11 @@ import {
 import MainStackNavigation from './navigation/MainStackNavigation'
 import { StatusBar } from 'react-native'
 import { Provider } from 'react-redux'
-import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import {
+  applyMiddleware,
+  combineReducers,
+  configureStore,
+} from '@reduxjs/toolkit'
 import daysSlice from './daysSlice'
 import profileSlice from './profileSlice'
 
@@ -48,8 +52,16 @@ const rootReducer = combineReducers({
 
 export type RootState = ReturnType<typeof rootReducer>
 
+const middlewares = []
+
+if (__DEV__) {
+  const createDebugger = require('redux-flipper').default
+  middlewares.push(createDebugger())
+}
+
 const store = configureStore({
   reducer: rootReducer,
+  enhancers: [applyMiddleware(...middlewares)],
 })
 
 const App = () => {

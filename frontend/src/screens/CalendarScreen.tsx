@@ -20,7 +20,7 @@ export default ({
 }: {
   navigation: CalendarScreenNavigationProp
 }) => {
-  const days = useSelector<RootState, Day[]>((state) => state.days)
+  const days = useSelector<RootState, Day[]>((state) => state.days.days)
 
   return (
     <View>
