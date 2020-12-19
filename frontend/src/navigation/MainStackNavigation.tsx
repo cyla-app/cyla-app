@@ -39,9 +39,9 @@ export default () => {
 
       if (isSignedIn) {
         await decryptionService.setupUserKey()
+        await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
       }
 
-      await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
       dispatch(setSignedIn(isSignedIn))
       setLoading(false)
     }

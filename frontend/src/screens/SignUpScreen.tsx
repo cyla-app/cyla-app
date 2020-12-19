@@ -53,6 +53,7 @@ export default () => {
     try {
       await CylaModule.setupUserKey(passphrase)
       await generateMockData()
+      await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
 
       setLoading(false)
       dispatch(setSignedIn(true))

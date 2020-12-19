@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { Day } from '../generated'
 import CylaModule from './modules/CylaModule'
 import { useCallback } from 'react'
-import { Dispatch } from 'redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './App'
 
@@ -31,7 +30,13 @@ const days = createSlice({
           loading: false,
         }
       })
-      .addCase(fetchAllDays.pending, (state, action) => {
+      .addCase(fetchAllDays.rejected, (state) => {
+        return {
+          ...state,
+          loading: false,
+        }
+      })
+      .addCase(fetchAllDays.pending, (state) => {
         return {
           ...state,
           loading: true,
