@@ -10,6 +10,8 @@ import CylaModule from '../modules/CylaModule'
 import { Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
 import { useTheme } from 'react-native-paper'
+import { fetchAllDays } from '../daysSlice'
+import { useDispatch } from 'react-redux'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -18,6 +20,7 @@ type DailyScreenNavigationProp = CompositeNavigationProp<
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   const { backdrop } = useTheme().colors
+  const dispatch = useDispatch()
   return (
     <View
       style={{
@@ -32,10 +35,11 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           flex: 1,
         }}>
         <EntryDay
-          onSave={(day: Day) => {
-            CylaModule.postDay(new Date(), day).catch((e: Error) =>
+          onSave={async (day: Day) => {
+            await CylaModule.postDay(new Date(), day).catch((e: Error) =>
               Alert.alert(e.message),
             )
+            await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all data after adding
           }}
         />
       </ScrollView>

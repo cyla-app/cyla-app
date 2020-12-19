@@ -7,6 +7,7 @@ import { addDays, addMonths, format } from 'date-fns'
 import { Day } from '../../generated'
 import { useDispatch } from 'react-redux'
 import { setSignedIn } from '../profileSlice'
+import { fetchAllDays } from '../daysSlice'
 
 export const generateMockData = async () => {
   const randomDate = (start: Date, end: Date) =>

@@ -14,6 +14,7 @@ import DetailScreen from '../screens/DetailScreen'
 import { setSignedIn } from '../profileSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
+import { fetchAllDays } from '../daysSlice'
 
 export type MainStackParamList = {
   SignUp: undefined
@@ -40,6 +41,7 @@ export default () => {
         await decryptionService.setupUserKey()
       }
 
+      await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
       dispatch(setSignedIn(isSignedIn))
       setLoading(false)
     }
