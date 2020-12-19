@@ -19,16 +19,24 @@ const days = createSlice({
   name: 'days',
   initialState: {
     days: [],
-    loading: true,
+    loading: false,
   } as StateType,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchAllDays.fulfilled, (state, action) => {
-      return {
-        days: action.payload,
-        loading: false,
-      }
-    })
+    builder
+      .addCase(fetchAllDays.fulfilled, (state, action) => {
+        return {
+          ...state,
+          days: action.payload,
+          loading: false,
+        }
+      })
+      .addCase(fetchAllDays.pending, (state, action) => {
+        return {
+          ...state,
+          loading: true,
+        }
+      })
   },
 })
 
