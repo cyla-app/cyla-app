@@ -29,6 +29,12 @@ Inspect app storage:
 adb shell cat /data/data/app.cyla/shared_prefs/app_storage.xml
 ```
 
+Changing the server url and reset the current user:
+```bash
+adb shell 'rm /data/data/app.cyla/shared_prefs/encryption_storage.xml'
+adb shell "echo '<?xml version='1.0' encoding='utf-8' standalone='yes' ?><map><string name=\"appBaseUrl\">http://localhost:5000</string></map>' > /data/data/app.cyla/shared_prefs/app_storage.xml"
+```
+
 ## Docker
 
 1. Create a `.env` file in the project root. Fill it according to `.env.example`.
