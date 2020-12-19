@@ -8,10 +8,11 @@ import CalendarIcon from './icons/CalendarIcon'
 import StatisticsIcon from './icons/StatisticsIcon'
 import ProfileIcon from './icons/ProfileIcon'
 import AnimatedTabBar, {
-  BubbleTabBarItemConfig,
+  MaterialTabBarItemConfig,
   TabsConfig,
 } from '@gorhom/animated-tabbar'
 import ProfileScreen from '../screens/ProfileScreen'
+import { useTheme } from 'react-native-paper'
 
 export type TabsParamList = {
   Daily: undefined
@@ -22,72 +23,66 @@ export type TabsParamList = {
 
 const Tab = createBottomTabNavigator<TabsParamList>()
 
-const tabs: TabsConfig<BubbleTabBarItemConfig, TabsParamList> = {
-  Daily: {
-    labelStyle: {
-      color: '#5B37B7',
-    },
-    icon: {
-      component: DailyIcon,
-      activeColor: 'rgba(91,55,183,1)',
-      inactiveColor: 'rgba(0,0,0,1)',
-    },
-    background: {
-      activeColor: 'rgba(223,215,243,1)',
-      inactiveColor: 'rgba(223,215,243,0)',
-    },
-  },
-  Calendar: {
-    labelStyle: {
-      color: '#1194AA',
-    },
-    icon: {
-      component: CalendarIcon,
-      activeColor: 'rgba(17,148,170,1)',
-      inactiveColor: 'rgba(0,0,0,1)',
-    },
-    background: {
-      activeColor: 'rgba(207,235,239,1)',
-      inactiveColor: 'rgba(207,235,239,0)',
-    },
-  },
-  Statistics: {
-    labelStyle: {
-      color: '#1194AA',
-    },
-    icon: {
-      component: StatisticsIcon,
-      activeColor: 'rgba(17,148,170,1)',
-      inactiveColor: 'rgba(0,0,0,1)',
-    },
-    background: {
-      activeColor: 'rgba(207,235,239,1)',
-      inactiveColor: 'rgba(207,235,239,0)',
-    },
-  },
-  Profile: {
-    labelStyle: {
-      color: '#1194AA',
-    },
-    icon: {
-      component: ProfileIcon,
-      activeColor: 'rgba(17,148,170,1)',
-      inactiveColor: 'rgba(0,0,0,1)',
-    },
-    background: {
-      activeColor: 'rgba(207,235,239,1)',
-      inactiveColor: 'rgba(207,235,239,0)',
-    },
-  },
-}
-
 export default () => {
+  const { colors } = useTheme()
+
+  const tabs: TabsConfig<MaterialTabBarItemConfig, TabsParamList> = {
+    Daily: {
+      icon: {
+        component: DailyIcon,
+        color: colors.surface,
+      },
+      ripple: {
+        color: colors.daily,
+      },
+    },
+    Calendar: {
+      icon: {
+        component: CalendarIcon,
+        color: colors.surface,
+      },
+      ripple: {
+        color: colors.calendar,
+      },
+    },
+    Statistics: {
+      icon: {
+        component: StatisticsIcon,
+        color: colors.surface,
+      },
+      ripple: {
+        color: colors.statistics,
+      },
+    },
+    Profile: {
+      icon: {
+        component: ProfileIcon,
+        color: colors.surface,
+      },
+      ripple: {
+        color: colors.profile,
+      },
+    },
+  }
+
   return (
     <>
       <Tab.Navigator
-        tabBar={(props) => {
-          // @ts-ignore I'm unable to fix this right now
-          return <AnimatedTabBar iconSize={20} tabs={tabs} {...props} />
+        tabBar={({ state, descriptors, navigation }) => {
+          return (
+            <AnimatedTabBar
+              preset="material"
+              iconSize={20}
+              itemOuterSpace={2}
+              itemInnerSpace={4}
+              style={{ paddingTop: 5, paddingBottom: 10 }}
+              animation={'iconWithLabelOnFocus'}
+              tabs={tabs}
+              state={state}
+              descriptors={descriptors}
+              navigation={navigation}
+            />
+          )
         }}>
         <Tab.Screen name="Daily" component={DailyScreen} />
         <Tab.Screen name="Calendar" component={CalendarScreen} />
