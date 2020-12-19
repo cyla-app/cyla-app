@@ -1,4 +1,4 @@
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import React, { useState } from 'react'
 import { Button, Subheading } from 'react-native-paper'
 import {
@@ -89,7 +89,7 @@ export default ({ onSave }: { onSave: (day: Day) => void }) => {
           })
         }}
         mode="contained"
-        style={{ borderRadius: 30, margin: 10 }}>
+        style={{ borderRadius: 30, margin: 10 } as ViewStyle}>
         Add day
       </Button>
     </View>

@@ -1,5 +1,5 @@
 import { Card } from 'react-native-paper'
-import { StyleSheet, View, Text } from 'react-native'
+import { StyleSheet, View, Text, BackgroundPropType } from 'react-native'
 import React from 'react'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
@@ -13,13 +13,12 @@ type DetailScreenNavigationProp = StackNavigationProp<
 
 type DetailScreenRouteProp = RouteProp<MainStackParamList, 'Detail'>
 
-export default ({
-  route,
-  navigation,
-}: {
+type PropType = {
   route: DetailScreenRouteProp
   navigation: DetailScreenNavigationProp
-}) => {
+}
+
+export default ({ route, navigation }: PropType) => {
   const { day } = route.params
 
   return (
@@ -33,7 +32,7 @@ export default ({
         />
 
         <Card.Content>
-          <Text>{day.date}</Text>
+          <Text>{day.temperature?.value}</Text>
         </Card.Content>
       </Card>
     </View>

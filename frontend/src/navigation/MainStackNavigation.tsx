@@ -11,6 +11,9 @@ import { Text } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
 import { Day } from '../../generated'
 import DetailScreen from '../screens/DetailScreen'
+import { setSignedIn } from '../profileSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../App'
 
 export type MainStackParamList = {
   SignUp: undefined
@@ -23,8 +26,9 @@ const Stack = createStackNavigator<MainStackParamList>()
 
 export default () => {
   const [loading, setLoading] = useState<boolean>(true)
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(false)
+  const isSignedIn = useSelector<RootState>((state) => state.profile.signedIn)
   const [error, setError] = useState<string | null>(null)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const checkIfSignedIn = async () => {
@@ -36,14 +40,14 @@ export default () => {
         await decryptionService.setupUserKey()
       }
 
-      setIsSignedIn(isSignedIn)
+      dispatch(setSignedIn(isSignedIn))
       setLoading(false)
     }
 
     checkIfSignedIn().catch((e: Error) => {
       setError(e.message)
     })
-  }, [])
+  }, [dispatch])
 
   if (error) {
     return <Text>error</Text>
@@ -58,9 +62,7 @@ export default () => {
       {!isSignedIn ? (
         <Stack.Screen
           name="SignUp"
-          component={() => (
-            <SignUpScreen onSignIn={() => setIsSignedIn(true)} />
-          )}
+          component={SignUpScreen}
           options={{
             title: 'Sign in',
             animationTypeForReplace: 'pop',
