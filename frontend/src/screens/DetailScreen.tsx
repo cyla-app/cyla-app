@@ -33,25 +33,31 @@ export default ({ route, navigation }: PropType) => {
 
         <Card.Content>
           <List.Section>
-            <List.Item
-              title="Temperature"
-              left={() => <List.Icon icon="thermometer" />}
-              right={() => <Text>{day.temperature?.value}</Text>}
-            />
-            <List.Item
-              title="Bleeding"
-              left={() => <List.Icon icon="water" />}
-              right={() => <Text>{day.bleeding?.strength}</Text>}
-            />
-            <List.Item
-              title="Mucus"
-              left={() => <List.Icon icon="waves" />}
-              right={() => (
-                <Text>
-                  {day.mucus?.feeling} & {day.mucus?.texture}
-                </Text>
-              )}
-            />
+            {day.temperature && (
+              <List.Item
+                title="Temperature"
+                left={() => <List.Icon icon="thermometer" />}
+                right={() => <Text>{day.temperature!.value}</Text>}
+              />
+            )}
+            {day.bleeding && (
+              <List.Item
+                title="Bleeding"
+                left={() => <List.Icon icon="water" />}
+                right={() => <Text>{day.bleeding!.strength}</Text>}
+              />
+            )}
+            {day.mucus && (
+              <List.Item
+                title="Mucus"
+                left={() => <List.Icon icon="waves" />}
+                right={() => (
+                  <Text>
+                    {day.mucus?.feeling} & {day.mucus!.texture}
+                  </Text>
+                )}
+              />
+            )}
           </List.Section>
         </Card.Content>
       </Card>
