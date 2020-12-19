@@ -2,19 +2,20 @@ import React from 'react'
 import { useTheme } from 'react-native-paper'
 import CalendarStrip from 'react-native-calendar-strip'
 import { addWeeks } from 'date-fns'
-import moment from 'moment'
+import moment, { Moment } from 'moment'
+import { Day } from '../../generated'
 
 type PropTypes = {
-  onDaySelected: () => void
-  periodDays: string[]
+  onDaySelected: (day: Day) => void
+  periodDays: Day[]
 }
 
 export default ({ onDaySelected, periodDays }: PropTypes) => {
   const { colors } = useTheme()
   const now = new Date()
 
-  const markedDates: any[] = periodDays.map((date) => ({
-    date: moment(date),
+  const markedDates: any[] = periodDays.map((day) => ({
+    date: moment(day.date),
     dots: [
       {
         color: colors.periodRed,
@@ -23,11 +24,19 @@ export default ({ onDaySelected, periodDays }: PropTypes) => {
     ],
   }))
 
+  const selectDay = (date: Moment) => {
+    const found = periodDays.find((day) => moment(day.date).isSame(date, 'day'))
+
+    if (found) {
+      onDaySelected(found)
+    }
+  }
+
   return (
     <CalendarStrip
       markedDates={markedDates} // FIXME use circle instead of dots for visualisation
       scrollable
-      onDateSelected={onDaySelected}
+      onDateSelected={selectDay}
       calendarHeaderStyle={{ color: colors.text }}
       dateNumberStyle={{ color: colors.text }}
       dateNameStyle={{ color: colors.text }}

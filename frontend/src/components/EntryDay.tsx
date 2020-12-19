@@ -79,7 +79,7 @@ export default ({ onSave }: { onSave: (day: Day) => void }) => {
                 }
               : undefined,
             bleeding: {
-              strength: Bleeding.strength.STRONG,
+              strength: bleedingStrength,
             },
             mucus: {
               texture: mucusTexture,

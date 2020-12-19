@@ -7,7 +7,7 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { CompositeNavigationProp } from '@react-navigation/native'
 import { TabsParamList } from '../navigation/TabBarNavigation'
 import CylaModule from '../modules/CylaModule'
-import { Day } from '../../generated'
+import { Bleeding, Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
 import { useTheme } from 'react-native-paper'
 import { fetchAllDays, useRefresh } from '../daysSlice'
@@ -20,7 +20,7 @@ type DailyScreenNavigationProp = CompositeNavigationProp<
 >
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
-  const { backdrop } = useTheme().colors
+  const { colors } = useTheme()
   const days = useSelector<RootState, Day[]>((state) => state.days.days)
   const [loading, refresh] = useRefresh()
 
@@ -53,13 +53,18 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
 
       <View
         style={{
-          borderTopColor: backdrop,
+          borderTopColor: colors.backdrop,
           borderTopWidth: 0.5,
         }}>
         <CalendarStrip
-          periodDays={days.map((day) => day.date)}
-          onDaySelected={() => {
-            // navigation.navigate('Add')
+          periodDays={days.filter(
+            (day) =>
+              day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE,
+          )}
+          onDaySelected={(day: Day) => {
+            navigation.navigate('Detail', {
+              day,
+            })
           }}
         />
       </View>

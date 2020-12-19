@@ -3,7 +3,7 @@ import { Alert, View } from 'react-native'
 import Calendar from '../components/Calendar'
 import { useSelector } from 'react-redux'
 import { RootState } from '../App'
-import { Day } from '../../generated'
+import { Bleeding, Day } from '../../generated'
 import { CompositeNavigationProp } from '@react-navigation/native'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { TabsParamList } from '../navigation/TabBarNavigation'
@@ -25,17 +25,13 @@ export default ({
   return (
     <View>
       <Calendar
-        periodDays={days.map((day) => day.date)}
-        onDayPress={(dateString) => {
-          const found = days.find((day) => day.date === dateString)
-
-          if (!found) {
-            Alert.alert('Day not found!')
-            return
-          }
-
+        periodDays={days.filter(
+          (day) =>
+            day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE,
+        )}
+        onDaySelected={(day: Day) => {
           navigation.navigate('Detail', {
-            day: found,
+            day,
           })
         }}
       />
