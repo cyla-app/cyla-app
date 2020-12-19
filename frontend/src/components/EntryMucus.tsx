@@ -1,5 +1,5 @@
 import RadioButtonGroup from './RadioButtonGroup'
-import { Mucus } from '../../generated'
+import { ExcludeReason, Mucus } from '../../generated'
 import React from 'react'
 
 type PropsType = {
@@ -19,9 +19,8 @@ export default ({
     <>
       <RadioButtonGroup
         value={feeling}
-        onValueChange={(value: Mucus.feeling) => {
-          onFeelingChanged(value)
-        }}
+        defaultValue={Mucus.feeling.NONE}
+        onValueChange={onFeelingChanged}
         // TODO pick fitting icons
         buttons={[
           {
@@ -43,9 +42,8 @@ export default ({
       />
       <RadioButtonGroup
         value={texture}
-        onValueChange={(value) => {
-          onTextureChanged(value)
-        }}
+        defaultValue={Mucus.texture.NONE}
+        onValueChange={onTextureChanged}
         buttons={[
           {
             title: 'Creamy',

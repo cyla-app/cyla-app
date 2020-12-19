@@ -29,11 +29,13 @@ Inspect app storage:
 adb shell cat /data/data/app.cyla/shared_prefs/app_storage.xml
 ```
 
-Changing the server url and reset the current user. For example to thange the base url to `http://192.168.0.55`:
+Changing the server url and reset the current user can be done using adb and bash. For example to change the base url to `http://192.168.0.55`:
 ```bash
 adb shell 'rm /data/data/app.cyla/shared_prefs/encryption_storage.xml'
-adb shell "echo '<?xml version='1.0' encoding='utf-8' standalone='yes' ?><map><string name=\"appBaseUrl\">http://192.168.0.55:5000</string></map>' > /data/data/app.cyla/shared_prefs/app_storage.xml"
+adb shell "echo '<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?><map><string name=\"apiBasePath\">http://192.168.0.55:5000</string></map>' > /data/data/app.cyla/shared_prefs/app_storage.xml"
 ```
+
+Then restart the app completely.
 
 ## Docker
 

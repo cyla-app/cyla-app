@@ -12,13 +12,17 @@ import EntryBleeding from './EntryBleeding'
 import EntryExclude from './EntryExclude'
 import EntryTemperature from './EntryTemperature'
 import EntryMucus from './EntryMucus'
-import { format } from 'date-fns'
 
 const PropertyHeadline = ({ children }: { children: React.ReactNode }) => (
   <Subheading style={{ marginTop: 10 }}>{children}</Subheading>
 )
 
-export default ({ onSave }: { onSave: (day: Day) => void }) => {
+type PropsType = {
+  onSave: (day: Day) => void
+  selectedDate: string
+}
+
+export default ({ onSave, selectedDate }: PropsType) => {
   const [temperature, setTemperature] = useState<Temperature['value'] | null>(
     null,
   )
@@ -79,13 +83,13 @@ export default ({ onSave }: { onSave: (day: Day) => void }) => {
                 }
               : undefined,
             bleeding: {
-              strength: Bleeding.strength.STRONG,
+              strength: bleedingStrength,
             },
             mucus: {
               texture: mucusTexture,
               feeling: mucusFeeling,
             },
-            date: format(new Date(), 'yyyy-MM-dd'),
+            date: selectedDate,
           })
         }}
         mode="contained"

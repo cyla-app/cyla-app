@@ -4,7 +4,7 @@ import { Text, View, ViewStyle } from 'react-native'
 import PasswordEntry from '../components/PasswordEntry'
 import { ActivityIndicator } from 'react-native-paper'
 import { addDays, addMonths, format } from 'date-fns'
-import { Day } from '../../generated'
+import { Bleeding, Day, Mucus } from '../../generated'
 import { useDispatch } from 'react-redux'
 import { setSignedIn } from '../profileSlice'
 import { fetchAllDays } from '../daysSlice'
@@ -22,6 +22,18 @@ export const generateMockData = async () => {
       const periodDay = addDays(date, j)
       await CylaModule.postDay(periodDay, {
         date: format(periodDay, 'yyyy-MM-dd'),
+        bleeding: {
+          strength: Bleeding.strength.STRONG,
+        },
+        temperature: {
+          value: 36,
+          timestamp: new Date().toISOString(),
+          note: undefined,
+        },
+        mucus: {
+          feeling: Mucus.feeling.DRY,
+          texture: Mucus.texture.EGG_WHITE,
+        },
       })
     }
   }

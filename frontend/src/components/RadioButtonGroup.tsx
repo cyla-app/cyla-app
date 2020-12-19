@@ -1,13 +1,15 @@
 import { Text, View } from 'react-native'
-import { ToggleButton, useTheme } from 'react-native-paper'
+import { ToggleButton } from 'react-native-paper'
 import React from 'react'
 
 export default function <ValueType extends string>({
   value,
+  defaultValue,
   onValueChange,
   buttons,
 }: {
   value: ValueType
+  defaultValue: ValueType
   onValueChange: (value: ValueType) => void
   buttons: Array<{
     value: ValueType
@@ -15,9 +17,12 @@ export default function <ValueType extends string>({
     title: string
   }>
 }) {
+  const changeValue: (value: ValueType) => void = (newValue) => {
+    onValueChange(newValue || defaultValue)
+  }
   return (
     /* @ts-ignore */
-    <ToggleButton.Group onValueChange={onValueChange} value={value}>
+    <ToggleButton.Group onValueChange={changeValue} value={value}>
       <View
         style={{
           flexDirection: 'row',

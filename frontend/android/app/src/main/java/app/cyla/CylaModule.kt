@@ -3,7 +3,6 @@ package app.cyla
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import android.widget.Toast
 import app.cyla.api.DayApi
 import app.cyla.api.UserApi
 import app.cyla.api.model.Day
@@ -72,8 +71,6 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         val userId = getAppStorage().getUserId()
             ?: throw Exception("userId is not in app storage")
 
-        Toast.makeText(reactApplicationContext, "loaded: $passphrase", Toast.LENGTH_LONG).show()
-
         return Pair(userId, userKey)
     }
 
@@ -85,9 +82,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             .putUserKeyCell(userKeyCell)
             .putPassphrase(cipherText, iv)
             .apply()
-
-        Toast.makeText(reactApplicationContext, "stored: $passphrase", Toast.LENGTH_LONG).show()
-
+        
         val user = User()
         user.id = null
         user.userKeyBackup = userKey.toByteArray()
