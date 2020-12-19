@@ -13,11 +13,9 @@ import app.cyla.decryption.AndroidEnclave.Companion.decryptPassphrase
 import app.cyla.decryption.AndroidEnclave.Companion.encryptPassphrase
 import app.cyla.decryption.ThemisOperations.Companion.createUserKey
 import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
+import app.cyla.invoker.ApiClient
 import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.*
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 
@@ -28,13 +26,26 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     private lateinit var userKey: SymmetricKey
-    private val moshi = Moshi.Builder()
-        .add(KotlinJsonAdapterFactory())
-        .add(OffsetDateTimeAdapter())
-        .build()
-//    private val jsonDayAdapter: JsonAdapter<app.cyla.decryption.models.Day> =
+//    private val moshi = Moshi.Builder()
+//        .add(KotlinJsonAdapterFactory())
+//        .add(OffsetDateTimeAdapter())
+//        .build()
+
+    //    private val jsonDayAdapter: JsonAdapter<app.cyla.decryption.models.Day> =
 //        moshi.adapter(app.cyla.decryption.models.Day::class.java)
-    private val dayApi = DayApi()
+    private val apiClient = lazy {
+        val apiClient = ApiClient()
+        apiClient.basePath = getAppStorage().getString("apiBasePath", apiClient.basePath)
+        apiClient
+    }
+    
+    private val dayApi = lazy {
+        DayApi(apiClient.value)
+    }
+
+    private val userApi = lazy {
+        UserApi(apiClient.value)
+    }
 
     override fun getName(): String {
         return "CylaModule"
@@ -80,7 +91,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         val user = User()
         user.id = null
         user.userKeyBackup = userKey.toByteArray()
-        val userId = UserApi().createUser(user)
+        val userId = userApi.value.createUser(user)
         getAppStorage().edit()
             .putUserId(userId)
             .apply()
@@ -132,7 +143,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             day.version = 0
             day.dayInfo = ThemisOperations.encryptData(userKey, dayJson)
 
-            dayApi.modifyDayEntry(
+            dayApi.value.modifyDayEntry(
                 getAppStorage().getUserId()!!,
                 day
             )
@@ -147,9 +158,9 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         val userId = getAppStorage().getUserId()
 
         CompletableFuture.supplyAsync {
-            val days = dayApi.getDayByUserAndRange(
-                userId!!, 
-                LocalDate.now().minusMonths(months.toLong()), 
+            val days = dayApi.value.getDayByUserAndRange(
+                userId!!,
+                LocalDate.now().minusMonths(months.toLong()),
                 LocalDate.now()
             )
 
