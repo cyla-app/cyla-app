@@ -11,6 +11,7 @@ export default ({ excludeReason, onExcludeReasonChanged }: PropsType) => {
   return (
     <RadioButtonGroup
       value={excludeReason}
+      defaultValue={ExcludeReason.NONE}
       onValueChange={(value) => onExcludeReasonChanged(value as ExcludeReason)}
       buttons={[
         {

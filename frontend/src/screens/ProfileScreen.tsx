@@ -26,8 +26,7 @@ export default () => {
 
   return (
     <ScrollView
-      contentContainerStyle={{ flex: 1 }}
-      scrollEnabled={false}
+      scrollEnabled={true}
       refreshControl={
         <RefreshControl refreshing={loading} onRefresh={refresh} />
       }>

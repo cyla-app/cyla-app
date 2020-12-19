@@ -83,13 +83,13 @@ components:
       properties:
         opening:
           type: string
-          enum: [closed, medium, raised]
+          enum: [none, closed, medium, raised]
         firmness:
           type: string
-          enum: [firm, medium, soft]
+          enum: [none, firm, medium, soft]
         position:
           type: string
-          enum: [low, medium, high]
+          enum: [none, low, medium, high]
       required:
         - opening
         - firmness

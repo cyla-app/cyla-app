@@ -1,5 +1,5 @@
 import RadioButtonGroup from './RadioButtonGroup'
-import { Cervix } from '../../generated'
+import { Bleeding, Cervix } from '../../generated'
 import React from 'react'
 
 type PropsType = {
@@ -23,6 +23,7 @@ export default ({
     <>
       <RadioButtonGroup
         value={opening}
+        defaultValue={Cervix.opening.NONE}
         onValueChange={(value) => onOpeningChanged(value)}
         // TODO pick fitting icons
         buttons={[
@@ -45,6 +46,7 @@ export default ({
       />
       <RadioButtonGroup
         value={firmness}
+        defaultValue={Cervix.firmness.NONE}
         onValueChange={(value) => onFirmnessChanged(value)}
         // TODO pick fitting icons
         buttons={[
@@ -67,6 +69,7 @@ export default ({
       />
       <RadioButtonGroup
         value={position}
+        defaultValue={Cervix.position.NONE}
         onValueChange={(value) => onPositionChanged(value)}
         // TODO pick fitting icons
         buttons={[

@@ -24,7 +24,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   const { colors } = useTheme()
   const days = useSelector<RootState, Day[]>((state) => state.days.days)
   const [loading, refresh] = useRefresh()
-  const [selectedDay, setSelectedDay] = useState<string>(
+  const [selectedDate, setSelectedDate] = useState<string>(
     format(new Date(), 'yyyy-MM-dd'),
   )
 
@@ -44,12 +44,10 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           <RefreshControl refreshing={loading} onRefresh={refresh} />
         }>
         <EntryDay
+          selectedDate={selectedDate}
           onSave={async (day: Day) => {
-            day.date = selectedDay
-            console.log(selectedDay)
-
             await CylaModule.postDay(
-              new Date(selectedDay),
+              new Date(selectedDate),
               day,
             ).catch((e: Error) => Alert.alert(e.message))
             await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all data after adding
@@ -68,10 +66,9 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
               day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE,
           )}
           onDateSelected={(date: string) => {
-            setSelectedDay(date)
+            setSelectedDate(date)
           }}
           onDaySelected={(day: Day) => {
-            console.log(day)
             navigation.navigate('Detail', {
               day,
             })

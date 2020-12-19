@@ -11,9 +11,8 @@ export default ({ strength, onStrengthChanged }: PropsType) => {
   return (
     <RadioButtonGroup
       value={strength}
-      onValueChange={(value) => {
-        onStrengthChanged(value)
-      }}
+      defaultValue={Bleeding.strength.NONE}
+      onValueChange={onStrengthChanged}
       buttons={[
         {
           title: 'Weak',
