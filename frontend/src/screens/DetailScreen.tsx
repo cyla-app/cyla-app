@@ -1,5 +1,5 @@
-import { Card } from 'react-native-paper'
-import { StyleSheet, View, Text, BackgroundPropType } from 'react-native'
+import { Card, List } from 'react-native-paper'
+import { StyleSheet, View, Text } from 'react-native'
 import React from 'react'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
@@ -32,7 +32,27 @@ export default ({ route, navigation }: PropType) => {
         />
 
         <Card.Content>
-          <Text>{day.temperature?.value}</Text>
+          <List.Section>
+            <List.Item
+              title="Temperature"
+              left={() => <List.Icon icon="thermometer" />}
+              right={() => <Text>{day.temperature?.value}</Text>}
+            />
+            <List.Item
+              title="Bleeding"
+              left={() => <List.Icon icon="water" />}
+              right={() => <Text>{day.bleeding?.strength}</Text>}
+            />
+            <List.Item
+              title="Mucus"
+              left={() => <List.Icon icon="waves" />}
+              right={() => (
+                <Text>
+                  {day.mucus?.feeling} & {day.mucus?.texture}
+                </Text>
+              )}
+            />
+          </List.Section>
         </Card.Content>
       </Card>
     </View>
