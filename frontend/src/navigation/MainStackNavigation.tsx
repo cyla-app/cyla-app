@@ -52,7 +52,7 @@ export default () => {
   }, [dispatch])
 
   if (error) {
-    return <Text>error</Text>
+    return <Text>{error}</Text>
   }
 
   if (loading) {
