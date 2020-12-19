@@ -37,7 +37,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
         alignContent: 'flex-end',
       }}>
       <ScrollView
-        style={{
+        contentContainerStyle={{
           flex: 1,
         }}
         refreshControl={
@@ -55,11 +55,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
         />
       </ScrollView>
 
-      <View
-        style={{
-          borderTopColor: colors.backdrop,
-          borderTopWidth: 0.5,
-        }}>
+      <View>
         <CalendarStrip
           periodDays={days.filter(
             (day) =>

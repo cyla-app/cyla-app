@@ -30,7 +30,7 @@ export default () => {
       refreshControl={
         <RefreshControl refreshing={loading} onRefresh={refresh} />
       }>
-      <Text>{userId}</Text>
+      {__DEV__ ? <Text>{userId}</Text> : null}
       <Text>{JSON.stringify(days)}</Text>
     </ScrollView>
   )

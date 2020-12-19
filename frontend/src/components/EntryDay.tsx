@@ -14,7 +14,9 @@ import EntryTemperature from './EntryTemperature'
 import EntryMucus from './EntryMucus'
 
 const PropertyHeadline = ({ children }: { children: React.ReactNode }) => (
-  <Subheading style={{ marginTop: 10 }}>{children}</Subheading>
+  <Subheading style={{ marginTop: 10, fontWeight: '700' }}>
+    {children}
+  </Subheading>
 )
 
 type PropsType = {
@@ -42,28 +44,34 @@ export default ({ onSave, selectedDate }: PropsType) => {
   return (
     <View
       style={{
+        flexGrow: 1,
         alignItems: 'center',
+        justifyContent: 'space-between',
       }}>
       <EntryTemperature
         initialString={''}
         onTemperatureChanged={setTemperature}
       />
 
-      <PropertyHeadline>Bleeding Strength</PropertyHeadline>
+      <>
+        <PropertyHeadline>Bleeding Strength</PropertyHeadline>
 
-      <EntryBleeding
-        strength={bleedingStrength}
-        onStrengthChanged={setBleedingStrength}
-      />
+        <EntryBleeding
+          strength={bleedingStrength}
+          onStrengthChanged={setBleedingStrength}
+        />
+      </>
 
-      <PropertyHeadline>Mucus</PropertyHeadline>
+      <>
+        <PropertyHeadline>Mucus</PropertyHeadline>
 
-      <EntryMucus
-        feeling={mucusFeeling}
-        onFeelingChanged={setMucusFeeling}
-        texture={mucusTexture}
-        onTextureChanged={setMucusTexture}
-      />
+        <EntryMucus
+          feeling={mucusFeeling}
+          onFeelingChanged={setMucusFeeling}
+          texture={mucusTexture}
+          onTextureChanged={setMucusTexture}
+        />
+      </>
 
       <PropertyHeadline>Exclude</PropertyHeadline>
 
@@ -94,7 +102,7 @@ export default ({ onSave, selectedDate }: PropsType) => {
         }}
         mode="contained"
         style={{ borderRadius: 30, margin: 10 } as ViewStyle}>
-        Add day
+        Save
       </Button>
     </View>
   )

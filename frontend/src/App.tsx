@@ -24,6 +24,10 @@ declare global {
     interface ThemeColors {
       buttonBackground: string
       periodRed: string
+      daily: string
+      calendar: string
+      statistics: string
+      profile: string
     }
 
     interface Theme {}
@@ -42,6 +46,10 @@ const theme = {
     backdrop: '#000',
     periodRed: '#9E1818',
     buttonBackground: 'rgb(239,228,237)',
+    daily: 'rgb(96,72,121)',
+    calendar: 'rgb(121,72,97)',
+    statistics: 'rgb(97,121,72)',
+    profile: 'rgb(72,121,96)',
   },
 }
 
