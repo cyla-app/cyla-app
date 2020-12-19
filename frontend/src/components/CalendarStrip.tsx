@@ -7,10 +7,11 @@ import { Day } from '../../generated'
 
 type PropTypes = {
   onDaySelected: (day: Day) => void
+  onDateSelected: (date: string) => void
   periodDays: Day[]
 }
 
-export default ({ onDaySelected, periodDays }: PropTypes) => {
+export default ({ onDaySelected, onDateSelected, periodDays }: PropTypes) => {
   const { colors } = useTheme()
   const now = new Date()
 
@@ -25,6 +26,7 @@ export default ({ onDaySelected, periodDays }: PropTypes) => {
   }))
 
   const selectDay = (date: Moment) => {
+    onDateSelected(date.format('yyyy-MM-DD'))
     const found = periodDays.find((day) => moment(day.date).isSame(date, 'day'))
 
     if (found) {
