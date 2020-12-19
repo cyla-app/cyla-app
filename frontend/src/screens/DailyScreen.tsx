@@ -11,7 +11,9 @@ import { Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
 import { useTheme } from 'react-native-paper'
 import { fetchAllDays } from '../daysSlice'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../App'
+import Calendar from '../components/Calendar'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -20,6 +22,7 @@ type DailyScreenNavigationProp = CompositeNavigationProp<
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   const { backdrop } = useTheme().colors
+  const days = useSelector<RootState, Day[]>((state) => state.days)
   const dispatch = useDispatch()
   return (
     <View
@@ -50,6 +53,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           borderTopWidth: 0.5,
         }}>
         <CalendarStrip
+          periodDays={days.map((day) => day.date)}
           onDaySelected={() => {
             // navigation.navigate('Add')
           }}

@@ -2,12 +2,30 @@ import React from 'react'
 import { useTheme } from 'react-native-paper'
 import CalendarStrip from 'react-native-calendar-strip'
 import { addWeeks } from 'date-fns'
+import moment from 'moment'
 
-export default ({ onDaySelected }: { onDaySelected: () => void }) => {
+type PropTypes = {
+  onDaySelected: () => void
+  periodDays: string[]
+}
+
+export default ({ onDaySelected, periodDays }: PropTypes) => {
   const { colors } = useTheme()
   const now = new Date()
+
+  const markedDates: any[] = periodDays.map((date) => ({
+    date: moment(date),
+    dots: [
+      {
+        color: colors.periodRed,
+        selectedColor: colors.periodRed,
+      },
+    ],
+  }))
+
   return (
     <CalendarStrip
+      markedDates={markedDates} // FIXME use circle instead of dots for visualisation
       scrollable
       onDateSelected={onDaySelected}
       calendarHeaderStyle={{ color: colors.text }}
@@ -16,9 +34,9 @@ export default ({ onDaySelected }: { onDaySelected: () => void }) => {
       highlightDateNumberStyle={{ color: colors.primary }}
       highlightDateNameStyle={{ color: colors.primary }}
       calendarAnimation={{ type: 'sequence', duration: 30 }}
-      maxDate={addWeeks(now, 0)}
-      startingDate={now}
-      selectedDate={now}
+      maxDate={moment(addWeeks(now, 0))}
+      startingDate={moment(addWeeks(now, 0))}
+      selectedDate={moment(addWeeks(now, 0))}
       daySelectionAnimation={{
         type: 'border',
         duration: 300,
