@@ -28,7 +28,7 @@ export default ({ route, navigation }: PropType) => {
         style={[StyleSheet.absoluteFill, { height: 1000 }]}>
         <Card.Title
           titleStyle={{ textAlign: 'center' }}
-          title={format(new Date(), 'Mo MMMM yyyy ')}
+          title={format(new Date(day.date), 'd MMMM yyyy ')}
         />
 
         <Card.Content>
