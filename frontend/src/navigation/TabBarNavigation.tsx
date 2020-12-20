@@ -13,6 +13,7 @@ import AnimatedTabBar, {
 } from '@gorhom/animated-tabbar'
 import ProfileScreen from '../screens/ProfileScreen'
 import { useTheme } from 'react-native-paper'
+import StatisticsScreen from '../screens/StatisticsScreen'
 
 export type TabsParamList = {
   Daily: undefined
@@ -86,8 +87,11 @@ export default () => {
         }}>
         <Tab.Screen name="Daily" component={DailyScreen} />
         <Tab.Screen name="Calendar" component={CalendarScreen} />
-        <Tab.Screen name="Statistics" component={NYIScreen} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
+        <Tab.Screen name="Statistics" component={StatisticsScreen} />
+        <Tab.Screen
+          name="Profile"
+          component={__DEV__ ? ProfileScreen : NYIScreen}
+        />
       </Tab.Navigator>
     </>
   )
