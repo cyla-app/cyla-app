@@ -9,7 +9,9 @@ import com.cossacklabs.themis.NullArgumentException;
 import com.cossacklabs.themis.SecureCell;
 import com.cossacklabs.themis.SecureCellException;
 import com.facebook.react.*;
+import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.soloader.SoLoader;
+import com.swmansion.reanimated.ReanimatedJSIModulePackage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
@@ -33,6 +35,11 @@ public class MainApplication extends Application implements ReactApplication {
                     // packages.add(new MyReactNativePackage());
                     packages.add(new MainPackage());
                     return packages;
+                }
+                
+                @Override
+                protected JSIModulePackage getJSIModulePackage() {
+                    return new ReanimatedJSIModulePackage();
                 }
 
                 @Override
