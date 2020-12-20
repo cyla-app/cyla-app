@@ -11,7 +11,7 @@ const AnimatedPath = Animated.createAnimatedComponent(
 export type SvgTabBarIconProps = {
   color: string
   size: number
-  viewBox: string
+  viewBox?: string
   children?: React.ReactNode
 } & Animated.AnimateProps<{}, PathProps & { style?: any }>
 

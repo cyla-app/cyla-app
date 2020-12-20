@@ -12,7 +12,6 @@
     "postinstall": "patch-package && yarn run generate"
   },
   "dependencies": {
-    "@gorhom/animated-tabbar": "^2.1.0",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/slider": "^3.0.3",
     "@react-navigation/bottom-tabs": "^5.11.2",
