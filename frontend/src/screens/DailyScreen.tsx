@@ -21,7 +21,6 @@ type DailyScreenNavigationProp = CompositeNavigationProp<
 >
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
-  const { colors } = useTheme()
   const days = useSelector<RootState, Day[]>((state) => state.days.days)
   const [loading, refresh] = useRefresh()
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -37,9 +36,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
         alignContent: 'flex-end',
       }}>
       <ScrollView
-        contentContainerStyle={{
-          flex: 1,
-        }}
+        contentContainerStyle={{}}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={refresh} />
         }>

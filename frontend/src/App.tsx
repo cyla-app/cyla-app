@@ -28,6 +28,8 @@ declare global {
       calendar: string
       statistics: string
       profile: string
+      statisticsPositive: string
+      statisticsNegative: string
     }
 
     interface Theme {}
@@ -50,6 +52,8 @@ const theme = {
     calendar: 'rgb(121,72,97)',
     statistics: 'rgb(97,121,72)',
     profile: 'rgb(72,121,96)',
+    statisticsPositive: 'rgb(97,121,72)',
+    statisticsNegative: 'rgb(72,97,121)',
   },
 }
 

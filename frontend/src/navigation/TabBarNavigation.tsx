@@ -11,6 +11,7 @@ import DailyIcon from './icons/DailyIcon'
 import CalendarIcon from './icons/CalendarIcon'
 import StatisticsIcon from './icons/StatisticsIcon'
 import ProfileIcon from './icons/ProfileIcon'
+import { useTheme } from 'react-native-paper'
 
 const NavigationBarLabel = ({
   color,
@@ -46,6 +47,7 @@ export type TabsParamList = {
 const Tab = createBottomTabNavigator<TabsParamList>()
 
 export default () => {
+  const { colors } = useTheme()
   return (
     <>
       <Tab.Navigator>
@@ -53,8 +55,8 @@ export default () => {
           name="Daily"
           component={DailyScreen}
           options={{
-            tabBarIcon: ({ color, size }) => (
-              <DailyIcon color={color} size={size} />
+            tabBarIcon: ({ size }) => (
+              <DailyIcon color={colors.daily} size={size} />
             ),
             tabBarLabel: (props) => (
               <NavigationBarLabel {...props}>Today</NavigationBarLabel>
@@ -65,8 +67,8 @@ export default () => {
           name="Calendar"
           component={CalendarScreen}
           options={{
-            tabBarIcon: ({ color, size }) => (
-              <CalendarIcon color={color} size={size} />
+            tabBarIcon: ({ size }) => (
+              <CalendarIcon color={colors.calendar} size={size} />
             ),
             tabBarLabel: (props) => (
               <NavigationBarLabel {...props}>Calendar</NavigationBarLabel>
@@ -77,8 +79,8 @@ export default () => {
           name="Statistics"
           component={StatisticsScreen}
           options={{
-            tabBarIcon: ({ color, size }) => (
-              <StatisticsIcon color={color} size={size} />
+            tabBarIcon: ({ size }) => (
+              <StatisticsIcon color={colors.statistics} size={size} />
             ),
             tabBarLabel: (props) => (
               <NavigationBarLabel {...props}>Statistics</NavigationBarLabel>
@@ -89,8 +91,8 @@ export default () => {
           name="Profile"
           component={__DEV__ ? ProfileScreen : NYIScreen}
           options={{
-            tabBarIcon: ({ color, size }) => (
-              <ProfileIcon color={color} size={size} />
+            tabBarIcon: ({ size }) => (
+              <ProfileIcon color={colors.profile} size={size} />
             ),
             tabBarLabel: (props) => (
               <NavigationBarLabel {...props}>Profile</NavigationBarLabel>
