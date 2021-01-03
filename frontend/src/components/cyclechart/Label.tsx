@@ -34,7 +34,7 @@ export default ({ translateY, opacity }: LabelProps) => {
         },
         horizontal,
       ]}>
-      <ReText {...{ text }} />
+      <ReText text={text} />
     </Animated.View>
   )
 }

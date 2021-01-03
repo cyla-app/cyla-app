@@ -5,7 +5,7 @@ import { scaleBody, scaleY } from './worklets'
 
 const MARGIN = 2
 
-export interface CandleProps {
+interface CandleProps {
   name: string
   dayStart: number
   dayEnd: number

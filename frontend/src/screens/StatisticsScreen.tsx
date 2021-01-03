@@ -9,8 +9,12 @@ import { RootState } from '../App'
 import { Day } from '../../generated'
 import { PanGestureHandler } from 'react-native-gesture-handler'
 import TargetCross from '../components/cyclechart/TargetCross'
-import Chart from '../components/cyclechart/Chart'
 import Label from '../components/cyclechart/Label'
+import Grid from '../components/cyclechart/Grid'
+import Svg from 'react-native-svg'
+import { SIZE } from '../components/cyclechart/worklets'
+
+import CandleChart from '../components/cyclechart/CandleChart'
 
 export default () => {
   const days = useSelector<RootState, Day[]>((state) => state.days.days)
@@ -31,7 +35,11 @@ export default () => {
 
   return (
     <View>
-      <Chart days={days.slice(-14)} />
+      <Svg width={SIZE} height={SIZE}>
+        <Grid />
+        <CandleChart days={days.slice(-14)} />
+      </Svg>
+
       <PanGestureHandler minDist={0} {...{ onGestureEvent }}>
         <Animated.View style={StyleSheet.absoluteFill}>
           <TargetCross
