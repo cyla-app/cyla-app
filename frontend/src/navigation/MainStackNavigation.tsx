@@ -32,6 +32,7 @@ export default () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
+    let mounted = true
     const checkIfSignedIn = async () => {
       setLoading(true)
       const decryptionService = CylaModule
@@ -43,12 +44,17 @@ export default () => {
       }
 
       dispatch(setSignedIn(isSignedIn))
-      setLoading(false)
+      if (mounted) {
+        setLoading(false)
+      }
     }
 
     checkIfSignedIn().catch((e: Error) => {
       setError(e.message)
     })
+    return () => {
+      mounted = false
+    }
   }, [dispatch])
 
   if (error) {
