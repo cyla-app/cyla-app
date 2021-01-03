@@ -50,7 +50,7 @@ export default () => {
     60,
   )
 
-  console.log(days)
+  // console.log(days)
 
   // const translateX = useSharedValue(0)
   // const translateY = useSharedValue(0)
@@ -67,8 +67,8 @@ export default () => {
   // })
 
   const viewHeight = 300
-  const [viewWidth, setViewWidth] = useState<number>(1000)
-  const [offset, setOffset] = useState<number>(0)
+  const viewWidth = 1000
+  const [chartCount, setChartCount] = useState<number>(1)
   return (
     <View>
       <ScrollView
@@ -78,35 +78,38 @@ export default () => {
         onScroll={({ nativeEvent }) => {
           if (
             nativeEvent.contentOffset.x >=
-            nativeEvent.contentSize.width - Dimensions.get('window').width
+            nativeEvent.contentSize.width - Dimensions.get('window').width - 100
           ) {
-            setViewWidth(viewWidth + 100)
-            setOffset(offset + 100)
+            setChartCount(chartCount + 1)
+            console.log('hit')
+            console.log(chartCount)
           }
         }}>
-        <Svg
-          style={{ transform: [{ scaleX: -1 }] }}
-          width={viewWidth}
-          viewBox={`${-offset} 0 ${viewWidth} ${viewHeight}`}
-          height={viewHeight}>
-          <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
-          <CandleChart viewHeight={viewHeight} days={days} />
-          <PointChart viewHeight={viewHeight} days={days} />
+        {[...Array(chartCount).keys()].map((i) => (
+          <Svg
+            key={i}
+            style={{ transform: [{ scaleX: -1 }] }}
+            width={viewWidth}
+            height={viewHeight}>
+            <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
+            <CandleChart viewHeight={viewHeight} days={days} />
+            <PointChart viewHeight={viewHeight} days={days} />
 
-          {/*<FlatList*/}
-          {/*  data={days}*/}
-          {/*  renderItem={({ item, index }) => (*/}
-          {/*    <Circle cx={index} cy={5} r={10} fill={'red'} />*/}
-          {/*  )}*/}
-          {/*  keyExtractor={(item) => item.date}*/}
-          {/*/>*/}
+            {/*<FlatList*/}
+            {/*  data={days}*/}
+            {/*  renderItem={({ item, index }) => (*/}
+            {/*    <Circle cx={index} cy={5} r={10} fill={'red'} />*/}
+            {/*  )}*/}
+            {/*  keyExtractor={(item) => item.date}*/}
+            {/*/>*/}
 
-          {/*<TargetCross*/}
-          {/*  opacity={opacity}*/}
-          {/*  translateX={translateX}*/}
-          {/*  translateY={translateY}*/}
-          {/*/>*/}
-        </Svg>
+            {/*<TargetCross*/}
+            {/*  opacity={opacity}*/}
+            {/*  translateX={translateX}*/}
+            {/*  translateY={translateY}*/}
+            {/*/>*/}
+          </Svg>
+        ))}
       </ScrollView>
 
       {/*<PanGestureHandler minDist={0} {...{ onGestureEvent }}>*/}

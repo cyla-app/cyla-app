@@ -43,10 +43,9 @@ export default ({ days, viewHeight }: CandleChartProps) => {
         const width = 20
         const x = index * width + CANDLE_MARGIN
         return (
-          <>
+          <React.Fragment key={day.date}>
             {dayStart && dayEnd && (
               <Candle
-                key={day.date}
                 width={width}
                 dayStart={dayStart}
                 dayEnd={dayEnd}
@@ -54,14 +53,10 @@ export default ({ days, viewHeight }: CandleChartProps) => {
                 x={x}
               />
             )}
-            <Text
-              key={day.date + 'title'}
-              fill="black"
-              x={x}
-              y={scaleY(0, viewHeight)}>
+            <Text fill="black" x={x} y={scaleY(0, viewHeight)}>
               {format(new Date(day.date), 'dd')}
             </Text>
-          </>
+          </React.Fragment>
         )
       })}
     </>
