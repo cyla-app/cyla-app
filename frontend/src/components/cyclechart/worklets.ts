@@ -1,20 +1,18 @@
 import { Extrapolate, interpolate } from 'react-native-reanimated'
-import { Dimensions } from 'react-native'
 
-export const { width: SIZE } = Dimensions.get('window')
-export const DOMAIN = [36, 40]
+export const DOMAIN = [36, 38]
 
-export const scaleY = (value: number) => {
+export const scaleY = (value: number, viewHeight: number) => {
   'worklet'
-  return interpolate(value, DOMAIN, [SIZE, 0], Extrapolate.CLAMP)
+  return interpolate(value, DOMAIN, [viewHeight, 0], Extrapolate.CLAMP)
 }
 
-export const scaleBody = (value: number) => {
+export const scaleBody = (value: number, viewHeight: number) => {
   'worklet'
   return interpolate(
     value,
     [0, Math.max(...DOMAIN) - Math.min(...DOMAIN)],
-    [0, SIZE],
+    [0, viewHeight],
     Extrapolate.CLAMP,
   )
 }

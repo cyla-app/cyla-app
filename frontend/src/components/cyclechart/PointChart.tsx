@@ -1,11 +1,8 @@
 import { Day } from '../../../generated'
 
 import React from 'react'
-import { scaleY, SIZE } from './worklets'
+import { scaleY } from './worklets'
 import { Circle, Line } from 'react-native-svg'
-import Candle from './Candle'
-import { format } from 'date-fns'
-import { createCandleData } from './CandleChart'
 
 export const createPointData = (
   days: Day[],
@@ -23,12 +20,17 @@ export const createPointData = (
   })
 }
 
-export default ({ days }: { days: Day[] }) => {
+type PointChartProps = {
+  days: Day[]
+  viewHeight: number
+}
+
+export default ({ days, viewHeight }: PointChartProps) => {
   if (days.length === 0) {
     return null
   }
 
-  const temperatures = createCandleData(days)
+  const temperatures = createPointData(days)
 
   return (
     <>
@@ -36,19 +38,19 @@ export default ({ days }: { days: Day[] }) => {
         if (!day.temperature) {
           return null
         }
-        const width = SIZE / days.length
+        const width = 20
         const x = index * width
-        const y = day.temperature.value
+        const y = scaleY(day.temperature.value, viewHeight)
         return (
           <>
-            <Circle key={day.date} r={4} cx={x} cy={scaleY(y)} fill="black" />
+            <Circle key={day.date} r={4} cx={x} cy={y} fill="black" />
             {nextDay && (
               <Line
                 key={day.date + 'line'}
                 x1={x}
-                y1={scaleY(y)}
-                x2={(index + 1) * width}
-                y2={scaleY(nextDay)}
+                y1={y}
+                x2={x + width}
+                y2={scaleY(nextDay, viewHeight)}
                 strokeWidth={2}
                 stroke={'black'}
               />

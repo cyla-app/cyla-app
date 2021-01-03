@@ -2,10 +2,12 @@ import { Day } from '../../../generated'
 
 import { format } from 'date-fns'
 import React from 'react'
-import { SIZE } from './worklets'
 import Candle from './Candle'
+import { Text } from 'react-native-svg'
+import { scaleY } from './worklets'
 
 const CORNER_TEMPERATURE = 36
+export const CANDLE_MARGIN = 2
 
 export const createCandleData = (
   days: Day[],
@@ -23,7 +25,12 @@ export const createCandleData = (
   })
 }
 
-export default ({ days }: { days: Day[] }) => {
+type CandleChartProps = {
+  days: Day[]
+  viewHeight: number
+}
+
+export default ({ days, viewHeight }: CandleChartProps) => {
   if (days.length === 0) {
     return null
   }
@@ -32,18 +39,31 @@ export default ({ days }: { days: Day[] }) => {
 
   return (
     <>
-      {temperatures.map(([dayStart, day, dayEnd], index) =>
-        dayStart && dayEnd ? (
-          <Candle
-            key={day.date}
-            name={format(new Date(day.date), 'dd')}
-            width={SIZE / temperatures.length}
-            dayStart={dayStart}
-            dayEnd={dayEnd}
-            index={index}
-          />
-        ) : null,
-      )}
+      {temperatures.map(([dayStart, day, dayEnd], index) => {
+        const width = 20
+        const x = index * width + CANDLE_MARGIN
+        return (
+          <>
+            {dayStart && dayEnd && (
+              <Candle
+                key={day.date}
+                width={width}
+                dayStart={dayStart}
+                dayEnd={dayEnd}
+                viewHeight={viewHeight}
+                x={x}
+              />
+            )}
+            <Text
+              key={day.date + 'title'}
+              fill="black"
+              x={x}
+              y={scaleY(0, viewHeight)}>
+              {format(new Date(day.date), 'dd')}
+            </Text>
+          </>
+        )
+      })}
     </>
   )
 }

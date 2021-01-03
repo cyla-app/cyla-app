@@ -6,19 +6,20 @@ import Animated, {
 } from 'react-native-reanimated'
 import { ReText } from 'react-native-redash'
 import React from 'react'
-import { DOMAIN, SIZE } from './worklets'
+import { DOMAIN } from './worklets'
 
 interface LabelProps {
   translateY: Animated.SharedValue<number>
   translateX: Animated.SharedValue<number>
   opacity: Animated.SharedValue<number>
+  viewHeight: number
 }
 
-export default ({ translateY, opacity }: LabelProps) => {
+export default ({ translateY, opacity, viewHeight }: LabelProps) => {
   const text = useDerivedValue(() => {
     return interpolate(
       translateY.value,
-      [SIZE, 0],
+      [viewHeight, 0],
       DOMAIN,
       Extrapolate.CLAMP,
     ).toFixed(2)

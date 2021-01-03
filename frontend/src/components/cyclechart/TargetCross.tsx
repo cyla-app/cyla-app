@@ -1,7 +1,7 @@
 import Animated, { useAnimatedProps } from 'react-native-reanimated'
 import { Line, LineProps } from 'react-native-svg'
 import React from 'react'
-import { SIZE } from './worklets'
+import { WINDOW_WIDTH } from './worklets'
 
 interface TargetCrossProps {
   opacity: Animated.SharedValue<number>
@@ -31,7 +31,7 @@ export default ({ opacity, translateY, translateX }: TargetCrossProps) => {
       <AnimatedLine
         animatedProps={horizontal}
         x1={0}
-        x2={SIZE}
+        x2={WINDOW_WIDTH}
         strokeWidth={2}
         stroke="#B5B6B7"
         strokeDasharray="6 6"
@@ -40,7 +40,7 @@ export default ({ opacity, translateY, translateX }: TargetCrossProps) => {
       <AnimatedLine
         animatedProps={vertical}
         y1={0}
-        y2={SIZE}
+        y2={WINDOW_WIDTH}
         strokeWidth={2}
         stroke="#B5B6B7"
         strokeDasharray="6 6"
