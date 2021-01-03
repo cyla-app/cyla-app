@@ -1,4 +1,11 @@
-import { StyleSheet, View, Text, ScrollView } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  FlatList,
+  Dimensions,
+} from 'react-native'
 import Animated, {
   useSharedValue,
   useAnimatedGestureHandler,
@@ -10,12 +17,12 @@ import { PanGestureHandler } from 'react-native-gesture-handler'
 import TargetCross from '../components/cyclechart/TargetCross'
 import Label from '../components/cyclechart/Label'
 import Grid from '../components/cyclechart/Grid'
-import Svg from 'react-native-svg'
+import Svg, { Circle } from 'react-native-svg'
 
 import CandleChart from '../components/cyclechart/CandleChart'
 import PointChart from '../components/cyclechart/PointChart'
 import { format, sub } from 'date-fns'
-import React from 'react'
+import React, { useState } from 'react'
 
 const fillEmptyDataPoints = (days: Day[], numberOfDays: number) => {
   const newDays: Day[] = []
@@ -45,9 +52,9 @@ export default () => {
 
   console.log(days)
 
-  const translateX = useSharedValue(0)
-  const translateY = useSharedValue(0)
-  const opacity = useSharedValue(0)
+  // const translateX = useSharedValue(0)
+  // const translateY = useSharedValue(0)
+  // const opacity = useSharedValue(0)
   // const onGestureEvent = useAnimatedGestureHandler({
   //   onActive: ({ x, y }) => {
   //     opacity.value = 1
@@ -60,19 +67,45 @@ export default () => {
   // })
 
   const viewHeight = 300
-  const viewWidth = 1000
+  const [viewWidth, setViewWidth] = useState<number>(1000)
+  const [offset, setOffset] = useState<number>(0)
   return (
     <View>
-      <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-        <Svg width={viewWidth} height={viewHeight}>
+      <ScrollView
+        style={{ transform: [{ scaleX: -1 }] }}
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
+        onScroll={({ nativeEvent }) => {
+          if (
+            nativeEvent.contentOffset.x >=
+            nativeEvent.contentSize.width - Dimensions.get('window').width
+          ) {
+            setViewWidth(viewWidth + 100)
+            setOffset(offset + 100)
+          }
+        }}>
+        <Svg
+          style={{ transform: [{ scaleX: -1 }] }}
+          width={viewWidth}
+          viewBox={`${-offset} 0 ${viewWidth} ${viewHeight}`}
+          height={viewHeight}>
           <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
           <CandleChart viewHeight={viewHeight} days={days} />
           <PointChart viewHeight={viewHeight} days={days} />
-          <TargetCross
-            opacity={opacity}
-            translateX={translateX}
-            translateY={translateY}
-          />
+
+          {/*<FlatList*/}
+          {/*  data={days}*/}
+          {/*  renderItem={({ item, index }) => (*/}
+          {/*    <Circle cx={index} cy={5} r={10} fill={'red'} />*/}
+          {/*  )}*/}
+          {/*  keyExtractor={(item) => item.date}*/}
+          {/*/>*/}
+
+          {/*<TargetCross*/}
+          {/*  opacity={opacity}*/}
+          {/*  translateX={translateX}*/}
+          {/*  translateY={translateY}*/}
+          {/*/>*/}
         </Svg>
       </ScrollView>
 
