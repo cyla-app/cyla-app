@@ -35,8 +35,8 @@ export default ({ days }: { days: Day[] }) => {
       {temperatures.map(([dayStart, day, dayEnd], index) =>
         dayStart && dayEnd ? (
           <Candle
-            name={format(new Date(day.date), 'dd')}
             key={day.date}
+            name={format(new Date(day.date), 'dd')}
             width={SIZE / temperatures.length}
             dayStart={dayStart}
             dayEnd={dayEnd}

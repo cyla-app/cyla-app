@@ -15,6 +15,7 @@ import Svg from 'react-native-svg'
 import { SIZE } from '../components/cyclechart/worklets'
 
 import CandleChart from '../components/cyclechart/CandleChart'
+import PointChart from '../components/cyclechart/PointChart'
 
 export default () => {
   const days = useSelector<RootState, Day[]>((state) => state.days.days)
@@ -38,16 +39,21 @@ export default () => {
       <Svg width={SIZE} height={SIZE}>
         <Grid />
         <CandleChart days={days.slice(-14)} />
+        <PointChart days={days.slice(-14)} />
+        <TargetCross
+          opacity={opacity}
+          translateX={translateX}
+          translateY={translateY}
+        />
       </Svg>
 
       <PanGestureHandler minDist={0} {...{ onGestureEvent }}>
         <Animated.View style={StyleSheet.absoluteFill}>
-          <TargetCross
+          <Label
             opacity={opacity}
-            translateX={translateX}
             translateY={translateY}
+            translateX={translateX}
           />
-          <Label opacity={opacity} translateY={translateY} />
         </Animated.View>
       </PanGestureHandler>
     </View>

@@ -1,21 +1,30 @@
 import Animated, {
+  Extrapolate,
+  interpolate,
   useAnimatedStyle,
   useDerivedValue,
 } from 'react-native-reanimated'
 import { ReText } from 'react-native-redash'
 import React from 'react'
+import { DOMAIN, SIZE } from './worklets'
 
 interface LabelProps {
   translateY: Animated.SharedValue<number>
+  translateX: Animated.SharedValue<number>
   opacity: Animated.SharedValue<number>
 }
 
 export default ({ translateY, opacity }: LabelProps) => {
   const text = useDerivedValue(() => {
-    return String(Math.round(translateY.value))
+    return interpolate(
+      translateY.value,
+      [SIZE, 0],
+      DOMAIN,
+      Extrapolate.CLAMP,
+    ).toFixed(2)
   })
 
-  const horizontal = useAnimatedStyle(() => ({
+  const vertical = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
   }))
@@ -23,16 +32,15 @@ export default ({ translateY, opacity }: LabelProps) => {
     <Animated.View
       style={[
         {
-          width: 100,
+          width: 50,
           alignSelf: 'flex-end',
           backgroundColor: '#FEFFFF',
           borderRadius: 4,
-          padding: 4,
-          marginTop: 4,
+          padding: 2,
           flexDirection: 'row',
           justifyContent: 'space-between',
         },
-        horizontal,
+        vertical,
       ]}>
       <ReText text={text} />
     </Animated.View>
