@@ -1,6 +1,6 @@
 import { Day } from '../../../generated'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { scaleY } from './worklets'
 import { Circle, Line } from 'react-native-svg'
 
@@ -30,7 +30,7 @@ export default ({ days, viewHeight }: PointChartProps) => {
     return null
   }
 
-  const temperatures = createPointData(days)
+  const temperatures = useMemo(() => createPointData(days), [days])
 
   return (
     <>
@@ -42,8 +42,8 @@ export default ({ days, viewHeight }: PointChartProps) => {
         const x = index * width
         const y = scaleY(day.temperature.value, viewHeight)
         return (
-          <>
-            <Circle key={day.date} r={4} cx={x} cy={y} fill="black" />
+          <React.Fragment key={day.date}>
+            <Circle r={4} cx={x} cy={y} fill="black" />
             {nextDay && (
               <Line
                 key={day.date + 'line'}
@@ -55,7 +55,7 @@ export default ({ days, viewHeight }: PointChartProps) => {
                 stroke={'black'}
               />
             )}
-          </>
+          </React.Fragment>
         )
       })}
     </>

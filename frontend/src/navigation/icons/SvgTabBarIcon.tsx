@@ -2,10 +2,8 @@ import React from 'react'
 import Svg, { Path, PathProps } from 'react-native-svg'
 import Animated from 'react-native-reanimated'
 
-const AnimatedPath = Animated.createAnimatedComponent<
-  any,
-  PathProps & { style?: undefined }
->(Path)
+// @ts-ignore
+const AnimatedPath = Animated.createAnimatedComponent<never, PathProps>(Path)
 
 export type SvgTabBarIconProps = {
   color: string

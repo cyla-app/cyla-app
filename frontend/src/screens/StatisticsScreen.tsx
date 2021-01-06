@@ -1,28 +1,14 @@
-import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  FlatList,
-  Dimensions,
-} from 'react-native'
-import Animated, {
-  useSharedValue,
-  useAnimatedGestureHandler,
-} from 'react-native-reanimated'
+import { View, FlatList } from 'react-native'
 import { useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { Day } from '../../generated'
-import { PanGestureHandler } from 'react-native-gesture-handler'
-import TargetCross from '../components/cyclechart/TargetCross'
-import Label from '../components/cyclechart/Label'
 import Grid from '../components/cyclechart/Grid'
-import Svg, { Circle } from 'react-native-svg'
+import Svg from 'react-native-svg'
 
 import CandleChart from '../components/cyclechart/CandleChart'
 import PointChart from '../components/cyclechart/PointChart'
 import { format, sub } from 'date-fns'
-import React, { useState } from 'react'
+import React from 'react'
 
 const fillEmptyDataPoints = (days: Day[], numberOfDays: number) => {
   const newDays: Day[] = []
@@ -68,49 +54,38 @@ export default () => {
 
   const viewHeight = 300
   const viewWidth = 1000
-  const [chartCount, setChartCount] = useState<number>(1)
+  const data: number[] = [...Array(100).keys()]
   return (
     <View>
-      <ScrollView
-        style={{ transform: [{ scaleX: -1 }] }}
+      <FlatList
         horizontal={true}
         showsHorizontalScrollIndicator={false}
-        onScroll={({ nativeEvent }) => {
-          if (
-            nativeEvent.contentOffset.x >=
-            nativeEvent.contentSize.width - Dimensions.get('window').width - 100
-          ) {
-            setChartCount(chartCount + 1)
-            console.log('hit')
-            console.log(chartCount)
-          }
-        }}>
-        {[...Array(chartCount).keys()].map((i) => (
-          <Svg
-            key={i}
-            style={{ transform: [{ scaleX: -1 }] }}
-            width={viewWidth}
-            height={viewHeight}>
-            <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
-            <CandleChart viewHeight={viewHeight} days={days} />
-            <PointChart viewHeight={viewHeight} days={days} />
+        data={data}
+        keyExtractor={(item: number) => String(item)}
+        inverted={true}
+        maxToRenderPerBatch={1}
+        initialNumToRender={1}
+        getItemLayout={(_, index) => ({
+          length: viewWidth,
+          offset: viewWidth * index,
+          index,
+        })}
+        renderItem={() => {
+          return (
+            <Svg width={viewWidth} height={viewHeight}>
+              <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
+              <CandleChart viewHeight={viewHeight} days={days} />
+              <PointChart viewHeight={viewHeight} days={days} />
 
-            {/*<FlatList*/}
-            {/*  data={days}*/}
-            {/*  renderItem={({ item, index }) => (*/}
-            {/*    <Circle cx={index} cy={5} r={10} fill={'red'} />*/}
-            {/*  )}*/}
-            {/*  keyExtractor={(item) => item.date}*/}
-            {/*/>*/}
-
-            {/*<TargetCross*/}
-            {/*  opacity={opacity}*/}
-            {/*  translateX={translateX}*/}
-            {/*  translateY={translateY}*/}
-            {/*/>*/}
-          </Svg>
-        ))}
-      </ScrollView>
+              {/*<TargetCross*/}
+              {/*  opacity={opacity}*/}
+              {/*  translateX={translateX}*/}
+              {/*  translateY={translateY}*/}
+              {/*/>*/}
+            </Svg>
+          )
+        }}
+      />
 
       {/*<PanGestureHandler minDist={0} {...{ onGestureEvent }}>*/}
       {/*<Animated.View style={StyleSheet.absoluteFill}>*/}
