@@ -2,7 +2,7 @@ import CylaModule from '../modules/CylaModule'
 import React, { useState } from 'react'
 import { Text, View, ViewStyle } from 'react-native'
 import { ActivityIndicator, Button, Headline } from 'react-native-paper'
-import { addDays, addMonths, format } from 'date-fns'
+import { addDays, format, getDate } from 'date-fns'
 import { Bleeding, Day, Mucus } from '../../generated'
 import { useDispatch } from 'react-redux'
 import { setSignedIn } from '../profileSlice'
@@ -10,7 +10,6 @@ import { fetchAllDays } from '../daysSlice'
 import LoginForm from '../components/LoginForm'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
-import { RouteProp } from '@react-navigation/native'
 
 export const generateMockData = async () => {
   const randomDate = (start: Date, end: Date) =>
@@ -19,26 +18,26 @@ export const generateMockData = async () => {
     )
 
   const random = randomDate(new Date(2020, 0, 1), new Date(2020, 2, 1))
-  for (let i = 0; i < 12; i++) {
-    const date = addMonths(random, i)
-    for (let j = 0; j < 3; j++) {
-      const periodDay = addDays(date, j)
-      await CylaModule.postDay(periodDay, {
-        date: format(periodDay, 'yyyy-MM-dd'),
-        bleeding: {
-          strength: Bleeding.strength.STRONG,
-        },
-        temperature: {
-          value: 36,
-          timestamp: new Date().toISOString(),
-          note: undefined,
-        },
-        mucus: {
-          feeling: Mucus.feeling.DRY,
-          texture: Mucus.texture.EGG_WHITE,
-        },
-      })
-    }
+  for (let i = 0; i < 365; i++) {
+    const day = addDays(random, i)
+    await CylaModule.postDay(day, {
+      date: format(day, 'yyyy-MM-dd'),
+      bleeding:
+        getDate(day) <= 10 && getDate(day) >= 7
+          ? {
+              strength: Bleeding.strength.STRONG,
+            }
+          : undefined,
+      temperature: {
+        value: 36.5 + 0.5 * Math.sin(Math.sin(0.1 * i) * i),
+        timestamp: day.toISOString(),
+        note: undefined,
+      },
+      mucus: {
+        feeling: Mucus.feeling.DRY,
+        texture: Mucus.texture.EGG_WHITE,
+      },
+    })
   }
   return (await CylaModule.fetchDaysByMonths(3)) as Day[]
 }
@@ -75,7 +74,7 @@ export default ({ navigation }: PropType) => {
   const signUp = async (username: string, passphrase: string) => {
     setLoading(true)
     try {
-      await CylaModule.setupUserKeyBackup(username, passphrase)
+      await CylaModule.setupUserKey(passphrase)
       await generateMockData()
       await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
 
