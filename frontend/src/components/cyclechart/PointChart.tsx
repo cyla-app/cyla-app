@@ -2,7 +2,8 @@ import { Day } from '../../../generated'
 
 import React, { useMemo } from 'react'
 import { scaleY } from './worklets'
-import { Circle, Line } from 'react-native-svg'
+import { Circle, Line, Text } from 'react-native-svg'
+import { format } from 'date-fns'
 
 export const createPointData = (
   days: Day[],
@@ -55,6 +56,9 @@ export default ({ days, viewHeight }: PointChartProps) => {
                 stroke={'black'}
               />
             )}
+            <Text fill="black" x={x} y={scaleY(0, viewHeight)}>
+              {format(new Date(day.date), 'dd')}
+            </Text>
           </React.Fragment>
         )
       })}

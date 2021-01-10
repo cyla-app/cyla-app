@@ -1,24 +1,17 @@
 import { Card, List } from 'react-native-paper'
 import { StyleSheet, View, Text } from 'react-native'
 import React from 'react'
-import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { format } from 'date-fns'
 import { RouteProp } from '@react-navigation/native'
-
-type DetailScreenNavigationProp = StackNavigationProp<
-  MainStackParamList,
-  'Detail'
->
 
 type DetailScreenRouteProp = RouteProp<MainStackParamList, 'Detail'>
 
 type PropType = {
   route: DetailScreenRouteProp
-  navigation: DetailScreenNavigationProp
 }
 
-export default ({ route, navigation }: PropType) => {
+export default ({ route }: PropType) => {
   const { day } = route.params
 
   return (

@@ -30,11 +30,31 @@ const fillEmptyDataPoints = (days: Day[], numberOfDays: number) => {
   return newDays
 }
 
+const viewHeight = 300
+const viewWidth = 400
+
+const RenderItem = React.memo(({ days }) => {
+  return (
+    <Svg width={viewWidth} height={viewHeight}>
+      <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
+      {/*  <CandleChart viewHeight={viewHeight} days={days} />*/}
+      <PointChart viewHeight={viewHeight} days={days} />
+
+      {/*<TargetCross*/}
+      {/*  opacity={opacity}*/}
+      {/*  translateX={translateX}*/}
+      {/*  translateY={translateY}*/}
+      {/*/>*/}
+    </Svg>
+  )
+})
+
 export default () => {
   const days = fillEmptyDataPoints(
     useSelector<RootState, Day[]>((state) => state.days.days),
-    60,
+    20,
   )
+  //const days = useSelector<RootState, Day[]>((state) => state.days.days)
 
   // console.log(days)
 
@@ -52,8 +72,6 @@ export default () => {
   //   },
   // })
 
-  const viewHeight = 300
-  const viewWidth = 1000
   const data: number[] = [...Array(100).keys()]
   return (
     <View>
@@ -63,7 +81,7 @@ export default () => {
         data={data}
         keyExtractor={(item: number) => String(item)}
         inverted={true}
-        maxToRenderPerBatch={1}
+        maxToRenderPerBatch={2}
         initialNumToRender={1}
         getItemLayout={(_, index) => ({
           length: viewWidth,
@@ -71,19 +89,7 @@ export default () => {
           index,
         })}
         renderItem={() => {
-          return (
-            <Svg width={viewWidth} height={viewHeight}>
-              <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
-              <CandleChart viewHeight={viewHeight} days={days} />
-              <PointChart viewHeight={viewHeight} days={days} />
-
-              {/*<TargetCross*/}
-              {/*  opacity={opacity}*/}
-              {/*  translateX={translateX}*/}
-              {/*  translateY={translateY}*/}
-              {/*/>*/}
-            </Svg>
-          )
+          return <RenderItem days={days} />
         }}
       />
 
