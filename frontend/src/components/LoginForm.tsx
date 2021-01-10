@@ -2,11 +2,21 @@ import * as React from 'react'
 import { useState } from 'react'
 import { Button, TextInput } from 'react-native-paper'
 
-export default ({ onSave }: { onSave: (passphrase: string) => void }) => {
+type LoginFormProps = {
+  onSave: (username: string, passphrase: string) => void
+}
+export default ({ onSave }: LoginFormProps) => {
+  const [username, setUsername] = useState('')
   const [passphrase, setPassphrase] = useState('')
 
   return (
     <>
+      <TextInput
+        label="Username"
+        value={username}
+        mode="outlined"
+        onChangeText={(newUsername) => setUsername(newUsername)}
+      />
       <TextInput
         label="Password"
         secureTextEntry
@@ -20,7 +30,7 @@ export default ({ onSave }: { onSave: (passphrase: string) => void }) => {
           margin: 20,
         }}
         onPress={() => {
-          onSave(passphrase)
+          onSave(username, passphrase)
         }}>
         Save
       </Button>

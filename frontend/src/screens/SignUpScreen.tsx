@@ -1,13 +1,16 @@
 import CylaModule from '../modules/CylaModule'
 import React, { useState } from 'react'
 import { Text, View, ViewStyle } from 'react-native'
-import PasswordEntry from '../components/PasswordEntry'
-import { ActivityIndicator } from 'react-native-paper'
+import { ActivityIndicator, Button, Headline } from 'react-native-paper'
 import { addDays, addMonths, format } from 'date-fns'
 import { Bleeding, Day, Mucus } from '../../generated'
 import { useDispatch } from 'react-redux'
 import { setSignedIn } from '../profileSlice'
 import { fetchAllDays } from '../daysSlice'
+import LoginForm from '../components/LoginForm'
+import { StackNavigationProp } from '@react-navigation/stack'
+import { MainStackParamList } from '../navigation/MainStackNavigation'
+import { RouteProp } from '@react-navigation/native'
 
 export const generateMockData = async () => {
   const randomDate = (start: Date, end: Date) =>
@@ -40,7 +43,16 @@ export const generateMockData = async () => {
   return (await CylaModule.fetchDaysByMonths(3)) as Day[]
 }
 
-export default () => {
+type SignUpScreenNavigationProp = StackNavigationProp<
+  MainStackParamList,
+  'SignUp'
+>
+
+type PropType = {
+  navigation: SignUpScreenNavigationProp
+}
+
+export default ({ navigation }: PropType) => {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const dispatch = useDispatch()
@@ -60,10 +72,10 @@ export default () => {
     padding: 20,
   } as ViewStyle
 
-  const setup = async (passphrase: string) => {
+  const signUp = async (username: string, passphrase: string) => {
     setLoading(true)
     try {
-      await CylaModule.setupUserKey(passphrase)
+      await CylaModule.setupUserKeyBackup(username, passphrase)
       await generateMockData()
       await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
 
@@ -77,11 +89,15 @@ export default () => {
 
   return (
     <View style={containerStyle}>
-      <PasswordEntry
-        onSave={(passphrase: string) => {
-          setup(passphrase)
+      <Headline>Sign Up</Headline>
+      <LoginForm
+        onSave={(username: string, passphrase: string) => {
+          signUp(username, passphrase)
         }}
       />
+      <Button mode="text" onPress={() => navigation.navigate('SignIn')}>
+        I already have an account. Take me to the Sign In.
+      </Button>
     </View>
   )
 }

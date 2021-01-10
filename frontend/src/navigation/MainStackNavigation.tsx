@@ -15,9 +15,11 @@ import { setSignedIn } from '../profileSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { fetchAllDays } from '../daysSlice'
+import SignInScreen from '../screens/SignInScreen'
 
 export type MainStackParamList = {
   SignUp: undefined
+  SignIn: undefined
   Tabs: NavigatorScreenParams<TabsParamList>
   Profile: undefined
   Detail: { day: Day }
@@ -27,7 +29,9 @@ const Stack = createStackNavigator<MainStackParamList>()
 
 export default () => {
   const [loading, setLoading] = useState<boolean>(true)
-  const isSignedIn = useSelector<RootState>((state) => state.profile.signedIn)
+  const isSignedInApp = useSelector<RootState>(
+    (state) => state.profile.signedIn,
+  )
   const [error, setError] = useState<string | null>(null)
   const dispatch = useDispatch()
 
@@ -67,15 +71,11 @@ export default () => {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }} mode="modal">
-      {!isSignedIn ? (
-        <Stack.Screen
-          name="SignUp"
-          component={SignUpScreen}
-          options={{
-            title: 'Sign in',
-            animationTypeForReplace: 'pop',
-          }}
-        />
+      {!isSignedInApp ? (
+        <>
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+        </>
       ) : (
         // User is signed in
         <>
