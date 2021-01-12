@@ -1,9 +1,9 @@
 import { Day } from '../../../generated'
 
 import React from 'react'
-import { scaleY } from './worklets'
-import { Circle, Line, Text } from 'react-native-svg'
+import { Text } from 'react-native-svg'
 import { format } from 'date-fns'
+import DayLine from './DayLine'
 
 export const POINT_GAP = 20
 const HORIZONTAL_SHIFT = POINT_GAP / 2
@@ -20,45 +20,6 @@ export const createPointData = (days: Day[]): [Day, Day?][] => {
 
     return [day, days[index + 1]]
   })
-}
-
-type PointLineProps = {
-  day: Day
-  nextDay?: Day
-  viewHeight: number
-  viewWidth: number
-  x: number
-  color?: string
-}
-
-const PointLine = ({
-  viewWidth,
-  viewHeight,
-  x,
-  day,
-  nextDay,
-  color = 'black',
-}: PointLineProps) => {
-  if (!day.temperature) {
-    return null
-  }
-  const y = scaleY(day.temperature.value, viewHeight)
-  const nextDayTemperature = nextDay?.temperature
-  return (
-    <>
-      <Circle r={4} cx={viewWidth - x} cy={y} fill={color} />
-      {nextDayTemperature && (
-        <Line
-          x1={viewWidth - x}
-          y1={y}
-          x2={viewWidth - x - POINT_GAP}
-          y2={scaleY(nextDayTemperature.value, viewHeight)}
-          strokeWidth={1}
-          stroke={'black'}
-        />
-      )}
-    </>
-  )
 }
 
 type PointChartProps = {
@@ -84,7 +45,7 @@ export default ({
   return (
     <>
       {previousDay?.temperature && (
-        <PointLine
+        <DayLine
           viewHeight={viewHeight}
           viewWidth={viewWidth}
           x={viewWidth - HORIZONTAL_SHIFT}
@@ -98,7 +59,7 @@ export default ({
         return (
           <React.Fragment key={day.date}>
             {day.temperature && (
-              <PointLine
+              <DayLine
                 viewHeight={viewHeight}
                 viewWidth={viewWidth}
                 x={x}
@@ -118,7 +79,7 @@ export default ({
         )
       })}
       {nextDay?.temperature && (
-        <PointLine
+        <DayLine
           viewHeight={viewHeight}
           viewWidth={viewWidth}
           x={0 - HORIZONTAL_SHIFT}

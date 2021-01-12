@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './App'
 
 export const fetchAllDays = createAsyncThunk('days/fetchAll', async () => {
-  return (await CylaModule.fetchDaysByMonths(12)) as Day[]
+  return (await CylaModule.fetchDaysByMonths(6)) as Day[]
 })
 
 type StateType = {

@@ -50,10 +50,6 @@ const RenderItem = React.memo(
       fromDate,
     )
 
-    console.log(days[0].date)
-    console.log(days[days.length - 1].date)
-    console.log(previousDay?.date)
-    console.log(nextDay?.date)
     return (
       <Svg width={viewWidth} height={viewHeight + bottomQuietZone}>
         <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
