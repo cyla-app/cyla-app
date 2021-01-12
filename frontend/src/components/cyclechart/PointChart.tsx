@@ -1,67 +1,132 @@
 import { Day } from '../../../generated'
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import { scaleY } from './worklets'
 import { Circle, Line, Text } from 'react-native-svg'
 import { format } from 'date-fns'
 
-export const createPointData = (
-  days: Day[],
-): [number | undefined, Day, number | undefined][] => {
+export const POINT_GAP = 20
+const HORIZONTAL_SHIFT = POINT_GAP / 2
+
+export const createPointData = (days: Day[]): [Day, Day?][] => {
   return days.map((day, index) => {
     if (index === days.length - 1) {
-      return [day.temperature?.value, day, undefined]
+      return [day, undefined]
     }
 
     if (index === 0) {
-      return [undefined, day, days[index + 1].temperature?.value]
+      return [day, days[index + 1]]
     }
 
-    return [day.temperature?.value, day, days[index + 1].temperature?.value]
+    return [day, days[index + 1]]
   })
 }
 
-type PointChartProps = {
-  days: Day[]
+type PointLineProps = {
+  day: Day
+  nextDay?: Day
   viewHeight: number
+  viewWidth: number
+  x: number
+  color?: string
 }
 
-export default ({ days, viewHeight }: PointChartProps) => {
+const PointLine = ({
+  viewWidth,
+  viewHeight,
+  x,
+  day,
+  nextDay,
+  color = 'black',
+}: PointLineProps) => {
+  if (!day.temperature) {
+    return null
+  }
+  const y = scaleY(day.temperature.value, viewHeight)
+  const nextDayTemperature = nextDay?.temperature
+  return (
+    <>
+      <Circle r={4} cx={viewWidth - x} cy={y} fill={color} />
+      {nextDayTemperature && (
+        <Line
+          x1={viewWidth - x}
+          y1={y}
+          x2={viewWidth - x - POINT_GAP}
+          y2={scaleY(nextDayTemperature.value, viewHeight)}
+          strokeWidth={1}
+          stroke={'black'}
+        />
+      )}
+    </>
+  )
+}
+
+type PointChartProps = {
+  previousDay: Day | null
+  days: Day[]
+  nextDay: Day | null
+  viewHeight: number
+  viewWidth: number
+}
+
+export default ({
+  previousDay,
+  days,
+  nextDay,
+  viewHeight,
+  viewWidth,
+}: PointChartProps) => {
   if (days.length === 0) {
     return null
   }
 
-  const temperatures = useMemo(() => createPointData(days), [days])
-
+  const temperatures = createPointData(days)
   return (
     <>
-      {temperatures.map(([_, day, nextDay], index) => {
-        if (!day.temperature) {
-          return null
-        }
-        const width = 20
-        const x = index * width
-        const y = scaleY(day.temperature.value, viewHeight)
+      {previousDay?.temperature && (
+        <PointLine
+          viewHeight={viewHeight}
+          viewWidth={viewWidth}
+          x={viewWidth - HORIZONTAL_SHIFT}
+          day={days[days.length - 1]}
+          color={'green'}
+          nextDay={previousDay}
+        />
+      )}
+      {temperatures.map(([day, nextDay], index) => {
+        const x = index * POINT_GAP + POINT_GAP - HORIZONTAL_SHIFT
         return (
           <React.Fragment key={day.date}>
-            <Circle r={4} cx={x} cy={y} fill="black" />
-            {nextDay && (
-              <Line
-                key={day.date + 'line'}
-                x1={x}
-                y1={y}
-                x2={x + width}
-                y2={scaleY(nextDay, viewHeight)}
-                strokeWidth={2}
-                stroke={'black'}
+            {day.temperature && (
+              <PointLine
+                viewHeight={viewHeight}
+                viewWidth={viewWidth}
+                x={x}
+                day={day}
+                nextDay={nextDay}
               />
             )}
-            <Text fill="black" x={x} y={scaleY(0, viewHeight)}>
+            <Text
+              fill="black"
+              x={viewWidth - x}
+              y={viewHeight + 15}
+              fontSize={10}
+              textAnchor="middle">
               {format(new Date(day.date), 'dd')}
             </Text>
           </React.Fragment>
         )
       })}
+      {nextDay?.temperature && (
+        <PointLine
+          viewHeight={viewHeight}
+          viewWidth={viewWidth}
+          x={0 - HORIZONTAL_SHIFT}
+          day={nextDay}
+          color={'red'}
+          nextDay={days[0]}
+        />
+      )}
     </>
   )
 }

@@ -4,7 +4,7 @@ import { scaleY } from './worklets'
 
 const GRID_START = 36
 const GRID_STOP = 38
-const GRID_STEPS = 0.2
+const GRID_STEPS = 0.1
 
 type GridProps = {
   viewWidth: number

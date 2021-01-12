@@ -4,16 +4,16 @@ import { RootState } from '../App'
 import { Day } from '../../generated'
 import Grid from '../components/cyclechart/Grid'
 import Svg from 'react-native-svg'
-
-import CandleChart from '../components/cyclechart/CandleChart'
-import PointChart from '../components/cyclechart/PointChart'
-import { format, sub } from 'date-fns'
+import PointChart, { POINT_GAP } from '../components/cyclechart/PointChart'
+import { add, format, sub } from 'date-fns'
 import React from 'react'
 
-const fillEmptyDataPoints = (days: Day[], numberOfDays: number) => {
+const fillEmptyDataPoints = (
+  days: Day[],
+  numberOfDays: number,
+  initialDate = new Date(),
+) => {
   const newDays: Day[] = []
-  const initialDate = new Date()
-
   const currentData = Object.fromEntries(days.map((day) => [day.date, day]))
 
   for (let i = 0; i < numberOfDays; i++) {
@@ -27,59 +27,63 @@ const fillEmptyDataPoints = (days: Day[], numberOfDays: number) => {
     }
   }
 
-  return newDays
+  return {
+    previousDay:
+      currentData[
+        format(sub(initialDate, { days: numberOfDays }), 'yyyy-MM-dd')
+      ],
+    days: newDays,
+    nextDay: currentData[format(add(initialDate, { days: 1 }), 'yyyy-MM-dd')],
+  }
 }
 
+const bottomQuietZone = 15
 const viewHeight = 300
-const viewWidth = 400
+const daysPerRenderItem = 20
+const viewWidth = POINT_GAP * daysPerRenderItem
 
-const RenderItem = React.memo(({ days }) => {
-  return (
-    <Svg width={viewWidth} height={viewHeight}>
-      <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
-      {/*  <CandleChart viewHeight={viewHeight} days={days} />*/}
-      <PointChart viewHeight={viewHeight} days={days} />
+const RenderItem = React.memo(
+  ({ allDays, fromDate }: { allDays: Day[]; fromDate: Date }) => {
+    const { previousDay, days, nextDay } = fillEmptyDataPoints(
+      allDays,
+      daysPerRenderItem,
+      fromDate,
+    )
 
-      {/*<TargetCross*/}
-      {/*  opacity={opacity}*/}
-      {/*  translateX={translateX}*/}
-      {/*  translateY={translateY}*/}
-      {/*/>*/}
-    </Svg>
-  )
-})
+    console.log(days[0].date)
+    console.log(days[days.length - 1].date)
+    console.log(previousDay?.date)
+    console.log(nextDay?.date)
+    return (
+      <Svg width={viewWidth} height={viewHeight + bottomQuietZone}>
+        <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
+        <PointChart
+          previousDay={previousDay}
+          nextDay={nextDay}
+          viewHeight={viewHeight}
+          viewWidth={viewWidth}
+          days={days}
+        />
+      </Svg>
+    )
+  },
+)
 
 export default () => {
-  const days = fillEmptyDataPoints(
-    useSelector<RootState, Day[]>((state) => state.days.days),
-    20,
+  const allDays = useSelector<RootState, Day[]>((state) => state.days.days)
+
+  const renderItems = Math.ceil(365 / daysPerRenderItem)
+  const initialDate = new Date()
+  const dates: Date[] = [...Array(renderItems).keys()].map((index) =>
+    sub(initialDate, { days: index * daysPerRenderItem }),
   )
-  //const days = useSelector<RootState, Day[]>((state) => state.days.days)
-
-  // console.log(days)
-
-  // const translateX = useSharedValue(0)
-  // const translateY = useSharedValue(0)
-  // const opacity = useSharedValue(0)
-  // const onGestureEvent = useAnimatedGestureHandler({
-  //   onActive: ({ x, y }) => {
-  //     opacity.value = 1
-  //     translateY.value = y
-  //     translateX.value = x
-  //   },
-  //   onEnd: () => {
-  //     opacity.value = 0
-  //   },
-  // })
-
-  const data: number[] = [...Array(100).keys()]
   return (
     <View>
       <FlatList
         horizontal={true}
         showsHorizontalScrollIndicator={false}
-        data={data}
-        keyExtractor={(item: number) => String(item)}
+        data={dates}
+        keyExtractor={(item: Date) => item.toISOString()}
         inverted={true}
         maxToRenderPerBatch={2}
         initialNumToRender={1}
@@ -88,21 +92,10 @@ export default () => {
           offset: viewWidth * index,
           index,
         })}
-        renderItem={() => {
-          return <RenderItem days={days} />
+        renderItem={({ item }) => {
+          return <RenderItem allDays={allDays} fromDate={item} />
         }}
       />
-
-      {/*<PanGestureHandler minDist={0} {...{ onGestureEvent }}>*/}
-      {/*<Animated.View style={StyleSheet.absoluteFill}>*/}
-      {/*  <Label*/}
-      {/*    viewHeight={viewHeight}*/}
-      {/*    opacity={opacity}*/}
-      {/*    translateY={translateY}*/}
-      {/*    translateX={translateX}*/}
-      {/*  />*/}
-      {/*</Animated.View>*/}
-      {/*</PanGestureHandler>*/}
     </View>
   )
 }
