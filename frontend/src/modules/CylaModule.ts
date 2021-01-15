@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 // This type is determined by app.cyla.decryption.CylaModule
 type CylaModuleType = {
   postDay: (iso8601date: string, userId: string) => Promise<void>
-  setupUserKey: (passphrase?: string) => Promise<void>
+  setupUser: (username?: string, passphrase?: string) => Promise<void>
   isUserSignedIn: () => Promise<boolean>
   getUserId: () => Promise<string>
   fetchDaysByMonths: (months: number) => Promise<string[]>
@@ -27,8 +27,8 @@ class CylaModule {
     )
   }
 
-  async setupUserKey(passphrase?: string) {
-    await CylaNativeModule.setupUserKey(passphrase)
+  async setupUser(username?: string, passphrase?: string) {
+    await CylaNativeModule.setupUser(username, passphrase)
   }
 
   async isUserSignedIn() {

@@ -7,6 +7,7 @@ private const val PREFERENCE_KEY_PASSPHRASE_IV = "passphraseIV"
 private const val PREFERENCE_KEY_USER_KEY_CELL = "userKeyCell"
 private const val PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT = "passphraseCipherText"
 private const val PREFERENCE_KEY_USER_ID = "userId"
+private const val PREFERENCE_KEY_USER_NAME = "userName"
 
 
 fun SharedPreferences.getUserId(): String? {
@@ -15,6 +16,15 @@ fun SharedPreferences.getUserId(): String? {
 
 fun SharedPreferences.Editor.putUserId(userId: String): SharedPreferences.Editor {
     this.putString(PREFERENCE_KEY_USER_ID, userId)
+    return this
+}
+
+fun SharedPreferences.getUserName(): String? {
+    return this.getString(PREFERENCE_KEY_USER_NAME, null)
+}
+
+fun SharedPreferences.Editor.putUserName(userName: String): SharedPreferences.Editor {
+    this.putString(PREFERENCE_KEY_USER_NAME, userName)
     return this
 }
 

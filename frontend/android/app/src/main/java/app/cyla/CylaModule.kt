@@ -25,6 +25,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     private lateinit var userKey: SymmetricKey
+    private lateinit var username: String
 //    private val moshi = Moshi.Builder()
 //        .add(KotlinJsonAdapterFactory())
 //        .add(OffsetDateTimeAdapter())
@@ -62,7 +63,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         getEncryptionStorage().edit().clear().apply()
     }
 
-    private fun loadStoredUserKey(): Pair<String, SymmetricKey> {
+    private fun loadStoredUser(): Triple<String, String, SymmetricKey> { //TODO: Use User instead of triple?
         val userKeyCellData = getEncryptionStorage().getUserKeyCell()!!
         val (passphraseCipherText, passphraseIV) = getEncryptionStorage().getPassphrase()!!
         val passphrase = decryptPassphrase(passphraseCipherText, passphraseIV)
@@ -71,10 +72,13 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         val userId = getAppStorage().getUserId()
             ?: throw Exception("userId is not in app storage")
 
-        return Pair(userId, userKey)
+        val username = getAppStorage().getUserName()
+            ?: throw Exception("username is not in app storage")
+
+        return Triple(userId, username, userKey)
     }
 
-    private fun createNewUserKey(passphrase: String): Pair<String, SymmetricKey> {
+    private fun createNewUserKey(username: String, passphrase: String): Triple<String, String, SymmetricKey> {
         val (cipherText, iv) = encryptPassphrase(reactApplicationContext, passphrase)
         val (userKey, userKeyCell) = createUserKey(passphrase)
 
@@ -86,11 +90,13 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         val user = User()
         user.id = null
         user.userKeyBackup = userKey.toByteArray()
+        user.username = username
         val userId = userApi.value.createUser(user)
         getAppStorage().edit()
             .putUserId(userId)
+            .putUserName(username)
             .apply()
-        return Pair(userId, userKey)
+        return Triple(userId, username, userKey)
     }
 
     @ReactMethod
@@ -104,15 +110,16 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun setupUserKey(passphrase: String?, promise: Promise) {
+    fun setupUser(username: String?, passphrase: String?, promise: Promise) {
         try {
-            val (userId, userKey) = if (passphrase == null) {
-                loadStoredUserKey()
+            val (userId, username, userKey) = if (username == null || passphrase == null) {
+                loadStoredUser()
             } else {
-                createNewUserKey(passphrase)
+                createNewUserKey(username, passphrase)
             }
 
             this.userKey = userKey
+            this.username = username
 
             promise.resolve(userId)
         } catch (e: Exception) {

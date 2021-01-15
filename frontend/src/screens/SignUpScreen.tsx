@@ -74,7 +74,7 @@ export default ({ navigation }: PropType) => {
   const signUp = async (username: string, passphrase: string) => {
     setLoading(true)
     try {
-      await CylaModule.setupUserKey(passphrase)
+      await CylaModule.setupUser(username, passphrase)
       await generateMockData()
       await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
 
