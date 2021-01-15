@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
@@ -25,6 +26,7 @@ var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua"
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
 
 const userPrefixKey = "user"
+const userNamePrefixKey = "name"
 const dayPrefixKey = "day"
 
 type CylaRedisClient struct {
@@ -50,6 +52,11 @@ func NewRedisClient() (*CylaRedisClient, error) {
 }
 
 func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, error) {
+	matches, _ := regexp.MatchString(`^[a-zA-Z0-9._-]{4,20}$`, user.Username)
+	if !matches {
+		return "", newHTTPError(409, `User name does not follow the requirements: between 4 and 20 characters and only using alphanumeric symbols or '.', '_', '-'. `)
+	}
+
 	userId, err := uuid.NewRandom()
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "could not create random", err)
@@ -61,7 +68,14 @@ func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, er
 		return "", newHTTPErrorWithCauseError(500, "could not unmarshall user", err)
 	}
 
-	err = s.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser).Err()
+	if s.SIsMember(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userNamePrefixKey),user.Username).Val() {
+		return "", newHTTPError(409, "User name already in use.")
+	}
+
+	pipeline := s.TxPipeline()
+	pipeline.SAdd(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userNamePrefixKey),user.Username)
+	pipeline.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser)
+	_, err = pipeline.Exec(ctx)
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "redis error", err)
 	}

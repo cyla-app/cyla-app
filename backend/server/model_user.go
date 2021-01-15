@@ -15,11 +15,17 @@ type User struct {
 	// UUID
 	Id string `json:"id,omitempty" mapstructure:"Id"`
 
+	// unique username. Chosen by the user upon account creation
+	Username string `json:"username,omitempty" mapstructure:"Username"`
+
 	UserKeyBackup EncryptedAttribute `json:"user_key_backup,omitempty" mapstructure:"UserKeyBackup"`
 }
 
 func GetUserIdName() string {
 	return "Id"
+}
+func GetUserUsernameName() string {
+	return "Username"
 }
 func GetUserUserKeyBackupName() string {
 	return "UserKeyBackup"

@@ -212,6 +212,10 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/Id"
+        username:
+          title: username
+          type: string
+          description: unique username. Chosen by the user upon account creation
         user_key_backup:
           $ref: "#/components/schemas/EncryptedAttribute"
     Day:
