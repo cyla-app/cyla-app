@@ -11,7 +11,9 @@ package server
 
 import (
 	"context"
-	"errors"
+    "github.com/cossacklabs/themis/gothemis/compare"
+    "github.com/gorilla/websocket"
+    "log"
 )
 
 // LoginApiService is a service that implents the logic for the LoginApiServicer
@@ -26,6 +28,40 @@ func NewLoginApiService() LoginApiServicer {
 }
 
 // LoginUser -
-func (s *LoginApiService) LoginUser(ctx context.Context) (ImplResponse, error) {
-	return httpResponse(errors.New("testError"))
+func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *websocket.Conn) (ImplResponse, error) {
+	ret, err := DBConnection.LoginUser(ctx, username)
+    comparisonServer, err := compare.New()
+    comparisonServer.Append([]byte(ret))
+    for {
+        mt, message, err := conn.ReadMessage()
+        if err != nil {
+            log.Println("read:", err)
+            break
+        }
+        log.Printf("recv: %s", message)
+        log.Println(message)
+
+        response, err := comparisonServer.Proceed(message)
+        if err != nil {
+            log.Println("Comparison error: ", err)
+        }
+
+        err = conn.WriteMessage(mt, response)
+        if err != nil {
+            log.Println("write:", err)
+            break
+        }
+        if response == nil {
+            log.Println("Comparison done")
+            break
+        }
+    }
+    result, err := comparisonServer.Result()
+    if err != nil {
+        log.Println("Error during result: ", err)
+    }
+    if result == compare.Match {
+        log.Println("Successful")
+    }
+	return httpResponseWithBody(ret, err)
 }

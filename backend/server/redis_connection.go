@@ -24,6 +24,7 @@ func loadLuaScript(scriptPath string) *redis.Script {
 var changeDayScript = loadLuaScript("resources/change_day_script.lua")
 var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua")
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
+var getHashUserKeyForLogin = loadLuaScript("resources/get_hash_user_key_for_login.lua")
 
 const userPrefixKey = "user"
 const userNamePrefixKey = "name"
@@ -46,9 +47,20 @@ func NewRedisClient() (*CylaRedisClient, error) {
 		changeDayScript.Load(context.Background(), cylaClient)
 		updateHResourceScript.Load(context.Background(), cylaClient)
 		getDayByRange.Load(context.Background(), cylaClient)
+		getHashUserKeyForLogin.Load(context.Background(), cylaClient)
 		return &cylaClient, nil
 	}
 
+}
+
+func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (string, error) {
+	userUUID, err := getHashUserKeyForLogin.Run(ctx, s,
+		[]string{fmt.Sprintf("%v:%v:%v", userPrefixKey, userNamePrefixKey, username)},
+		GetUserUserKeyBackupName()).Text()
+	if err != nil {
+		return "", newHTTPErrorWithCauseError(500, "could not retrieve hash for user key", err)
+	}
+	return userUUID, nil
 }
 
 func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, error) {
@@ -68,14 +80,11 @@ func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, er
 		return "", newHTTPErrorWithCauseError(500, "could not unmarshall user", err)
 	}
 
-	if s.SIsMember(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userNamePrefixKey), user.Username).Val() {
+	if !s.SetNX(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userNamePrefixKey, user.Username), user.Id, 0).Val() {
 		return "", newHTTPError(409, "User name already in use.")
 	}
 
-	pipeline := s.TxPipeline()
-	pipeline.SAdd(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userNamePrefixKey), user.Username)
-	pipeline.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser)
-	_, err = pipeline.Exec(ctx)
+	_, err = s.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser).Result()
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "redis error", err)
 	}

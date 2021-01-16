@@ -31,5 +31,6 @@ func main() {
 	UserApiController := server.NewUserApiController(UserApiService)
 
 	router := server.NewRouter(DayApiController, LoginApiController, UserApiController)
+
 	log.Fatal(http.ListenAndServe(":5000", router))
 }

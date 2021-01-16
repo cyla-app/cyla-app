@@ -11,6 +11,7 @@ package server
 
 import (
 	"context"
+	"github.com/gorilla/websocket"
 	"net/http"
 )
 
@@ -55,7 +56,7 @@ type DayApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type LoginApiServicer interface {
-	LoginUser(context.Context) (ImplResponse, error)
+	LoginUser(context.Context, string, *websocket.Conn) (ImplResponse, error)
 }
 
 // UserApiServicer defines the api actions for the UserApi service

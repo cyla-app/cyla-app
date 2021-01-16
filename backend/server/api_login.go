@@ -10,11 +10,12 @@
 package server
 
 import (
-	"github.com/cossacklabs/themis/gothemis/compare"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 // A LoginApiController binds http requests to an api service and writes the service results to the http response
@@ -33,7 +34,7 @@ func (c *LoginApiController) Routes() Routes {
 		{
 			"LoginUser",
 			strings.ToUpper("Get"),
-			"/login",
+			"/login/{username}",
 			c.LoginUser,
 		},
 	}
@@ -41,8 +42,8 @@ func (c *LoginApiController) Routes() Routes {
 
 // LoginUser -
 func (c *LoginApiController) LoginUser(w http.ResponseWriter, r *http.Request) {
-	comparisonServer, err := compare.New()
-	comparisonServer.Append([]byte("testsecret"))
+	params := mux.Vars(r)
+	username := params["username"]
 
 	var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {
 		return true
@@ -52,39 +53,12 @@ func (c *LoginApiController) LoginUser(w http.ResponseWriter, r *http.Request) {
 		log.Println("Upgrade error:", err)
 		var status = 500
 		EncodeJSONResponse(err.Error(), &status, w)
-		return
 	}
 	defer conn.Close()
-	for {
-		mt, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
-		log.Printf("recv: %s", message)
-		log.Println(message)
-
-		response, err := comparisonServer.Proceed(message)
-		if err != nil {
-			log.Println("Comparison error: ", err)
-		}
-
-		err = conn.WriteMessage(mt, response)
-		if err != nil {
-			log.Println("write:", err)
-			break
-		}
-		if response == nil {
-			log.Println("Comparison done")
-			break
-		}
-	}
-	result, err := comparisonServer.Result()
+	_, err = c.service.LoginUser(r.Context(), username, conn)
+	//If an error occured, encode the error with the status code
 	if err != nil {
-		log.Println("Error during result: ", err)
+		log.Println("error during login: ", err)
+		return
 	}
-	if result == compare.Match {
-		log.Println("Successful")
-	}
-
 }

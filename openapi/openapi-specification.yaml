@@ -10,15 +10,28 @@ paths:
   # OpenAPI is not meant to define WebSocket behaviour. This endpoint only tries to make explicit that
   # there is a (WebSocket) endpoint for login, but does not use the specification to describe it's behaviour.
   # Expect no reasonably tooling for this endpoint.
-  /login:
+  /login/{username}:
     get:
       tags:
         - login
       description: Login and authenticate a user using a zero-knowledge proof and Websockets
       operationId: LoginUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "101":
           description: Successfully established Websocket.
+        "200":
+          description: Value of the hashed user key
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/EncryptedAttribute"
+
   /user:
     post:
       tags:
