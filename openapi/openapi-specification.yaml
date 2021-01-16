@@ -7,6 +7,18 @@ servers:
   - url: "http://localhost:5000"
     description: "DEV server"
 paths:
+  # OpenAPI is not meant to define WebSocket behaviour. This endpoint only tries to make explicit that
+  # there is a (WebSocket) endpoint for login, but does not use the specification to describe it's behaviour.
+  # Expect no reasonably tooling for this endpoint.
+  /login:
+    get:
+      tags:
+        - login
+      description: Login and authenticate a user using a zero-knowledge proof and Websockets
+      operationId: LoginUser
+      responses:
+        "101":
+          description: Successfully established Websocket.
   /user:
     post:
       tags:

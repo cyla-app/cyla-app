@@ -15,6 +15,7 @@ type DayPersistence interface {
 	GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ret []Day, err error)
 	ModifyDayEntry(ctx context.Context, userId string, day Day) error
 }
+
 type UserPersistence interface {
 	CreateUser(ctx context.Context, user User) (ret string, err error)
 	GetRestoreData(ctx context.Context, userId string) (ret EncryptedAttribute, err error)

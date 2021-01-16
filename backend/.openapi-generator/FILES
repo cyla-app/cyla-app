@@ -2,6 +2,8 @@ main.go
 server/api.go
 server/api_day.go
 server/api_day_service.go
+server/api_login.go
+server/api_login_service.go
 server/api_user.go
 server/api_user_service.go
 server/db_connector.go

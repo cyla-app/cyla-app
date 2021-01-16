@@ -68,12 +68,12 @@ func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, er
 		return "", newHTTPErrorWithCauseError(500, "could not unmarshall user", err)
 	}
 
-	if s.SIsMember(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userNamePrefixKey),user.Username).Val() {
+	if s.SIsMember(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userNamePrefixKey), user.Username).Val() {
 		return "", newHTTPError(409, "User name already in use.")
 	}
 
 	pipeline := s.TxPipeline()
-	pipeline.SAdd(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userNamePrefixKey),user.Username)
+	pipeline.SAdd(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userNamePrefixKey), user.Username)
 	pipeline.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser)
 	_, err = pipeline.Exec(ctx)
 	if err != nil {
