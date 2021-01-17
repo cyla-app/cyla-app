@@ -10,11 +10,12 @@
 package server
 
 import (
-	"context"
+    "context"
     "errors"
     "github.com/cossacklabs/themis/gothemis/compare"
     "github.com/gorilla/websocket"
     "log"
+    "time"
 )
 
 // LoginApiService is a service that implents the logic for the LoginApiServicer
@@ -30,49 +31,73 @@ func NewLoginApiService() LoginApiServicer {
 
 // LoginUser -
 func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *websocket.Conn) (ImplResponse, error) {
-	ret, err := DBConnection.LoginUser(ctx, username)
-    comparisonServer, err := compare.New()
-    comparisonServer.Append([]byte("testsecret"))
-    log.Println("Starting auth")
-    for {
-        mt, message, err := conn.ReadMessage()
-        if err != nil {
-            log.Println("read:", err)
-            break
-        }
-        if mt != websocket.BinaryMessage {
-            msg := "unexpected message type"
-            err = errors.New(msg)
-            log.Println(msg)
-            break
-        }
+    const timeout = time.Second * 5
+    isAuthSuccessful := false
+    closeReason := "Unexpected Error"
+	ret, err := DBConnection.LoginUser(ctx, "testUser")
+	if err != nil {
+	    log.Println("Error while retrieving hash key")
+        closeReason = "Hashed key not found"
+    } else {
+        comparisonServer, _ := compare.New()
+        comparisonServer.Append([]byte("testsecret2"))
+        log.Println("Starting auth")
+        conn.SetReadDeadline(time.Now().Add(timeout))
+        for {
+            mt, message, err := conn.ReadMessage()
+            conn.SetReadDeadline(time.Now().Add(timeout))
+            if err != nil {
+                log.Println("read:", err)
+                break
+            }
+            if mt != websocket.BinaryMessage {
+                msg := "unexpected message type"
+                err = errors.New(msg)
+                log.Println(msg)
+                break
+            }
 
-        response, err := comparisonServer.Proceed(message)
-        if err != nil {
-            log.Println("Comparison error: ", err)
-            break
-        }
+            response, err := comparisonServer.Proceed(message)
+            if err != nil {
+                log.Println("Comparison error: ", err)
+                break
+            }
 
-        err = conn.WriteMessage(websocket.BinaryMessage, response)
-        if err != nil {
-            log.Println("write:", err)
-            break
-        }
+            err = conn.WriteMessage(websocket.BinaryMessage, response)
+            if err != nil {
+                log.Println("write:", err)
+                break
+            }
 
-        //Get result of comparison to see if it is done and send the final answer to the client
-        comparisonStatus, err := comparisonServer.Result()
-        if err != nil {
-            log.Println("Comparison state error:", err)
-        }
-        if comparisonStatus == compare.Match {
-            log.Println("Comparison successful")
-            conn.WriteMessage(websocket.BinaryMessage, []byte("placeholderToken"))
-        }
-        if comparisonStatus == compare.NoMatch {
-            log.Println("Comparison unsuccessful")
-            conn.WriteMessage(websocket.BinaryMessage, []byte("NOUP"))
+            //Get result of comparison to see if it is done and send the final answer to the client
+            comparisonStatus, err := comparisonServer.Result()
+            if err != nil {
+                log.Println("Comparison state error:", err)
+            }
+            if comparisonStatus == compare.Match {
+                log.Println("Comparison successful")
+                isAuthSuccessful = true
+                err = conn.WriteMessage(websocket.BinaryMessage, []byte("placeholderToken"))
+            }
+            if comparisonStatus == compare.NoMatch {
+                log.Println("Comparison unsuccessful")
+                closeReason = "Validation unsuccessful"
+                break
+            }
+
+            if err != nil {
+                log.Println("write:", err)
+                break
+            }
         }
     }
-    log.Println("Login Done")
-	return httpResponseWithBody(ret, err)
+    if !isAuthSuccessful {
+        log.Println("Login Done with error")
+        _ = conn.WriteMessage(websocket.CloseMessage,
+            websocket.FormatCloseMessage(websocket.CloseInternalServerErr, closeReason))
+        return httpResponseWithBody(ret, err)
+    } else {
+        log.Println("Login Done successfully")
+        return httpResponseWithBody(ret, err)
+    }
 }

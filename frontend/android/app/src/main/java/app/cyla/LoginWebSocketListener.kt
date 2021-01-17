@@ -16,9 +16,10 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
                              private val authCondition: Condition) : WebSocketListener() {
 
 
-    var token: String = "token"
+    var token: String = "notAuthenticated"
 
     override fun onOpen(ws: WebSocket, response: Response) {
+        authLock.lock()
         comparator = SecureCompare(hashedKey)
         Log.v("Login", "Starting auth")
         val initMessage = comparator.begin()
@@ -26,40 +27,44 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
     }
 
     override fun onMessage(ws: WebSocket, bytes: ByteString) {
-        authLock.withLock {
-            when (comparator.result) {
-                SecureCompare.CompareResult.NOT_READY -> {
-                    val nextMessage = comparator.proceed(bytes.toByteArray())
-                    if (nextMessage != null) {
-                        ws.send(ByteString.of(nextMessage, 0, nextMessage.size))
-                    } else {
-                        return
-                    }
+        when (comparator.result) {
+            SecureCompare.CompareResult.NOT_READY -> {
+                val nextMessage = comparator.proceed(bytes.toByteArray())
+                if (nextMessage != null) {
+                    ws.send(ByteString.of(nextMessage, 0, nextMessage.size))
+                } else {
+                    return
                 }
-                SecureCompare.CompareResult.MATCH -> {
-                    Log.v("Login", "Comparison successful")
-                    token = bytes.base64()
-                    ws.close(1000, "Comparison ended successfully")
-                    authCondition.signal()
-                }
-                else -> {
-                    Log.v("Login", "Comparison unsuccessful")
-                    token = bytes.base64()
-                    ws.close(1000, "Comparison finished")
-                    authCondition.signal()
-                }
+            }
+            SecureCompare.CompareResult.MATCH -> {
+                Log.v("Login", "Comparison successful")
+                token = bytes.base64()
+                ws.close(1000, "Comparison ended successfully")
+                authCondition.signal()
+                authLock.unlock()
+            }
+            else -> {
+                Log.v("Login", "Comparison unsuccessful")
+                ws.close(1000, "Comparison finished")
+                authCondition.signal()
+                authLock.unlock()
             }
         }
     }
 
     override fun onClosing(ws: WebSocket, code: Int, reason: String) {
         Log.v("Login", "Closing websocket")
+        Log.v("Login", "Reason: $reason")
         ws.close(code, reason)
+        if(authLock.isHeldByCurrentThread) {
+            authCondition.signal()
+            authLock.unlock()
+        }
     }
 
     override fun onFailure(ws: WebSocket, t: Throwable, response: Response?) {
         Log.v("Login", "Failure on websocket listener", t)
-        ws.close(1006, "Client Error")
+        ws.close(1001, "Client Error")
         if(authLock.isHeldByCurrentThread) {
             authCondition.signal()
             authLock.unlock()

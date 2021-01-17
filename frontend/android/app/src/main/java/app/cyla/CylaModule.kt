@@ -19,6 +19,7 @@ import com.facebook.react.bridge.*
 import okhttp3.Request
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -194,7 +195,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                     Request.Builder().url("ws://localhost:5000/login/test").build(),
                     wsListener)
             authLock.withLock {
-                authDoneCondition.await()
+                authDoneCondition.await(5, TimeUnit.SECONDS)
             }
             promise.resolve(wsListener.token)
         } catch (e: Exception) {
