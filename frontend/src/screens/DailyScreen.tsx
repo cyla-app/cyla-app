@@ -9,8 +9,7 @@ import { TabsParamList } from '../navigation/TabBarNavigation'
 import CylaModule from '../modules/CylaModule'
 import { Bleeding, Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
-import { useTheme } from 'react-native-paper'
-import { fetchAllDays, useRefresh } from '../daysSlice'
+import { DayIndex, fetchAllDays, useRefresh } from '../daysSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { format } from 'date-fns'
@@ -21,7 +20,9 @@ type DailyScreenNavigationProp = CompositeNavigationProp<
 >
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
-  const days = useSelector<RootState, Day[]>((state) => state.days.days)
+  const days = Object.values(
+    useSelector<RootState, DayIndex>((state) => state.days.days),
+  )
   const [loading, refresh] = useRefresh()
   const [selectedDate, setSelectedDate] = useState<string>(
     format(new Date(), 'yyyy-MM-dd'),

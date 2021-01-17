@@ -3,13 +3,13 @@ import React, { useState } from 'react'
 import { Text, View, ViewStyle } from 'react-native'
 import { ActivityIndicator, Button, Headline } from 'react-native-paper'
 import { addDays, format, getDate } from 'date-fns'
-import { Bleeding, Day, Mucus } from '../../generated'
+import { Bleeding, Mucus } from '../../generated'
 import { useDispatch } from 'react-redux'
 import { setSignedIn } from '../profileSlice'
-import { fetchAllDays } from '../daysSlice'
 import LoginForm from '../components/LoginForm'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
+import { fetchLastMonths } from '../daysSlice'
 
 export const generateMockData = async () => {
   const randomDate = (start: Date, end: Date) =>
@@ -39,7 +39,6 @@ export const generateMockData = async () => {
       },
     })
   }
-  return (await CylaModule.fetchDaysByMonths(3)) as Day[]
 }
 
 type SignUpScreenNavigationProp = StackNavigationProp<
@@ -76,7 +75,7 @@ export default ({ navigation }: PropType) => {
     try {
       await CylaModule.setupUser(username, passphrase)
       await generateMockData()
-      await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
+      await dispatch(fetchLastMonths({}))
 
       setLoading(false)
       dispatch(setSignedIn(true))

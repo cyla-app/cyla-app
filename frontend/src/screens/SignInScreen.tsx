@@ -4,7 +4,7 @@ import { Text, View, ViewStyle } from 'react-native'
 import { ActivityIndicator, Headline } from 'react-native-paper'
 import { useDispatch } from 'react-redux'
 import { setSignedIn } from '../profileSlice'
-import { fetchAllDays } from '../daysSlice'
+import { fetchLastMonths } from '../daysSlice'
 import LoginForm from '../components/LoginForm'
 
 export default () => {
@@ -31,7 +31,7 @@ export default () => {
     setLoading(true)
     try {
       await CylaModule.setupUserKeyBackup(username, passphrase)
-      await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
+      await dispatch(fetchLastMonths({}))
 
       setLoading(false)
       dispatch(setSignedIn(true))

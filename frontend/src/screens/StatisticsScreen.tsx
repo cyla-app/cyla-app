@@ -7,24 +7,22 @@ import Svg from 'react-native-svg'
 import PointChart, { POINT_GAP } from '../components/cyclechart/PointChart'
 import { add, format, sub } from 'date-fns'
 import React from 'react'
+import { DayIndex } from '../daysSlice'
 
 const fillEmptyDataPoints = (
-  days: Day[],
+  allDays: Day[],
   numberOfDays: number,
   initialDate = new Date(),
 ) => {
-  const newDays: Day[] = []
-  const currentData = Object.fromEntries(days.map((day) => [day.date, day]))
+  const days: Day[] = []
+  const currentData = Object.fromEntries(allDays.map((day) => [day.date, day]))
 
   for (let i = 0; i < numberOfDays; i++) {
     const date = sub(initialDate, { days: i })
     const dateString = format(date, 'yyyy-MM-dd')
     const day = currentData[dateString]
-    if (!day) {
-      newDays.push({ date: dateString })
-    } else {
-      newDays.push(day)
-    }
+    const emptyDay = { date: dateString }
+    days.push(day ? day : emptyDay)
   }
 
   return {
@@ -32,23 +30,24 @@ const fillEmptyDataPoints = (
       currentData[
         format(sub(initialDate, { days: numberOfDays }), 'yyyy-MM-dd')
       ],
-    days: newDays,
+    days,
     nextDay: currentData[format(add(initialDate, { days: 1 }), 'yyyy-MM-dd')],
   }
 }
 
+// Space below Grid
 const bottomQuietZone = 15
-const viewHeight = 300
-const daysPerRenderItem = 20
-const viewWidth = POINT_GAP * daysPerRenderItem
+const daysPerChart = 20
+const viewWidth = POINT_GAP * daysPerChart
 
 const RenderItem = React.memo(
   ({ allDays, fromDate }: { allDays: Day[]; fromDate: Date }) => {
     const { previousDay, days, nextDay } = fillEmptyDataPoints(
       allDays,
-      daysPerRenderItem,
+      daysPerChart,
       fromDate,
     )
+    const viewHeight = 300
 
     return (
       <Svg width={viewWidth} height={viewHeight + bottomQuietZone}>
@@ -66,12 +65,14 @@ const RenderItem = React.memo(
 )
 
 export default () => {
-  const allDays = useSelector<RootState, Day[]>((state) => state.days.days)
+  const allDays = Object.values(
+    useSelector<RootState, DayIndex>((state) => state.days.days),
+  )
 
-  const renderItems = Math.ceil(365 / daysPerRenderItem)
+  const maxCharts = Math.ceil(365 / daysPerChart)
   const initialDate = new Date()
-  const dates: Date[] = [...Array(renderItems).keys()].map((index) =>
-    sub(initialDate, { days: index * daysPerRenderItem }),
+  const dates: Date[] = [...Array(maxCharts).keys()].map((index) =>
+    sub(initialDate, { days: index * daysPerChart }),
   )
   return (
     <View>

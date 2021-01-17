@@ -156,14 +156,14 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun fetchDaysByMonths(months: Int, promise: Promise) {
+    fun fetchDaysByRange(iso8601dateFrom: String, iso8601dateTo: String, promise: Promise) {
         val userId = getAppStorage().getUserId()
 
         CompletableFuture.supplyAsync {
             val days = dayApi.value.getDayByUserAndRange(
                 userId!!,
-                LocalDate.now().minusMonths(months.toLong()),
-                LocalDate.now()
+                LocalDate.parse(iso8601dateFrom),
+                LocalDate.parse(iso8601dateTo)
             )
 
             val writableNativeArray = WritableNativeArray()

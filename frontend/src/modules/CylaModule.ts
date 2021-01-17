@@ -9,14 +9,21 @@ type CylaModuleType = {
   isUserSignedIn: () => Promise<boolean>
   getUserId: () => Promise<string>
   fetchDaysByMonths: (months: number) => Promise<string[]>
+  fetchDaysByRange: (
+    iso8601dateFrom: string,
+    iso8601dateTo: string,
+  ) => Promise<string[]>
   setupUserKeyBackup: (userName: string, passphrase: string) => Promise<void>
 }
 
 const CylaNativeModule: CylaModuleType = NativeModules.CylaModule
 
 class CylaModule {
-  async fetchDaysByMonths(months: number): Promise<Day[]> {
-    const jsons = await CylaNativeModule.fetchDaysByMonths(months)
+  async fetchDaysByRange(from: Date, to: Date): Promise<Day[]> {
+    const jsons = await CylaNativeModule.fetchDaysByRange(
+      format(from, 'yyyy-MM-dd'),
+      format(to, 'yyyy-MM-dd'),
+    )
     return jsons.map((json) => JSON.parse(json))
   }
 
