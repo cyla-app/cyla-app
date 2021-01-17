@@ -4,4 +4,8 @@
 --- DateTime: 16.01.2021 15:29
 ---
 local uuid = redis.call("GET", KEYS[1])
-return redis.call("HGET", uuid, ARGV[1])
+if uuid then
+    return redis.call("HGET", KEYS[2] .. ":" .. uuid, ARGV[1])
+else
+    return nil
+end

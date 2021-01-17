@@ -54,13 +54,15 @@ func NewRedisClient() (*CylaRedisClient, error) {
 }
 
 func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (string, error) {
-	userUUID, err := getHashUserKeyForLogin.Run(ctx, s,
-		[]string{fmt.Sprintf("%v:%v:%v", userPrefixKey, userNamePrefixKey, username)},
+	hashKey, err := getHashUserKeyForLogin.Run(ctx, s,
+		[]string{
+			fmt.Sprintf("%v:%v:%v", userPrefixKey, userNamePrefixKey, username),
+			userPrefixKey},
 		GetUserUserKeyBackupName()).Text()
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "could not retrieve hash for user key", err)
 	}
-	return userUUID, nil
+	return hashKey, nil
 }
 
 func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, error) {
