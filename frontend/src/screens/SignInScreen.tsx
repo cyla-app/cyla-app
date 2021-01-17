@@ -27,12 +27,12 @@ export default () => {
     padding: 20,
   } as ViewStyle
 
-  const signIn = async (username: string, passphrase: string) => {
+  const signIn = async () => {
     setLoading(true)
     try {
-      await CylaModule.setupUserKeyBackup(username, passphrase)
-      await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
-
+      //await CylaModule.setupUserKeyBackup(username, passphrase)
+      //await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all at app launch
+      await CylaModule.login()
       setLoading(false)
       dispatch(setSignedIn(true))
     } catch (e) {
@@ -46,7 +46,7 @@ export default () => {
       <Headline>Sign In</Headline>
       <LoginForm
         onSave={(username: string, passphrase: string) => {
-          signIn(username, passphrase)
+          signIn()
         }}
       />
     </View>

@@ -13,10 +13,14 @@ import app.cyla.decryption.AndroidEnclave.Companion.encryptPassphrase
 import app.cyla.decryption.ThemisOperations.Companion.createUserKey
 import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
 import app.cyla.invoker.ApiClient
+import com.cossacklabs.themis.SecureCompare
 import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.*
+import okhttp3.Request
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     companion object {
@@ -96,6 +100,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             .putUserId(userId)
             .putUserName(username)
             .apply()
+
         return Triple(userId, username, userKey)
     }
 
@@ -175,5 +180,28 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         }.exceptionally { throwable ->
             promise.reject(throwable)
         }
+    }
+
+    @ReactMethod
+    fun login(promise: Promise) {
+        try{
+            Log.v("Login", "attempting login")
+            val authLock = ReentrantLock()
+            val authDoneCondition = authLock.newCondition()
+            val comparator = SecureCompare()
+            val wsListener = LoginWebSocketListener("testsecret".encodeToByteArray(), comparator, authLock, authDoneCondition)
+            apiClient.value.httpClient.newWebSocket(
+                    Request.Builder().url("ws://localhost:5000/login/test").build(),
+                    wsListener)
+            authLock.withLock {
+                authDoneCondition.await()
+            }
+            promise.resolve(wsListener.token)
+        } catch (e: Exception) {
+            Log.e("Login", e.message, e)
+            promise.reject(e)
+        }
+
+
     }
 }

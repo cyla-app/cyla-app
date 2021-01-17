@@ -48,6 +48,7 @@ func (c *LoginApiController) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {
 		return true
 	}}
+	log.Println("Upgrading to WS")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Upgrade error:", err)

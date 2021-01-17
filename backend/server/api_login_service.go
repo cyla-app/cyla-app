@@ -11,6 +11,7 @@ package server
 
 import (
 	"context"
+    "errors"
     "github.com/cossacklabs/themis/gothemis/compare"
     "github.com/gorilla/websocket"
     "log"
@@ -31,37 +32,47 @@ func NewLoginApiService() LoginApiServicer {
 func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *websocket.Conn) (ImplResponse, error) {
 	ret, err := DBConnection.LoginUser(ctx, username)
     comparisonServer, err := compare.New()
-    comparisonServer.Append([]byte(ret))
+    comparisonServer.Append([]byte("testsecret"))
+    log.Println("Starting auth")
     for {
         mt, message, err := conn.ReadMessage()
         if err != nil {
             log.Println("read:", err)
             break
         }
-        log.Printf("recv: %s", message)
-        log.Println(message)
+        if mt != websocket.BinaryMessage {
+            msg := "unexpected message type"
+            err = errors.New(msg)
+            log.Println(msg)
+            break
+        }
 
         response, err := comparisonServer.Proceed(message)
         if err != nil {
             log.Println("Comparison error: ", err)
+            break
         }
 
-        err = conn.WriteMessage(mt, response)
+        err = conn.WriteMessage(websocket.BinaryMessage, response)
         if err != nil {
             log.Println("write:", err)
             break
         }
-        if response == nil {
-            log.Println("Comparison done")
-            break
+
+        //Get result of comparison to see if it is done and send the final answer to the client
+        comparisonStatus, err := comparisonServer.Result()
+        if err != nil {
+            log.Println("Comparison state error:", err)
+        }
+        if comparisonStatus == compare.Match {
+            log.Println("Comparison successful")
+            conn.WriteMessage(websocket.BinaryMessage, []byte("placeholderToken"))
+        }
+        if comparisonStatus == compare.NoMatch {
+            log.Println("Comparison unsuccessful")
+            conn.WriteMessage(websocket.BinaryMessage, []byte("NOUP"))
         }
     }
-    result, err := comparisonServer.Result()
-    if err != nil {
-        log.Println("Error during result: ", err)
-    }
-    if result == compare.Match {
-        log.Println("Successful")
-    }
+    log.Println("Login Done")
 	return httpResponseWithBody(ret, err)
 }
