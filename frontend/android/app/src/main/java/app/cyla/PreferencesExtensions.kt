@@ -5,6 +5,7 @@ import android.util.Base64
 
 private const val PREFERENCE_KEY_PASSPHRASE_IV = "passphraseIV"
 private const val PREFERENCE_KEY_USER_KEY_CELL = "userKeyCell"
+private const val PREFERENCE_KEY_USER_AUTH_KEY = "authKey"
 private const val PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT = "passphraseCipherText"
 private const val PREFERENCE_KEY_USER_ID = "userId"
 private const val PREFERENCE_KEY_USER_NAME = "userName"
@@ -45,6 +46,15 @@ fun SharedPreferences.getUserKeyCell(): ByteArray? {
 
 fun SharedPreferences.Editor.putUserKeyCell(userKeyCell: ByteArray): SharedPreferences.Editor {
     this.putBase64(PREFERENCE_KEY_USER_KEY_CELL, userKeyCell)
+    return this
+}
+
+fun SharedPreferences.getUserAuthKey(): String? {
+    return this.getString(PREFERENCE_KEY_USER_AUTH_KEY, null)
+}
+
+fun SharedPreferences.Editor.putUserAuthKey(userKeyCell: String): SharedPreferences.Editor {
+    this.putString(PREFERENCE_KEY_USER_AUTH_KEY, userKeyCell)
     return this
 }
 

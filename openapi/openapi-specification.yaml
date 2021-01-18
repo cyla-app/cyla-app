@@ -219,7 +219,9 @@ components:
         user_key_backup:
           $ref: "#/components/schemas/EncryptedAttribute"
         auth_key:
-          $ref: "#/components/schemas/EncryptedAttribute"
+          title: authKey
+          # Using EncryptedAttribute leads to the backend receiving something different to what was sent
+          type: string
     Day:
       title: day
       type: object

@@ -58,7 +58,7 @@ func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (strin
 		[]string{
 			fmt.Sprintf("%v:%v:%v", userPrefixKey, userNamePrefixKey, username),
 			userPrefixKey},
-		GetUserUserKeyBackupName()).Text()
+		GetUserAuthKeyName()).Text()
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "could not retrieve hash for user key", err)
 	}

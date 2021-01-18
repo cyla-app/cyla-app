@@ -10,6 +10,7 @@ import app.cyla.api.model.User
 import app.cyla.decryption.*
 import app.cyla.decryption.AndroidEnclave.Companion.decryptPassphrase
 import app.cyla.decryption.AndroidEnclave.Companion.encryptPassphrase
+import app.cyla.decryption.ThemisOperations.Companion.getAuthKey
 import app.cyla.decryption.ThemisOperations.Companion.createUserKey
 import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
 import app.cyla.invoker.ApiClient
@@ -17,6 +18,7 @@ import com.cossacklabs.themis.SecureCompare
 import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.*
 import okhttp3.Request
+import java.nio.charset.Charset
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -86,9 +88,10 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     private fun createNewUserKey(username: String, passphrase: String): Triple<String, String, SymmetricKey> {
         val (cipherText, iv) = encryptPassphrase(reactApplicationContext, passphrase)
         val (userKey, userKeyCell) = createUserKey(passphrase)
-
+        val authKey = getAuthKey(username, passphrase)
         getEncryptionStorage().edit()
             .putUserKeyCell(userKeyCell)
+            .putUserAuthKey(authKey)
             .putPassphrase(cipherText, iv)
             .apply()
         
@@ -184,20 +187,25 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun login(promise: Promise) {
+    fun login(username: String, passphrase: String, promise: Promise) {
         try{
             Log.v("Login", "attempting login")
+            val authKey = getAuthKey(username, passphrase)
             val authLock = ReentrantLock()
             val authDoneCondition = authLock.newCondition()
             val comparator = SecureCompare()
-            val wsListener = LoginWebSocketListener("testsecret".encodeToByteArray(), comparator, authLock, authDoneCondition)
+            val wsListener = LoginWebSocketListener(authKey.toByteArray(), comparator, authLock, authDoneCondition)
             apiClient.value.httpClient.newWebSocket(
-                    Request.Builder().url("ws://localhost:5000/login/test").build(),
+                    Request.Builder().url("ws://localhost:5000/login/$username").build(),
                     wsListener)
             authLock.withLock {
                 authDoneCondition.await(5, TimeUnit.SECONDS)
             }
-            promise.resolve(wsListener.token)
+            if(wsListener.token != "notAuthenticated") {
+                promise.resolve(wsListener.token)
+            } else {
+                promise.reject(Exception("Username or passphrase wrong"))
+            }
         } catch (e: Exception) {
             Log.e("Login", e.message, e)
             promise.reject(e)

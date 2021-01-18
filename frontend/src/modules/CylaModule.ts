@@ -10,7 +10,7 @@ type CylaModuleType = {
   getUserId: () => Promise<string>
   fetchDaysByMonths: (months: number) => Promise<string[]>
   setupUserKeyBackup: (userName: string, passphrase: string) => Promise<void>
-  login: () => Promise<boolean>
+  login: (userName: string, passphrase: string) => Promise<boolean>
 }
 
 const CylaNativeModule: CylaModuleType = NativeModules.CylaModule
@@ -44,8 +44,8 @@ class CylaModule {
     return await CylaNativeModule.setupUserKeyBackup(userName, passphrase)
   }
 
-  async login() {
-    return await CylaNativeModule.login()
+  async login(userName: string, passphrase: string) {
+    return await CylaNativeModule.login(userName, passphrase)
   }
 }
 

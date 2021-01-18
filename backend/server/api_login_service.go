@@ -35,13 +35,13 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 	const timeout = time.Second * 5
 	isAuthSuccessful := false
 	closeReason := "Unexpected Error"
-	ret, err := DBConnection.LoginUser(ctx, username)
+	hashKey, err := DBConnection.LoginUser(ctx, username)
 	if err != nil {
 		log.Println("Error while retrieving hash key")
 		closeReason = "Hashed key not found"
 	} else {
 		comparisonServer, _ := compare.New()
-		comparisonServer.Append([]byte("testsecret2"))
+		comparisonServer.Append([]byte(hashKey))
 		log.Println("Starting auth")
 		conn.SetReadDeadline(time.Now().Add(timeout))
 		for {
@@ -78,6 +78,7 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 			if comparisonStatus == compare.Match {
 				log.Println("Comparison successful")
 				isAuthSuccessful = true
+				//TODO: Use proper token
 				err = conn.WriteMessage(websocket.BinaryMessage, []byte("placeholderToken"))
 			}
 			if comparisonStatus == compare.NoMatch {
@@ -96,9 +97,9 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 		log.Println("Login Done with error")
 		_ = conn.WriteMessage(websocket.CloseMessage,
 			websocket.FormatCloseMessage(websocket.CloseInternalServerErr, closeReason))
-		return httpResponseWithBody(ret, err)
+		return httpResponseWithBody(hashKey, err)
 	} else {
 		log.Println("Login Done successfully")
-		return httpResponseWithBody(ret, err)
+		return httpResponseWithBody(hashKey, err)
 	}
 }
