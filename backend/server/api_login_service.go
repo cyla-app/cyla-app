@@ -34,7 +34,7 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
     const timeout = time.Second * 5
     isAuthSuccessful := false
     closeReason := "Unexpected Error"
-	ret, err := DBConnection.LoginUser(ctx, "testUser")
+	ret, err := DBConnection.LoginUser(ctx, username)
 	if err != nil {
 	    log.Println("Error while retrieving hash key")
         closeReason = "Hashed key not found"
