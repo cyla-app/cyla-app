@@ -14,9 +14,12 @@ import (
 // pass the data to a {{classname}}Servicer to perform the required actions, then write the service results to the http response.
 type {{classname}}Router interface { {{#operations}}{{#operation}}
 	{{operationId}}(http.ResponseWriter, *http.Request){{/operation}}{{/operations}}
-}{{/apis}}{{/apiInfo}}{{#apiInfo}}{{#apis}}
+}{{/apis}}{{/apiInfo}}
 
-
+type LoginApiRouter interface {
+    LoginUser(http.ResponseWriter, *http.Request)
+}
+{{#apiInfo}}{{#apis}}
 // {{classname}}Servicer defines the api actions for the {{classname}} service
 // This interface intended to stay up to date with the openapi yaml used to generate it, 
 // while the service implementation can ignored with the .openapi-generator-ignore file 
@@ -24,3 +27,7 @@ type {{classname}}Router interface { {{#operations}}{{#operation}}
 type {{classname}}Servicer interface { {{#operations}}{{#operation}}
 	{{operationId}}(context.Context{{#allParams}}, {{dataType}}{{/allParams}}) (ImplResponse, error){{/operation}}{{/operations}}
 }{{/apis}}{{/apiInfo}}
+
+type LoginApiServicer interface {
+     LoginUser(context.Context, string, *websocket.Conn) (ImplResponse, error)
+}

@@ -9,6 +9,7 @@ type DBConnector interface {
     {{#apis}}
     {{baseName}}Persistence
     {{/apis}}
+    LoginPersistence
 }
 
 {{#apis}}
@@ -21,6 +22,10 @@ type DBConnector interface {
     }
 {{/apis}}
 {{/apiInfo}}
+
+type LoginPersistence interface {
+    LoginUser(ctx context.Context, username string) (ret EncryptedAttribute, err error)
+}
 
 var DBConnection DBConnector
 

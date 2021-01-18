@@ -11,8 +11,9 @@ package server
 
 import (
 	"context"
-	"github.com/gorilla/websocket"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 // DayApiRouter defines the required methods for binding the api requests to a responses for the DayApi
@@ -22,13 +23,6 @@ type DayApiRouter interface {
 	GetDayByUserAndRange(http.ResponseWriter, *http.Request)
 	GetDaysByUserIdAndDate(http.ResponseWriter, *http.Request)
 	ModifyDayEntry(http.ResponseWriter, *http.Request)
-}
-
-// LoginApiRouter defines the required methods for binding the api requests to a responses for the LoginApi
-// The LoginApiRouter implementation should parse necessary information from the http request,
-// pass the data to a LoginApiServicer to perform the required actions, then write the service results to the http response.
-type LoginApiRouter interface {
-	LoginUser(http.ResponseWriter, *http.Request)
 }
 
 // UserApiRouter defines the required methods for binding the api requests to a responses for the UserApi
@@ -41,6 +35,10 @@ type UserApiRouter interface {
 	UpdateUser(http.ResponseWriter, *http.Request)
 }
 
+type LoginApiRouter interface {
+	LoginUser(http.ResponseWriter, *http.Request)
+}
+
 // DayApiServicer defines the api actions for the DayApi service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can ignored with the .openapi-generator-ignore file
@@ -49,14 +47,6 @@ type DayApiServicer interface {
 	GetDayByUserAndRange(context.Context, string, string, string) (ImplResponse, error)
 	GetDaysByUserIdAndDate(context.Context, string, []string) (ImplResponse, error)
 	ModifyDayEntry(context.Context, string, Day) (ImplResponse, error)
-}
-
-// LoginApiServicer defines the api actions for the LoginApi service
-// This interface intended to stay up to date with the openapi yaml used to generate it,
-// while the service implementation can ignored with the .openapi-generator-ignore file
-// and updated with the logic required for the API.
-type LoginApiServicer interface {
-	LoginUser(context.Context, string, *websocket.Conn) (ImplResponse, error)
 }
 
 // UserApiServicer defines the api actions for the UserApi service
@@ -68,4 +58,8 @@ type UserApiServicer interface {
 	GetRestoreData(context.Context, string) (ImplResponse, error)
 	GetUserById(context.Context, string) (ImplResponse, error)
 	UpdateUser(context.Context, string, User) (ImplResponse, error)
+}
+
+type LoginApiServicer interface {
+	LoginUser(context.Context, string, *websocket.Conn) (ImplResponse, error)
 }

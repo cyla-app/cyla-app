@@ -3,6 +3,7 @@ additionalProperties:
   serverPort: 5000
   sourceFolder: server
 packageName: server
+
 importMappings:
   # We import the mappings for the custom alias types as a mini-hack so the generator doesn't consider them simple strings.
   EncryptedAttribute: server.EncryptedAttribute

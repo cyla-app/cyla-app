@@ -10,10 +10,11 @@
 package server
 
 import (
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/gorilla/websocket"
 
 	"github.com/gorilla/mux"
 )
