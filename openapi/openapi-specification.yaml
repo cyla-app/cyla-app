@@ -218,6 +218,8 @@ components:
           description: unique username. Chosen by the user upon account creation
         user_key_backup:
           $ref: "#/components/schemas/EncryptedAttribute"
+        auth_key:
+          $ref: "#/components/schemas/EncryptedAttribute"
     Day:
       title: day
       type: object
