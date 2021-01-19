@@ -6,11 +6,16 @@ import { Day } from '../../generated'
 type PropsType = {
   periodDays: Day[]
   onDaySelected: (day: Day) => void
+  onVisibleMonthsChange: (monthYear: { month: number; year: number }[]) => void
 }
 
-export default ({ periodDays, onDaySelected }: PropsType) => {
+export default ({
+  periodDays,
+  onDaySelected,
+  onVisibleMonthsChange,
+}: PropsType) => {
   const { colors } = useTheme()
-  const [ready, setReady] = useState<boolean>(false)
+  //const [ready, setReady] = useState<boolean>(false)
   const theme = useMemo(
     () => ({
       backgroundColor: colors.background,
@@ -56,17 +61,19 @@ export default ({ periodDays, onDaySelected }: PropsType) => {
     ]
   })
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setReady(true)
-    }, 200)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  if (!ready) {
-    return <ActivityIndicator size={'large'} />
-  }
+  /*
+        useEffect(() => {
+          const timer = setTimeout(() => {
+            setReady(true)
+          }, 200)
+      
+          return () => clearTimeout(timer)
+        }, [])
+    
+      if (!ready) {
+        return <ActivityIndicator size={'large'} />
+      }  
+      */
 
   return (
     <CalendarList
@@ -99,6 +106,12 @@ export default ({ periodDays, onDaySelected }: PropsType) => {
       onMonthChange={(month) => {
         console.log('month changed', month)
       }}
+      onVisibleMonthsChange={(months) => {
+        onVisibleMonthsChange(
+          months.map((month) => ({ month: month.month, year: month.year })),
+        )
+        console.log('now these months are visible', months)
+      }}
       // Hide month navigation arrows. Default = false
       hideArrows={true}
       // Do not show days of other months in month page. Default = false
@@ -128,7 +141,8 @@ export default ({ periodDays, onDaySelected }: PropsType) => {
       // }}
       // Enable the option to swipe between months. Default = false
       // enableSwipeMonths={false}
-      pastScrollRange={3}
+      displayLoadingIndicator={true}
+      pastScrollRange={24}
       // Max amount of months allowed to scroll to the future. Default = 50
       futureScrollRange={0}
       // Enable or disable scrolling of calendar list
