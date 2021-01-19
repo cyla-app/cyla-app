@@ -192,21 +192,11 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         try{
             Log.v("Login", "attempting login")
             val authKey = getAuthKey(username, passphrase)
-            val authLock = ReentrantLock()
-            val authDoneCondition = authLock.newCondition()
             val comparator = SecureCompare()
-            val wsListener = LoginWebSocketListener(authKey, comparator, authLock, authDoneCondition)
+            val wsListener = LoginWebSocketListener(authKey, comparator, promise)
             apiClient.value.httpClient.newWebSocket(
                     Request.Builder().url("ws://localhost:5000/login/$username").build(),
                     wsListener)
-            authLock.withLock {
-                authDoneCondition.await(5, TimeUnit.SECONDS)
-            }
-            if(wsListener.token != "notAuthenticated") {
-                promise.resolve(wsListener.token)
-            } else {
-                promise.reject(Exception("Username or passphrase wrong"))
-            }
         } catch (e: Exception) {
             Log.e("Login", e.message, e)
             promise.reject(e)

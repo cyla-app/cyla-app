@@ -2,24 +2,24 @@ package app.cyla
 
 import android.util.Log
 import com.cossacklabs.themis.SecureCompare
+import com.facebook.react.bridge.Promise
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import java.lang.Exception
 import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 class LoginWebSocketListener(private val hashedKey: ByteArray,
                              private var comparator: SecureCompare,
-                             private val authLock: ReentrantLock,
-                             private val authCondition: Condition) : WebSocketListener() {
+                             private val promise: Promise) : WebSocketListener() {
 
 
     var token: String = "notAuthenticated"
 
     override fun onOpen(ws: WebSocket, response: Response) {
-        authLock.lock()
         comparator = SecureCompare(hashedKey)
         Log.v("Login", "Starting auth")
         val initMessage = comparator.begin()
@@ -40,14 +40,12 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
                 Log.v("Login", "Comparison successful")
                 token = bytes.utf8()
                 ws.close(1000, "Comparison ended successfully")
-                authCondition.signal()
-                authLock.unlock()
+                promise.resolve(token)
             }
             else -> {
                 Log.v("Login", "Comparison unsuccessful")
                 ws.close(1000, "Comparison finished")
-                authCondition.signal()
-                authLock.unlock()
+                promise.reject(Exception("Comparison was unsuccessful"))
             }
         }
     }
@@ -56,20 +54,13 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
         Log.v("Login", "Closing websocket")
         Log.v("Login", "Reason: $reason")
         ws.close(code, reason)
-
-        if(authLock.isHeldByCurrentThread) {
-            authCondition.signal()
-            authLock.unlock()
-        }
+        promise.reject(Exception("Unexpected closing due to $reason"))
     }
 
     override fun onFailure(ws: WebSocket, t: Throwable, response: Response?) {
         Log.v("Login", "Failure on websocket listener", t)
         ws.close(1001, "Client Error")
-        if(authLock.isHeldByCurrentThread) {
-            authCondition.signal()
-            authLock.unlock()
-        }
+        promise.reject(t)
     }
 
 
