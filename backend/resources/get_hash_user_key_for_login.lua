@@ -5,7 +5,9 @@
 ---
 local uuid = redis.call("GET", KEYS[1])
 if uuid then
-    return {uuid, redis.call("HGET", KEYS[2] .. ":" .. uuid, ARGV[1])}
+    local backupKey = redis.call("HGET", KEYS[2] .. ":" .. uuid, ARGV[1])
+    local authKey = redis.call("HGET", KEYS[2] .. ":" .. uuid, ARGV[2])
+    return {uuid, backupKey, authKey}
 else
     return nil
 end

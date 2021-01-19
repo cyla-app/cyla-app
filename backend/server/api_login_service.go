@@ -12,7 +12,9 @@ package server
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"github.com/dgrijalva/jwt-go"
 	"log"
 	"time"
 
@@ -33,17 +35,17 @@ func NewLoginApiService() LoginApiServicer {
 
 // LoginUser -
 func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *websocket.Conn) (ImplResponse, error) {
-	const timeout = time.Second * 5
+	const timeout = time.Second * 12
 	isAuthSuccessful := false
 	closeReason := ""
 
-	uuid, hashKey, err := DBConnection.LoginUser(ctx, username)
+	authData, err := DBConnection.LoginUser(ctx, username)
 	if err != nil {
 		log.Println("Error while retrieving hash key")
 		closeReason = "Hashed key not found or corrupted"
 	}
 
-	hashKeyDecoded, err := base64.StdEncoding.DecodeString(hashKey)
+	hashKeyDecoded, err := base64.StdEncoding.DecodeString(authData.authKey)
 	log.Println("Decoded", hashKeyDecoded)
 	if err != nil {
 		log.Println("Error while decoding hashKey")
@@ -89,8 +91,22 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 			if comparisonStatus == compare.Match {
 				log.Println("Comparison successful")
 				isAuthSuccessful = true
-				//TODO: Use proper token
-				err = conn.WriteMessage(websocket.BinaryMessage, []byte(uuid))
+				//TODO: Use encrypted token
+				token, err := getJWTToken(authData.UUID)
+				if err != nil {
+					log.Println("Error", err)
+					closeReason = err.Error()
+					err = conn.WriteMessage(websocket.CloseMessage,
+						websocket.FormatCloseMessage(websocket.CloseInternalServerErr, closeReason))
+				} else {
+					var authMsg = SuccessfulAuthMsg{
+						JWT: token,
+						successfulAuthData: *authData,
+					}
+					jsonObj, _ := json.Marshal(authMsg)
+					err = conn.WriteMessage(websocket.BinaryMessage, jsonObj)
+				}
+
 			}
 			if comparisonStatus == compare.NoMatch {
 				log.Println("Comparison unsuccessful")
@@ -108,9 +124,39 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 		log.Println("Login Done with error")
 		_ = conn.WriteMessage(websocket.CloseMessage,
 			websocket.FormatCloseMessage(websocket.CloseInternalServerErr, closeReason))
-		return httpResponseWithBody(hashKey, err)
+		return httpResponse(err)
 	} else {
 		log.Println("Login Done successfully")
-		return httpResponseWithBody(hashKey, err)
+		return httpResponseWithBody(authData, err)
 	}
+}
+
+type successfulAuthData struct {
+	UserKey string `json:"userKey"`
+	UUID string `json:"uuid"`
+	authKey string
+
+}
+
+type SuccessfulAuthMsg struct {
+	successfulAuthData
+	JWT string `json:"jwt"`
+}
+
+type CylaClaims struct {
+	UUID string `json:"uuid"`
+	jwt.StandardClaims
+}
+
+func getJWTToken(uuid string) (string, error) {
+	claims := CylaClaims{
+		uuid,
+		jwt.StandardClaims{
+			ExpiresAt: 15000,
+			Issuer: "CylaServer",
+		},
+	}
+	//TODO: User better encryption method, e.g. RS
+	ret, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test"))
+	return ret, err
 }

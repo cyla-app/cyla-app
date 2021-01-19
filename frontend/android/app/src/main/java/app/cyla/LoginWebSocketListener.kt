@@ -3,6 +3,10 @@ package app.cyla
 import android.util.Log
 import com.cossacklabs.themis.SecureCompare
 import com.facebook.react.bridge.Promise
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -18,6 +22,12 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
 
 
     var token: String = "notAuthenticated"
+
+    data class SuccAuthInfo(
+            val jwt: String,
+            val uuid: String,
+            val userKey: String
+    )
 
     override fun onOpen(ws: WebSocket, response: Response) {
         comparator = SecureCompare(hashedKey)
@@ -38,9 +48,8 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
             }
             SecureCompare.CompareResult.MATCH -> {
                 Log.v("Login", "Comparison successful")
-                token = bytes.utf8()
                 ws.close(1000, "Comparison ended successfully")
-                promise.resolve(token)
+                promise.resolve(decodeSuccMsg(bytes).uuid)
             }
             else -> {
                 Log.v("Login", "Comparison unsuccessful")
@@ -61,6 +70,12 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
         Log.v("Login", "Failure on websocket listener", t)
         ws.close(1001, "Client Error")
         promise.reject(t)
+    }
+
+    private fun decodeSuccMsg(bytes: ByteString) : SuccAuthInfo {
+        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+        val adapter : JsonAdapter<SuccAuthInfo>  = moshi.adapter(SuccAuthInfo::class.java)
+        return adapter.fromJson(bytes.utf8())!!
     }
 
 
