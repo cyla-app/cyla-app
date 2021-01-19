@@ -1,8 +1,7 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { CaseReducer, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Day } from '../generated'
 import CylaModule from './modules/CylaModule'
-import { useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { RootState } from './App'
 import { add, differenceInDays, format, sub } from 'date-fns'
 
@@ -21,31 +20,29 @@ const fillEmptyDays = (from: Date, to: Date, dayList: Day[]) => {
   return days
 }
 
-//export const fetchAllDays = createAsyncThunk('days/fetchAll', async () => {
-//  const MAX_YEARS_FETCH = 2
-//  const to = new Date()
-//  const from = sub(to, { years: MAX_YEARS_FETCH })
-//  return fillEmptyDays(from, to, await CylaModule.fetchDaysByRange(from, to))
-//})
+type Range = { from: Date; to: Date }
 
 export const fetchMoreDays = createAsyncThunk<
-  { days: DayIndex; lastDayFetched: Date },
+  { days: DayIndex; range: Range },
   void,
   { state: StateType }
 >('days/fetchMoreDays', async (_, thunkAPI) => {
-  const state = thunkAPI.getState()
-  const to = state.lastDayFetched ? new Date(state.lastDayFetched) : new Date()
+  const range = thunkAPI.getState().range
+  const to = range ? new Date(range.to) : new Date()
   const from = sub(to, { months: 1 })
   return {
     days: fillEmptyDays(from, to, await CylaModule.fetchDaysByRange(from, to)),
-    lastDayFetched: from,
+    range: {
+      to,
+      from,
+    },
   }
 })
 
 export const INITIAL_MONTHS = 2
 
 export const fetchLastMonths = createAsyncThunk<
-  { days: DayIndex },
+  { days: DayIndex; range: Range },
   { reference?: Date; months?: number },
   { state: StateType }
 >(
@@ -59,13 +56,17 @@ export const fetchLastMonths = createAsyncThunk<
         to,
         await CylaModule.fetchDaysByRange(from, to),
       ),
+      range: {
+        to,
+        from,
+      },
     }
   },
 )
 
 export type DayIndex = { [date: string]: Day }
 type StateType = {
-  lastDayFetched: string | null
+  range: { from: string; to: string } | null
   days: DayIndex
   loading: boolean
 }
@@ -78,83 +79,60 @@ const days = createSlice({
   } as StateType,
   reducers: {},
   extraReducers: (builder) => {
-    // builder
-    //   .addCase(fetchAllDays.fulfilled, (state, action) => {
-    //     return {
-    //       ...state,
-    //       days: action.payload,
-    //       loading: false,
-    //     }
-    //   })
-    //   .addCase(fetchAllDays.rejected, (state) => {
-    //     return {
-    //       ...state,
-    //       loading: false,
-    //     }
-    //   })
-    //   .addCase(fetchAllDays.pending, (state) => {
-    //     return {
-    //       ...state,
-    //       loading: true,
-    //     }
-    //   })
+    const fulfilledReducer: CaseReducer<
+      StateType,
+      ReturnType<
+        typeof fetchMoreDays.fulfilled | typeof fetchLastMonths.fulfilled
+      >
+    > = (state, action) => {
+      const range: Range = action.payload.range
+      return {
+        ...state,
+        range: {
+          from: format(range.from, 'yyyy-MM-dd'),
+          to: format(range.to, 'yyyy-MM-dd'),
+        },
+        days: { ...state.days, ...action.payload.days },
+        loading: false,
+      }
+    }
+
+    const rejectReducer = (state: StateType) => {
+      return {
+        ...state,
+        loading: false,
+      }
+    }
+    const pendingReducer = (state: StateType) => {
+      return {
+        ...state,
+        loading: true,
+      }
+    }
+    builder
+      .addCase(fetchMoreDays.fulfilled, fulfilledReducer)
+      .addCase(fetchMoreDays.rejected, rejectReducer)
+      .addCase(fetchMoreDays.pending, pendingReducer)
 
     builder
-      .addCase(fetchMoreDays.fulfilled, (state, action) => {
-        return {
-          ...state,
-          lastDayFetched: format(action.payload.lastDayFetched, 'yyyy-MM-dd'),
-          days: { ...state.days, ...action.payload.days },
-          loading: false,
-        }
-      })
-      .addCase(fetchMoreDays.rejected, (state) => {
-        return {
-          ...state,
-          loading: false,
-        }
-      })
-      .addCase(fetchMoreDays.pending, (state) => {
-        return {
-          ...state,
-          loading: true,
-        }
-      })
-
-    builder
-      .addCase(fetchLastMonths.fulfilled, (state, action) => {
-        return {
-          ...state,
-          days: { ...state.days, ...action.payload.days },
-          loading: false,
-        }
-      })
-      .addCase(fetchLastMonths.rejected, (state) => {
-        return {
-          ...state,
-          loading: false,
-        }
-      })
-      .addCase(fetchLastMonths.pending, (state) => {
-        return {
-          ...state,
-          loading: true,
-        }
-      })
+      .addCase(fetchLastMonths.fulfilled, fulfilledReducer)
+      .addCase(fetchLastMonths.rejected, rejectReducer)
+      .addCase(fetchLastMonths.pending, pendingReducer)
   },
 })
 
 export default days.reducer
 
 export const useRefresh = (): [boolean, () => void] => {
-  const dispatch = useDispatch()
+  //const dispatch = useDispatch()
   const loading = useSelector<RootState, boolean>((state) => state.days.loading)
 
   return [
     loading,
-    useCallback(() => {
-      // TODO: Only reload data alredy loaded
-      //dispatch(fetchAllDays())
-    }, [dispatch]),
+    //useCallback(() => {
+    // TODO: Only reload data alredy loaded
+    //  dispatch(fetchAllDays())
+    //}, [dispatch]),
+    () => {},
   ]
 }
