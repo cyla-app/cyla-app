@@ -4,8 +4,8 @@ import { Text, View, ViewStyle } from 'react-native'
 import { ActivityIndicator, Headline } from 'react-native-paper'
 import { useDispatch } from 'react-redux'
 import { setSignedIn } from '../profileSlice'
-import { fetchLastMonths } from '../daysSlice'
 import LoginForm from '../components/LoginForm'
+import { fetchDuration } from '../daysSlice'
 
 export default () => {
   const [loading, setLoading] = useState<boolean>(false)
@@ -31,7 +31,7 @@ export default () => {
     setLoading(true)
     try {
       //await CylaModule.setupUserKeyBackup(username, passphrase)
-      //await dispatch(fetchLastMonths({}))
+      //await dispatch(fetchDuration())
       await CylaModule.login(username, passphrase).then((value) =>
         console.log(value),
       )

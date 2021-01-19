@@ -14,8 +14,8 @@ import DetailScreen from '../screens/DetailScreen'
 import { setSignedIn } from '../profileSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
-import { fetchLastMonths } from '../daysSlice'
 import SignInScreen from '../screens/SignInScreen'
+import { fetchDuration } from '../daysSlice'
 
 export type MainStackParamList = {
   SignUp: undefined
@@ -44,7 +44,7 @@ export default () => {
 
       if (isSignedIn) {
         await decryptionService.setupUser()
-        await dispatch(fetchLastMonths({}))
+        await dispatch(fetchDuration())
       }
 
       dispatch(setSignedIn(isSignedIn))

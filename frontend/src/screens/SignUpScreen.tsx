@@ -9,7 +9,7 @@ import { setSignedIn } from '../profileSlice'
 import LoginForm from '../components/LoginForm'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
-import { fetchLastMonths } from '../daysSlice'
+import { fetchDuration } from '../daysSlice'
 
 export const generateMockData = async () => {
   const randomDate = (start: Date, end: Date) =>
@@ -75,7 +75,7 @@ export default ({ navigation }: PropType) => {
     try {
       await CylaModule.setupUser(username, passphrase)
       await generateMockData()
-      await dispatch(fetchLastMonths({}))
+      await dispatch(fetchDuration())
 
       setLoading(false)
       dispatch(setSignedIn(true))

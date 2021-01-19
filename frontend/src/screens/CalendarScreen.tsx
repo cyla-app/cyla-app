@@ -9,7 +9,7 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { TabsParamList } from '../navigation/TabBarNavigation'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
-import { DayIndex } from '../daysSlice'
+import { DayIndex, WeekIndex } from '../daysSlice'
 
 type CalendarScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Calendar'>,
@@ -22,7 +22,7 @@ export default ({
   navigation: CalendarScreenNavigationProp
 }) => {
   const days = Object.values(
-    useSelector<RootState, DayIndex>((state) => state.days.days),
+    useSelector<RootState, DayIndex>((state) => state.days.byDay), // FIXME dynamically load from state
   )
 
   return (
