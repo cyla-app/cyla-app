@@ -109,31 +109,55 @@ export const fetchDuration = createAsyncThunk<
   }
 })
 
+const isWithin = (
+  range1: { from: Date; to: Date },
+  range2: { from: Date; to: Date },
+) => {
+  return isAfter(range1.from, range2.from) && isBefore(range1.to, range2.to)
+}
+
 export const fetchRange = createAsyncThunk<
   { byWeek: WeekIndex; byDay: DayIndex; range: Range },
-  { from: Date; to: Date },
+  { from: Date; to: Date; refresh?: boolean },
   { state: RootState }
->('days/fetchRange', async (rangeToFetch, thunkAPI) => {
+>('days/fetchRange', async (args, thunkAPI) => {
   const range = thunkAPI.getState().days.range
-  const to = rangeToFetch.to
-  const from = rangeToFetch.from
+  const to = args.to
+  const from = args.from
+
+  if (!args.refresh && range) {
+    // TODO: Do not fetch the whole data is part of it is already in the state
+    if (
+      isWithin(
+        { from, to },
+        {
+          from: new Date(range.from),
+          to: new Date(range.from),
+        },
+      )
+    ) {
+      return {
+        byDay: {},
+        byWeek: {},
+        range: range,
+      }
+    }
+  }
+
   const days = await CylaModule.fetchDaysByRange(from, to)
+  const dateStringFrom = format(args.from, 'yyyy-MM-dd')
+  const dateStringTo = format(args.to, 'yyyy-MM-dd')
   return {
     byDay: groupByDay(days),
     byWeek: groupByWeeks(days),
     range: range
       ? {
-          to: isAfter(rangeToFetch.to, new Date(range.to))
-            ? format(rangeToFetch.to, 'yyyy-MM-dd')
-            : range.to,
-          from: isBefore(rangeToFetch.from, new Date(range.from))
-            ? format(rangeToFetch.from, 'yyyy-MM-dd')
+          to: isAfter(to, new Date(range.to)) ? dateStringTo : range.to,
+          from: isBefore(from, new Date(range.from))
+            ? dateStringFrom
             : range.from,
         }
-      : {
-          from: format(rangeToFetch.from, 'yyyy-MM-dd'),
-          to: format(rangeToFetch.to, 'yyyy-MM-dd'),
-        },
+      : { from: dateStringFrom, to: dateStringTo },
   }
 })
 
