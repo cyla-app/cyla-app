@@ -24,7 +24,7 @@ type UserPersistence interface {
 }
 
 type LoginPersistence interface {
-	LoginUser(ctx context.Context, username string) (ret EncryptedAttribute, err error)
+	LoginUser(ctx context.Context, username string) (ret EncryptedAttribute, userUUID string, err error)
 }
 
 var DBConnection DBConnector

@@ -38,7 +38,7 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
             }
             SecureCompare.CompareResult.MATCH -> {
                 Log.v("Login", "Comparison successful")
-                token = bytes.base64()
+                token = bytes.utf8()
                 ws.close(1000, "Comparison ended successfully")
                 authCondition.signal()
                 authLock.unlock()

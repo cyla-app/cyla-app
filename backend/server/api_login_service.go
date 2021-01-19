@@ -35,20 +35,22 @@ func NewLoginApiService() LoginApiServicer {
 func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *websocket.Conn) (ImplResponse, error) {
 	const timeout = time.Second * 5
 	isAuthSuccessful := false
-	closeReason := "Unexpected Error"
+	closeReason := ""
 
-	hashKey, err := DBConnection.LoginUser(ctx, username)
+	uuid, hashKey, err := DBConnection.LoginUser(ctx, username)
 	if err != nil {
 		log.Println("Error while retrieving hash key")
-		closeReason = "Hashed key not found"
+		closeReason = "Hashed key not found or corrupted"
 	}
 
-	hashKeyDecoded, _ := base64.StdEncoding.DecodeString(hashKey)
+	hashKeyDecoded, err := base64.StdEncoding.DecodeString(hashKey)
 	log.Println("Decoded", hashKeyDecoded)
 	if err != nil {
 		log.Println("Error while decoding hashKey")
 		closeReason = "Decode error"
-	} else {
+	}
+	if closeReason == "" {
+		closeReason = "Unexpected Error"
 		comparisonServer, _ := compare.New()
 		comparisonServer.Append(hashKeyDecoded)
 		log.Println("Starting auth")
@@ -88,7 +90,7 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 				log.Println("Comparison successful")
 				isAuthSuccessful = true
 				//TODO: Use proper token
-				err = conn.WriteMessage(websocket.BinaryMessage, []byte("placeholderToken"))
+				err = conn.WriteMessage(websocket.BinaryMessage, []byte(uuid))
 			}
 			if comparisonStatus == compare.NoMatch {
 				log.Println("Comparison unsuccessful")

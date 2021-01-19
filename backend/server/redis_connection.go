@@ -53,16 +53,24 @@ func NewRedisClient() (*CylaRedisClient, error) {
 
 }
 
-func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (EncryptedAttribute, error) {
-	hashKey, err := getHashUserKeyForLogin.Run(ctx, s,
+func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (EncryptedAttribute, string, error) {
+	ret, err := getHashUserKeyForLogin.Run(ctx, s,
 		[]string{
 			fmt.Sprintf("%v:%v:%v", userPrefixKey, userNamePrefixKey, username),
 			userPrefixKey},
-		GetUserAuthKeyName()).Text()
+		GetUserAuthKeyName()).Result()
 	if err != nil {
-		return "", newHTTPErrorWithCauseError(500, "could not retrieve hash for user key", err)
+		return "", "", newHTTPErrorWithCauseError(500, "could not retrieve hash for user key", err)
 	}
-	return hashKey, nil
+	var retSlice []string
+	err = mapstructure.Decode(ret, &retSlice)
+	if err != nil {
+		return "", "", newHTTPErrorWithCauseError(500, "Error when decoding redis return", err)
+	}
+	if len(retSlice) < 2 {
+		return "", "", newHTTPError(500, "Redis return had an unexpected length")
+	}
+	return retSlice[0], retSlice[1], nil
 }
 
 func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, error) {
