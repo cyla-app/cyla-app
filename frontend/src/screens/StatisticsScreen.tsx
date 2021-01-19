@@ -70,8 +70,8 @@ export default () => {
         data={data}
         keyExtractor={(item: WeekIndexData) => `${item.year}-${item.week}`}
         inverted={true}
-        maxToRenderPerBatch={2}
-        initialNumToRender={1}
+        maxToRenderPerBatch={6}
+        initialNumToRender={4}
         getItemLayout={(_, index) => ({
           length: viewWidth,
           offset: viewWidth * index,

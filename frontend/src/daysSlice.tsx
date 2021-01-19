@@ -9,6 +9,8 @@ import {
   getISODay,
   getISOWeek,
   getISOWeekYear,
+  isAfter,
+  isBefore,
   startOfISOWeek,
   sub,
 } from 'date-fns'
@@ -107,6 +109,34 @@ export const fetchDuration = createAsyncThunk<
   }
 })
 
+export const fetchRange = createAsyncThunk<
+  { byWeek: WeekIndex; byDay: DayIndex; range: Range },
+  { from: Date; to: Date },
+  { state: RootState }
+>('days/fetchRange', async (rangeToFetch, thunkAPI) => {
+  const range = thunkAPI.getState().days.range
+  const to = rangeToFetch.to
+  const from = rangeToFetch.from
+  const days = await CylaModule.fetchDaysByRange(from, to)
+  return {
+    byDay: groupByDay(days),
+    byWeek: groupByWeeks(days),
+    range: range
+      ? {
+          to: isAfter(rangeToFetch.to, new Date(range.to))
+            ? format(rangeToFetch.to, 'yyyy-MM-dd')
+            : range.to,
+          from: isBefore(rangeToFetch.from, new Date(range.from))
+            ? format(rangeToFetch.from, 'yyyy-MM-dd')
+            : range.from,
+        }
+      : {
+          from: format(rangeToFetch.from, 'yyyy-MM-dd'),
+          to: format(rangeToFetch.to, 'yyyy-MM-dd'),
+        },
+  }
+})
+
 const days = createSlice({
   name: 'days',
   initialState: {
@@ -118,7 +148,7 @@ const days = createSlice({
   extraReducers: (builder) => {
     const fulfilledReducer: CaseReducer<
       DaysStateType,
-      ReturnType<typeof fetchDuration.fulfilled>
+      ReturnType<typeof fetchDuration.fulfilled | typeof fetchRange.fulfilled>
     > = (state, action) => {
       const payload = action.payload
       const range = payload.range
@@ -147,6 +177,9 @@ const days = createSlice({
       .addCase(fetchDuration.fulfilled, fulfilledReducer)
       .addCase(fetchDuration.rejected, rejectReducer)
       .addCase(fetchDuration.pending, pendingReducer)
+      .addCase(fetchRange.fulfilled, fulfilledReducer)
+      .addCase(fetchRange.rejected, rejectReducer)
+      .addCase(fetchRange.pending, pendingReducer)
   },
 })
 
@@ -163,9 +196,14 @@ export const useRefresh = (): [boolean, () => void] => {
     loading,
     useCallback(() => {
       if (range) {
-        //dispatch(fetchRange({})) FIXME
+        dispatch(
+          fetchRange({
+            from: new Date(range.from),
+            to: new Date(range.to),
+          }),
+        )
       }
-    }, [dispatch]),
+    }, [dispatch, range]),
   ]
 }
 

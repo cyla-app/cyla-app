@@ -28,7 +28,6 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
     format(new Date(), 'yyyy-MM-dd'),
   )
 
-  const dispatch = useDispatch()
   return (
     <View
       style={{
@@ -48,7 +47,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
               new Date(selectedDate),
               day,
             ).catch((e: Error) => Alert.alert(e.message))
-            await dispatch(fetchDuration()) // FIXME probably not the best idea to fetch all data of last month after adding
+            await refresh() // FIXME probably not the best idea to refresh after adding
           }}
         />
       </ScrollView>

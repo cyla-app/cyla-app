@@ -28,6 +28,7 @@ export default ({
   return (
     <View>
       <Calendar
+        onVisibleMonthsChange={() => {}}
         periodDays={days.filter(
           (day) =>
             day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE,
