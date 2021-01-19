@@ -1,11 +1,20 @@
 import { CaseReducer, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Day } from '../generated'
 import CylaModule from './modules/CylaModule'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './App'
-import { format, getDay, getWeek, setDay, startOfWeek, sub } from 'date-fns'
+import {
+  add,
+  format,
+  getISODay,
+  getISOWeek,
+  getISOWeekYear,
+  startOfISOWeek,
+  sub,
+} from 'date-fns'
+import { useCallback } from 'react'
 
-const DAYS_IN_WEEK = 7
+export const DAYS_IN_WEEK = 7
 
 const groupByDay = (days: Day[]) =>
   Object.fromEntries(days.map((day) => [day.date, day]))
@@ -13,82 +22,90 @@ const groupByDay = (days: Day[]) =>
 const groupByWeeks = (dayList: Day[]) =>
   dayList.reduce((acc: WeekIndex, day) => {
     const date = new Date(day.date)
-    const week = getWeek(date)
-    const weekDay = getDay(date)
-    // Group initialization
-    if (!acc[week]) {
-      const weekStart = startOfWeek(date)
+    const week = getISOWeek(date)
+    const year = getISOWeekYear(date)
+    const key = `${year}-${week}`
+    const weekday = getISODay(date) - 1
+    let weekIndexData = acc[key]
 
-      acc[week] = {
+    // Group initialization
+    if (!weekIndexData) {
+      const weekStart = startOfISOWeek(date)
+
+      acc[key] = {
+        year,
         week,
         index: {},
         asList: [...Array(DAYS_IN_WEEK).keys()].map((i) => ({
-          date: format(setDay(weekStart, i), 'yyyy-MM-dd'),
+          volatile: true,
+          date: format(add(weekStart, { days: i }), 'yyyy-MM-dd'),
         })),
       }
     }
 
     // Grouping
-    acc[week].index[day.date] = day
-    acc[week].asList[weekDay] = day
+    weekIndexData = acc[key]
+    weekIndexData.index[day.date] = day
+    weekIndexData.asList[weekday] = day
     return acc
   }, {})
 
-type Range = { from: Date; to: Date }
+const mergeWeekIndices = (a: WeekIndex, override: WeekIndex): WeekIndex => {
+  const copy: WeekIndex = { ...a }
+
+  for (const [key, { week, year, asList, index }] of Object.entries(override)) {
+    copy[key] = {
+      week,
+      year,
+      asList: asList.map((day, i) =>
+        copy[key] ? (day.volatile ? copy[key].asList[i] : day) : day,
+      ),
+      index: { ...(copy[key]?.index || {}), ...index },
+    }
+  }
+
+  return copy
+}
+
+type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
-export type WeekIndexData = { week: number; asList: Day[]; index: DayIndex }
+export type WeekIndexData = {
+  week: number
+  year: number
+  // Volatile means that the we do not yet have data for this day and created an empty one
+  asList: (Day & { volatile?: boolean })[]
+  index: DayIndex
+}
 export type WeekIndex = {
-  [weekIndex: number]: WeekIndexData
+  [yearWeek: string]: WeekIndexData
 }
 
 export type DaysStateType = {
-  range: { from: string; to: string } | null
+  range: Range | null
   byWeek: WeekIndex
   byDay: DayIndex
   loading: boolean
 }
 
-export const fetchMoreDays = createAsyncThunk<
+export const fetchDuration = createAsyncThunk<
   { byWeek: WeekIndex; byDay: DayIndex; range: Range },
-  void,
-  { state: DaysStateType }
->('days/fetchMoreDays', async (_, thunkAPI) => {
-  const range = thunkAPI.getState().range
-  const to = range ? new Date(range.to) : new Date()
-  const from = sub(to, { months: 1 })
+  Duration | undefined,
+  { state: RootState }
+>('days/fetchDuration', async (duration = { months: 1 }, thunkAPI) => {
+  const range = thunkAPI.getState().days.range
+  const now = new Date()
+  const to = range ? new Date(range.from) : now
+  const from = sub(to, duration)
   const days = await CylaModule.fetchDaysByRange(from, to)
   return {
     byDay: groupByDay(days),
     byWeek: groupByWeeks(days),
     range: {
-      to,
-      from,
+      to: range ? range.to : format(now, 'yyyy-MM-dd'),
+      from: format(from, 'yyyy-MM-dd'),
     },
   }
 })
-
-export const INITIAL_MONTHS = 2
-
-export const fetchLastMonths = createAsyncThunk<
-  { byWeek: WeekIndex; byDay: DayIndex; range: Range },
-  { reference?: Date; months?: number },
-  { state: DaysStateType }
->(
-  'days/fetchLastMonths',
-  async ({ reference = new Date(), months = INITIAL_MONTHS }) => {
-    const to = reference
-    const from = sub(to, { months })
-    const days = await CylaModule.fetchDaysByRange(from, to)
-    return {
-      byDay: groupByDay(days),
-      byWeek: groupByWeeks(days),
-      range: {
-        to,
-        from,
-      },
-    }
-  },
-)
 
 const days = createSlice({
   name: 'days',
@@ -101,19 +118,15 @@ const days = createSlice({
   extraReducers: (builder) => {
     const fulfilledReducer: CaseReducer<
       DaysStateType,
-      ReturnType<
-        typeof fetchMoreDays.fulfilled | typeof fetchLastMonths.fulfilled
-      >
+      ReturnType<typeof fetchDuration.fulfilled>
     > = (state, action) => {
-      const range: Range = action.payload.range
+      const payload = action.payload
+      const range = payload.range
       return {
         ...state,
-        range: {
-          from: format(range.from, 'yyyy-MM-dd'),
-          to: format(range.to, 'yyyy-MM-dd'),
-        },
-        byWeek: { ...state.byWeek, ...action.payload.byWeek }, // FIXME: Merge deep
-        byDay: { ...state.byDay, ...action.payload.byDay },
+        range,
+        byWeek: mergeWeekIndices(state.byWeek, payload.byWeek),
+        byDay: { ...state.byDay, ...payload.byDay },
         loading: false,
       }
     }
@@ -131,29 +144,23 @@ const days = createSlice({
       }
     }
     builder
-      .addCase(fetchMoreDays.fulfilled, fulfilledReducer)
-      .addCase(fetchMoreDays.rejected, rejectReducer)
-      .addCase(fetchMoreDays.pending, pendingReducer)
-
-    builder
-      .addCase(fetchLastMonths.fulfilled, fulfilledReducer)
-      .addCase(fetchLastMonths.rejected, rejectReducer)
-      .addCase(fetchLastMonths.pending, pendingReducer)
+      .addCase(fetchDuration.fulfilled, fulfilledReducer)
+      .addCase(fetchDuration.rejected, rejectReducer)
+      .addCase(fetchDuration.pending, pendingReducer)
   },
 })
 
 export default days.reducer
 
 export const useRefresh = (): [boolean, () => void] => {
-  //const dispatch = useDispatch()
+  const dispatch = useDispatch()
   const loading = useSelector<RootState, boolean>((state) => state.days.loading)
 
   return [
     loading,
-    //useCallback(() => {
-    // TODO: Only reload data alredy loaded
-    //  dispatch(fetchAllDays())
-    //}, [dispatch]),
-    () => {},
+    useCallback(() => {
+      // TODO: Only reload data alredy loaded
+      dispatch(fetchDuration())
+    }, [dispatch]),
   ]
 }

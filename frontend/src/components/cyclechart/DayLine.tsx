@@ -36,7 +36,7 @@ export default ({
           x2={viewWidth - x - POINT_GAP}
           y2={scaleY(nextDayTemperature.value, viewHeight)}
           strokeWidth={1}
-          stroke={'black'}
+          stroke={color}
         />
       )}
     </>

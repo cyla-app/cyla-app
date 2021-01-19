@@ -1,73 +1,68 @@
 import { View, FlatList } from 'react-native'
 import { useSelector } from 'react-redux'
 import { RootState } from '../App'
-import { Day } from '../../generated'
 import Grid from '../components/cyclechart/Grid'
 import Svg from 'react-native-svg'
 import PointChart, { POINT_GAP } from '../components/cyclechart/PointChart'
-import { add, format, sub } from 'date-fns'
 import React from 'react'
-import { DaysStateType, WeekIndex, WeekIndexData } from '../daysSlice'
-
-const fillEmptyDataPoints = (
-  allDays: Day[],
-  numberOfDays: number,
-  initialDate = new Date(),
-) => {
-  const days: Day[] = []
-  const currentData = Object.fromEntries(allDays.map((day) => [day.date, day]))
-
-  for (let i = 0; i < numberOfDays; i++) {
-    const date = sub(initialDate, { days: i })
-    const dateString = format(date, 'yyyy-MM-dd')
-    const day = currentData[dateString]
-    const emptyDay = { date: dateString }
-    days.push(day ? day : emptyDay)
-  }
-
-  return {
-    previousDay:
-      currentData[
-        format(sub(initialDate, { days: numberOfDays }), 'yyyy-MM-dd')
-      ],
-    days,
-    nextDay: currentData[format(add(initialDate, { days: 1 }), 'yyyy-MM-dd')],
-  }
-}
+import {
+  DayIndex,
+  DAYS_IN_WEEK,
+  DaysStateType,
+  WeekIndexData,
+} from '../daysSlice'
+import { format, sub, add } from 'date-fns'
 
 // Space below Grid
 const bottomQuietZone = 15
-const daysPerChart = 20
+const daysPerChart = DAYS_IN_WEEK
 const viewWidth = POINT_GAP * daysPerChart
 
-const RenderItem = React.memo(({ week }: { week: WeekIndexData }) => {
+const RenderItem = ({
+  days,
+  week,
+}: {
+  days: DayIndex
+  week: WeekIndexData
+}) => {
   const viewHeight = 300
-
+  const daysInWeek = [...week.asList].reverse()
+  const firstDay = new Date(daysInWeek[daysInWeek.length - 1].date)
+  const lastDay = new Date(daysInWeek[0].date)
   return (
     <Svg width={viewWidth} height={viewHeight + bottomQuietZone}>
       <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
       <PointChart
-        previousDay={null} // FIXME
-        nextDay={null} // FIXME
+        previousDay={days[format(sub(firstDay, { days: 1 }), 'yyyy-MM-dd')]}
+        nextDay={days[format(add(lastDay, { days: 1 }), 'yyyy-MM-dd')]}
         viewHeight={viewHeight}
         viewWidth={viewWidth}
-        days={week.asList}
+        days={daysInWeek}
       />
     </Svg>
   )
-})
+}
 
 export default () => {
   const days = useSelector<RootState, DaysStateType>((state) => state.days)
 
-  const data: WeekIndexData[] = Array.from(Object.values(days.byWeek))
+  const data: WeekIndexData[] = Array.from(Object.values(days.byWeek)).sort(
+    (a, b) => {
+      if (a.year === b.year) {
+        return b.week - a.week
+      }
+
+      return b.year - a.year
+    },
+  )
+
   return (
     <View>
       <FlatList
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         data={data}
-        keyExtractor={(item: WeekIndexData) => String(item.week)}
+        keyExtractor={(item: WeekIndexData) => `${item.year}-${item.week}`}
         inverted={true}
         maxToRenderPerBatch={2}
         initialNumToRender={1}
@@ -77,7 +72,7 @@ export default () => {
           index,
         })}
         renderItem={({ item }: { item: WeekIndexData }) => {
-          return <RenderItem week={item} />
+          return <RenderItem days={days.byDay} week={item} />
         }}
       />
     </View>
