@@ -14,6 +14,7 @@ type CylaModuleType = {
     iso8601dateTo: string,
   ) => Promise<string[]>
   setupUserKeyBackup: (userName: string, passphrase: string) => Promise<void>
+  login: (userName: string, passphrase: string) => Promise<boolean>
 }
 
 const CylaNativeModule: CylaModuleType = NativeModules.CylaModule
@@ -48,6 +49,10 @@ class CylaModule {
 
   async setupUserKeyBackup(userName: string, passphrase: string) {
     return await CylaNativeModule.setupUserKeyBackup(userName, passphrase)
+  }
+
+  async login(userName: string, passphrase: string) {
+    return await CylaNativeModule.login(userName, passphrase)
   }
 }
 

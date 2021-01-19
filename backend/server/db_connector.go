@@ -8,6 +8,7 @@ import (
 type DBConnector interface {
 	DayPersistence
 	UserPersistence
+	LoginPersistence
 }
 
 type DayPersistence interface {
@@ -20,6 +21,10 @@ type UserPersistence interface {
 	GetRestoreData(ctx context.Context, userId string) (ret EncryptedAttribute, err error)
 	GetUserById(ctx context.Context, userId string) (ret User, err error)
 	UpdateUser(ctx context.Context, userId string, user User) error
+}
+
+type LoginPersistence interface {
+	LoginUser(ctx context.Context, username string) (ret EncryptedAttribute, userUUID string, err error)
 }
 
 var DBConnection DBConnector

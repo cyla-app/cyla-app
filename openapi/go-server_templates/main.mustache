@@ -16,7 +16,10 @@ func main() {
 	{{classname}}Service := {{packageName}}.New{{classname}}Service()
 	{{classname}}Controller := {{packageName}}.New{{classname}}Controller({{classname}}Service)
 {{/apis}}{{/apiInfo}}
-	router := {{packageName}}.NewRouter({{#apiInfo}}{{#apis}}{{classname}}Controller{{^-last}}, {{/-last}}{{/apis}}{{/apiInfo}})
+    LoginApiService := server.NewLoginApiService()
+    LoginApiController := server.NewLoginApiController(LoginApiService)
+
+	router := {{packageName}}.NewRouter(LoginApiController,{{#apiInfo}}{{#apis}}{{classname}}Controller{{^-last}}, {{/-last}}{{/apis}}{{/apiInfo}})
 
 	log.Fatal(http.ListenAndServe(":{{serverPort}}", router))
 }

@@ -1,0 +1,34 @@
+openapi: 3.0.3
+info:
+  description: "Login WS API for the period tracking app 'Cyla'"
+  version: 0.1.0
+  title: "Login Cyla App API"
+servers:
+  - url: "ws://localhost:5000"
+    description: "DEV server"
+paths:
+  # OpenAPI is not meant to define WebSocket behaviour. This endpoint only tries to make explicit that
+  # there is a (WebSocket) endpoint for login, but does not use the specification to describe it's behaviour.
+  # Expect no reasonably tooling for this endpoint.
+  /login/{username}:
+    get:
+      tags:
+        - login
+      description: Login and authenticate a user using a zero-knowledge proof and Websockets
+      operationId: LoginUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "101":
+          description: Successfully established Websocket.
+        "200":
+          description: Value of the hashed user key
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/EncryptedAttribute"
+  

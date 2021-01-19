@@ -12,6 +12,8 @@ package server
 import (
 	"context"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 // DayApiRouter defines the required methods for binding the api requests to a responses for the DayApi
@@ -33,6 +35,10 @@ type UserApiRouter interface {
 	UpdateUser(http.ResponseWriter, *http.Request)
 }
 
+type LoginApiRouter interface {
+	LoginUser(http.ResponseWriter, *http.Request)
+}
+
 // DayApiServicer defines the api actions for the DayApi service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can ignored with the .openapi-generator-ignore file
@@ -52,4 +58,8 @@ type UserApiServicer interface {
 	GetRestoreData(context.Context, string) (ImplResponse, error)
 	GetUserById(context.Context, string) (ImplResponse, error)
 	UpdateUser(context.Context, string, User) (ImplResponse, error)
+}
+
+type LoginApiServicer interface {
+	LoginUser(context.Context, string, *websocket.Conn) (ImplResponse, error)
 }
