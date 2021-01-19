@@ -53,7 +53,7 @@ func NewRedisClient() (*CylaRedisClient, error) {
 
 }
 
-func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (string, error) {
+func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (EncryptedAttribute, error) {
 	hashKey, err := getHashUserKeyForLogin.Run(ctx, s,
 		[]string{
 			fmt.Sprintf("%v:%v:%v", userPrefixKey, userNamePrefixKey, username),

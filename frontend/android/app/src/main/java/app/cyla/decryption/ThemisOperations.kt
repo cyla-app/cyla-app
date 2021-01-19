@@ -15,12 +15,11 @@ class ThemisOperations {
             return Pair(userKey, userKeyCell)
         }
 
-        fun getAuthKey(username: String, passphrase: String): String {
+        fun getAuthKey(username: String, passphrase: String): ByteArray {
             //ContextImprint needs a key and a context. We simply take use the passphrase and username.
             val key = SymmetricKey(passphrase.toByteArray())
             val context = username.toByteArray()
             return SecureCell.ContextImprintWithKey(key).encrypt(username.toByteArray(), context)
-                    .toString(Charset.forName("UTF-8"))
         }
 
         fun decryptUserKey(

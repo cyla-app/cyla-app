@@ -56,6 +56,7 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
         Log.v("Login", "Closing websocket")
         Log.v("Login", "Reason: $reason")
         ws.close(code, reason)
+
         if(authLock.isHeldByCurrentThread) {
             authCondition.signal()
             authLock.unlock()

@@ -99,6 +99,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         user.id = null
         user.userKeyBackup = userKey.toByteArray()
         user.username = username
+        user.authKey = authKey
         val userId = userApi.value.createUser(user)
         getAppStorage().edit()
             .putUserId(userId)
@@ -194,7 +195,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             val authLock = ReentrantLock()
             val authDoneCondition = authLock.newCondition()
             val comparator = SecureCompare()
-            val wsListener = LoginWebSocketListener(authKey.toByteArray(), comparator, authLock, authDoneCondition)
+            val wsListener = LoginWebSocketListener(authKey, comparator, authLock, authDoneCondition)
             apiClient.value.httpClient.newWebSocket(
                     Request.Builder().url("ws://localhost:5000/login/$username").build(),
                     wsListener)

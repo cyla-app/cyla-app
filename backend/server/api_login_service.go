@@ -11,6 +11,7 @@ package server
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"log"
 	"time"
@@ -35,13 +36,21 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 	const timeout = time.Second * 5
 	isAuthSuccessful := false
 	closeReason := "Unexpected Error"
+
 	hashKey, err := DBConnection.LoginUser(ctx, username)
 	if err != nil {
 		log.Println("Error while retrieving hash key")
 		closeReason = "Hashed key not found"
+	}
+
+	hashKeyDecoded, _ := base64.StdEncoding.DecodeString(hashKey)
+	log.Println("Decoded", hashKeyDecoded)
+	if err != nil {
+		log.Println("Error while decoding hashKey")
+		closeReason = "Decode error"
 	} else {
 		comparisonServer, _ := compare.New()
-		comparisonServer.Append([]byte(hashKey))
+		comparisonServer.Append(hashKeyDecoded)
 		log.Println("Starting auth")
 		conn.SetReadDeadline(time.Now().Add(timeout))
 		for {

@@ -49,12 +49,12 @@ fun SharedPreferences.Editor.putUserKeyCell(userKeyCell: ByteArray): SharedPrefe
     return this
 }
 
-fun SharedPreferences.getUserAuthKey(): String? {
-    return this.getString(PREFERENCE_KEY_USER_AUTH_KEY, null)
+fun SharedPreferences.getUserAuthKey(): ByteArray? {
+    return this.getBase64(PREFERENCE_KEY_USER_AUTH_KEY)
 }
 
-fun SharedPreferences.Editor.putUserAuthKey(userKeyCell: String): SharedPreferences.Editor {
-    this.putString(PREFERENCE_KEY_USER_AUTH_KEY, userKeyCell)
+fun SharedPreferences.Editor.putUserAuthKey(userKeyCell: ByteArray): SharedPreferences.Editor {
+    this.putBase64(PREFERENCE_KEY_USER_AUTH_KEY, userKeyCell)
     return this
 }
 

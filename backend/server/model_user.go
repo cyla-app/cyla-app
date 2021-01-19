@@ -20,7 +20,7 @@ type User struct {
 
 	UserKeyBackup EncryptedAttribute `json:"user_key_backup,omitempty" mapstructure:"UserKeyBackup"`
 
-	AuthKey string `json:"auth_key,omitempty" mapstructure:"AuthKey"`
+	AuthKey EncryptedAttribute `json:"auth_key,omitempty" mapstructure:"AuthKey"`
 }
 
 func GetUserIdName() string {
