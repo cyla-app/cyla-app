@@ -9,14 +9,18 @@ import {
   DayIndex,
   DAYS_IN_WEEK,
   DaysStateType,
+  useLoadMore,
   WeekIndexData,
 } from '../daysSlice'
 import { format, sub, add } from 'date-fns'
+import { ActivityIndicator } from 'react-native-paper'
 
 // Space below Grid
 const bottomQuietZone = 15
 const daysPerChart = DAYS_IN_WEEK
 const viewWidth = POINT_GAP * daysPerChart
+
+const LoadMoreSpinner = () => <ActivityIndicator size={'large'} />
 
 const RenderItem = ({
   days,
@@ -45,6 +49,8 @@ const RenderItem = ({
 
 export default () => {
   const days = useSelector<RootState, DaysStateType>((state) => state.days)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loading, loadMore] = useLoadMore()
 
   const data: WeekIndexData[] = Array.from(Object.values(days.byWeek)).sort(
     (a, b) => {
@@ -71,6 +77,13 @@ export default () => {
           offset: viewWidth * index,
           index,
         })}
+        onEndReached={loadMore}
+        ListFooterComponentStyle={{
+          flex: 1,
+          margin: 10,
+          justifyContent: 'center',
+        }}
+        ListFooterComponent={LoadMoreSpinner}
         renderItem={({ item }: { item: WeekIndexData }) => {
           return <RenderItem days={days.byDay} week={item} />
         }}

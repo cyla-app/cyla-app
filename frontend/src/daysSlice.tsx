@@ -154,12 +154,28 @@ export default days.reducer
 
 export const useRefresh = (): [boolean, () => void] => {
   const dispatch = useDispatch()
+  const range = useSelector<RootState, Range | null>(
+    (state) => state.days.range,
+  )
   const loading = useSelector<RootState, boolean>((state) => state.days.loading)
 
   return [
     loading,
     useCallback(() => {
-      // TODO: Only reload data alredy loaded
+      if (range) {
+        //dispatch(fetchRange({})) FIXME
+      }
+    }, [dispatch]),
+  ]
+}
+
+export const useLoadMore = (): [boolean, () => void] => {
+  const dispatch = useDispatch()
+  const loading = useSelector<RootState, boolean>((state) => state.days.loading)
+
+  return [
+    loading,
+    useCallback(() => {
       dispatch(fetchDuration())
     }, [dispatch]),
   ]
