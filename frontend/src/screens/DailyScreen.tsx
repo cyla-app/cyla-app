@@ -9,7 +9,7 @@ import { TabsParamList } from '../navigation/TabBarNavigation'
 import CylaModule from '../modules/CylaModule'
 import { Bleeding, Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
-import { DayIndex, fetchAllDays, useRefresh } from '../daysSlice'
+import { WeekIndex, useRefresh, fetchLastMonths, DayIndex } from '../daysSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { format } from 'date-fns'
@@ -21,7 +21,7 @@ type DailyScreenNavigationProp = CompositeNavigationProp<
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   const days = Object.values(
-    useSelector<RootState, DayIndex>((state) => state.days.days),
+    useSelector<RootState, DayIndex>((state) => state.days.byDay), // FIXME dynamically load from state
   )
   const [loading, refresh] = useRefresh()
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -48,7 +48,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
               new Date(selectedDate),
               day,
             ).catch((e: Error) => Alert.alert(e.message))
-            await dispatch(fetchAllDays()) // FIXME probably not the best idea to fetch all data after adding
+            await dispatch(fetchLastMonths({ months: 1 })) // FIXME probably not the best idea to fetch all data of last month after adding
           }}
         />
       </ScrollView>

@@ -7,7 +7,7 @@ import Svg from 'react-native-svg'
 import PointChart, { POINT_GAP } from '../components/cyclechart/PointChart'
 import { add, format, sub } from 'date-fns'
 import React from 'react'
-import { DayIndex } from '../daysSlice'
+import { DaysStateType, WeekIndex, WeekIndexData } from '../daysSlice'
 
 const fillEmptyDataPoints = (
   allDays: Day[],
@@ -40,47 +40,34 @@ const bottomQuietZone = 15
 const daysPerChart = 20
 const viewWidth = POINT_GAP * daysPerChart
 
-const RenderItem = React.memo(
-  ({ allDays, fromDate }: { allDays: Day[]; fromDate: Date }) => {
-    const { previousDay, days, nextDay } = fillEmptyDataPoints(
-      allDays,
-      daysPerChart,
-      fromDate,
-    )
-    const viewHeight = 300
+const RenderItem = React.memo(({ week }: { week: WeekIndexData }) => {
+  const viewHeight = 300
 
-    return (
-      <Svg width={viewWidth} height={viewHeight + bottomQuietZone}>
-        <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
-        <PointChart
-          previousDay={previousDay}
-          nextDay={nextDay}
-          viewHeight={viewHeight}
-          viewWidth={viewWidth}
-          days={days}
-        />
-      </Svg>
-    )
-  },
-)
+  return (
+    <Svg width={viewWidth} height={viewHeight + bottomQuietZone}>
+      <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
+      <PointChart
+        previousDay={null} // FIXME
+        nextDay={null} // FIXME
+        viewHeight={viewHeight}
+        viewWidth={viewWidth}
+        days={week.asList}
+      />
+    </Svg>
+  )
+})
 
 export default () => {
-  const allDays = Object.values(
-    useSelector<RootState, DayIndex>((state) => state.days.days),
-  )
+  const days = useSelector<RootState, DaysStateType>((state) => state.days)
 
-  const maxCharts = Math.ceil(365 / daysPerChart)
-  const initialDate = new Date()
-  const dates: Date[] = [...Array(maxCharts).keys()].map((index) =>
-    sub(initialDate, { days: index * daysPerChart }),
-  )
+  const data: WeekIndexData[] = Array.from(Object.values(days.byWeek))
   return (
     <View>
       <FlatList
         horizontal={true}
         showsHorizontalScrollIndicator={false}
-        data={dates}
-        keyExtractor={(item: Date) => item.toISOString()}
+        data={data}
+        keyExtractor={(item: WeekIndexData) => String(item.week)}
         inverted={true}
         maxToRenderPerBatch={2}
         initialNumToRender={1}
@@ -89,8 +76,8 @@ export default () => {
           offset: viewWidth * index,
           index,
         })}
-        renderItem={({ item }) => {
-          return <RenderItem allDays={allDays} fromDate={item} />
+        renderItem={({ item }: { item: WeekIndexData }) => {
+          return <RenderItem week={item} />
         }}
       />
     </View>
