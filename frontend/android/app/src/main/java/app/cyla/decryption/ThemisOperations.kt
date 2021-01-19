@@ -1,5 +1,6 @@
 package app.cyla.decryption
 
+import android.util.Log
 import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SymmetricKey
 import java.nio.charset.Charset

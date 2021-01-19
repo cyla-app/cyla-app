@@ -30,11 +30,8 @@ export default () => {
   const signIn = async (username: string, passphrase: string) => {
     setLoading(true)
     try {
-      //await CylaModule.setupUserKeyBackup(username, passphrase)
-      //await dispatch(fetchDuration())
-      await CylaModule.login(username, passphrase).then((value) =>
-        console.log(value),
-      )
+      await CylaModule.login(username, passphrase)
+      await dispatch(fetchDuration())
       setLoading(false)
       dispatch(setSignedIn(true))
     } catch (e) {

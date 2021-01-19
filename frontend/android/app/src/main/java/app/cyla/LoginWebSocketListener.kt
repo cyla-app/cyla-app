@@ -3,7 +3,6 @@ package app.cyla
 import android.util.Log
 import com.cossacklabs.themis.SecureCompare
 import com.facebook.react.bridge.Promise
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -12,22 +11,17 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
 import java.lang.Exception
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+
+data class SuccAuthInfo(
+        val jwt: String,
+        val uuid: String,
+        val userKey: String
+)
 
 class LoginWebSocketListener(private val hashedKey: ByteArray,
                              private var comparator: SecureCompare,
-                             private val promise: Promise) : WebSocketListener() {
-
-
-    var token: String = "notAuthenticated"
-
-    data class SuccAuthInfo(
-            val jwt: String,
-            val uuid: String,
-            val userKey: String
-    )
+                             private val promise: Promise,
+                             val onSuccAuth: (SuccAuthInfo) -> Unit) : WebSocketListener() {
 
     override fun onOpen(ws: WebSocket, response: Response) {
         comparator = SecureCompare(hashedKey)
@@ -49,7 +43,8 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
             SecureCompare.CompareResult.MATCH -> {
                 Log.v("Login", "Comparison successful")
                 ws.close(1000, "Comparison ended successfully")
-                promise.resolve(decodeSuccMsg(bytes).uuid)
+                val succData = decodeSuccMsg(bytes)
+                onSuccAuth(succData)
             }
             else -> {
                 Log.v("Login", "Comparison unsuccessful")

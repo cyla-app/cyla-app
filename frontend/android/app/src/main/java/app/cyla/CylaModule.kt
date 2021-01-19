@@ -2,6 +2,7 @@ package app.cyla
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import android.util.Log
 import app.cyla.api.DayApi
 import app.cyla.api.UserApi
@@ -14,16 +15,13 @@ import app.cyla.decryption.ThemisOperations.Companion.getAuthKey
 import app.cyla.decryption.ThemisOperations.Companion.createUserKey
 import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
 import app.cyla.invoker.ApiClient
+import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SecureCompare
 import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.*
 import okhttp3.Request
-import java.nio.charset.Charset
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     companion object {
@@ -97,7 +95,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         
         val user = User()
         user.id = null
-        user.userKeyBackup = userKey.toByteArray()
+        user.userKeyBackup = userKeyCell
         user.username = username
         user.authKey = authKey
         val userId = userApi.value.createUser(user)
@@ -193,7 +191,29 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             Log.v("Login", "attempting login")
             val authKey = getAuthKey(username, passphrase)
             val comparator = SecureCompare()
-            val wsListener = LoginWebSocketListener(authKey, comparator, promise)
+            val wsListener = LoginWebSocketListener(authKey, comparator, promise) {
+                try {
+                    val decodedUserKey = Base64.decode(it.userKey, Base64.DEFAULT)
+                    val userCell = SecureCell.SealWithPassphrase(passphrase)
+                    val userKey = SymmetricKey(userCell.decrypt(decodedUserKey))
+                    val (cipherText, iv) = encryptPassphrase(reactApplicationContext, passphrase)
+                    getEncryptionStorage().edit()
+                            .putUserKeyCell(decodedUserKey)
+                            .putUserAuthKey(authKey)
+                            .putPassphrase(cipherText, iv)
+                            .apply()
+                    this.userKey = userKey
+                    this.username = username
+                    getAppStorage().edit()
+                            .putUserId(it.uuid)
+                            .putUserName(username)
+                            .apply()
+                    promise.resolve(it.uuid)
+                } catch (e: Exception) {
+                    promise.reject(e)
+
+                }
+            }
             apiClient.value.httpClient.newWebSocket(
                     Request.Builder().url("ws://localhost:5000/login/$username").build(),
                     wsListener)
