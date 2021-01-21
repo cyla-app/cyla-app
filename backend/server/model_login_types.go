@@ -4,9 +4,8 @@ import "github.com/dgrijalva/jwt-go"
 
 type successfulAuthData struct {
 	UserKey string `json:"userKey"`
-	UUID string `json:"uuid"`
+	UUID    string `json:"uuid"`
 	authKey string
-
 }
 
 type SuccessfulAuthMsg struct {

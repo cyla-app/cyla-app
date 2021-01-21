@@ -71,7 +71,7 @@ func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (*succ
 		return &successfulAuthData{}, newHTTPError(500, "Redis return had an unexpected length")
 	}
 	return &successfulAuthData{
-		UUID: retSlice[0],
+		UUID:    retSlice[0],
 		UserKey: retSlice[1],
 		authKey: retSlice[2],
 	}, nil

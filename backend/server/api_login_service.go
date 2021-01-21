@@ -14,9 +14,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"github.com/dgrijalva/jwt-go"
 	"log"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 
 	"github.com/cossacklabs/themis/gothemis/compare"
 	"github.com/gorilla/websocket"
@@ -116,7 +117,7 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 	}
 }
 
-func sendJWT(authData *successfulAuthData, closeReason *string, conn *websocket.Conn){
+func sendJWT(authData *successfulAuthData, closeReason *string, conn *websocket.Conn) {
 	//TODO: Use encrypted token
 	token, err := getJWTToken(authData.UUID)
 	if err != nil {
@@ -126,7 +127,7 @@ func sendJWT(authData *successfulAuthData, closeReason *string, conn *websocket.
 			websocket.FormatCloseMessage(websocket.CloseInternalServerErr, *closeReason))
 	} else {
 		var authMsg = SuccessfulAuthMsg{
-			JWT: token,
+			JWT:                token,
 			successfulAuthData: *authData,
 		}
 		jsonObj, _ := json.Marshal(authMsg)
@@ -139,7 +140,7 @@ func getJWTToken(uuid string) (string, error) {
 		uuid,
 		jwt.StandardClaims{
 			ExpiresAt: 15000,
-			Issuer: "CylaServer",
+			Issuer:    "CylaServer",
 		},
 	}
 	//TODO: User better encryption method, e.g. RS
