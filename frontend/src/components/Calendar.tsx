@@ -1,19 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { CalendarList } from 'react-native-calendars'
 import { useTheme, ActivityIndicator } from 'react-native-paper'
-import { Day } from '../../generated'
+import { Bleeding, Day } from '../../generated'
 
 type PropsType = {
-  periodDays: Day[]
+  days: Day[]
   onDaySelected: (day: Day) => void
   onVisibleMonthsChange: (monthYear: { month: number; year: number }[]) => void
 }
 
-export default ({
-  periodDays,
-  onDaySelected,
-  onVisibleMonthsChange,
-}: PropsType) => {
+export default ({ days, onDaySelected, onVisibleMonthsChange }: PropsType) => {
   const { colors } = useTheme()
   //const [ready, setReady] = useState<boolean>(false)
   const theme = useMemo(
@@ -46,34 +42,36 @@ export default ({
     [colors],
   )
 
-  const markedDates = periodDays.map((day) => {
+  const markedDates = days.map((day) => {
     return [
-      [day.date],
-      {
-        customStyles: {
-          container: {
-            borderColor: colors.periodRed,
-            borderWidth: 1.5,
-          },
-          text: {},
-        },
-      },
+      day.date,
+      day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE
+        ? {
+            customStyles: {
+              container: {
+                borderColor: colors.periodRed,
+                borderWidth: 1.5,
+              },
+              text: {},
+            },
+          }
+        : {},
     ]
   })
 
   /*
-        useEffect(() => {
-          const timer = setTimeout(() => {
-            setReady(true)
-          }, 200)
-      
-          return () => clearTimeout(timer)
-        }, [])
-    
-      if (!ready) {
-        return <ActivityIndicator size={'large'} />
-      }  
-      */
+            useEffect(() => {
+              const timer = setTimeout(() => {
+                setReady(true)
+              }, 200)
+          
+              return () => clearTimeout(timer)
+            }, [])
+        
+          if (!ready) {
+            return <ActivityIndicator size={'large'} />
+          }  
+          */
 
   return (
     <CalendarList
@@ -88,9 +86,7 @@ export default ({
       maxDate={undefined}
       // Handler which gets executed on day press. Default = undefined
       onDayPress={(calendarDay) => {
-        const found = periodDays.find(
-          (day) => day.date === calendarDay.dateString,
-        )
+        const found = days.find((day) => day.date === calendarDay.dateString)
 
         if (found) {
           onDaySelected(found)
@@ -110,7 +106,6 @@ export default ({
         onVisibleMonthsChange(
           months.map((month) => ({ month: month.month, year: month.year })),
         )
-        console.log('now these months are visible', months)
       }}
       // Hide month navigation arrows. Default = false
       hideArrows={true}
