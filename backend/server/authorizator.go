@@ -10,6 +10,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var Authorize = authorizeBasedOnUserId
+
 func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		errResult := ImplResponse{

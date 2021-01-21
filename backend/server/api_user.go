@@ -40,19 +40,19 @@ func (c *UserApiController) Routes() Routes {
 			"GetRestoreData",
 			strings.ToUpper("Get"),
 			"/user/{userId}/restore",
-			authorizeBasedOnUserId(c.GetRestoreData),
+			Authorize(c.GetRestoreData),
 		},
 		{
 			"GetUserById",
 			strings.ToUpper("Get"),
 			"/user/{userId}",
-			c.GetUserById,
+			Authorize(c.GetUserById),
 		},
 		{
 			"UpdateUser",
 			strings.ToUpper("Put"),
 			"/user/{userId}",
-			c.UpdateUser,
+			Authorize(c.UpdateUser),
 		},
 	}
 }

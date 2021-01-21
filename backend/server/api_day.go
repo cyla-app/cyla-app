@@ -34,19 +34,19 @@ func (c *DayApiController) Routes() Routes {
 			"GetDayByUserAndRange",
 			strings.ToUpper("Get"),
 			"/day/{userId}/byRange",
-			c.GetDayByUserAndRange,
+			Authorize(c.GetDayByUserAndRange),
 		},
 		{
 			"GetDaysByUserIdAndDate",
 			strings.ToUpper("Get"),
 			"/day/{userId}/byDate",
-			c.GetDaysByUserIdAndDate,
+			Authorize(c.GetDaysByUserIdAndDate),
 		},
 		{
 			"ModifyDayEntry",
 			strings.ToUpper("Post"),
 			"/day/{userId}",
-			c.ModifyDayEntry,
+			Authorize(c.ModifyDayEntry),
 		},
 	}
 }

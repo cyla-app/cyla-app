@@ -26,7 +26,13 @@ func (c *{{classname}}Controller) Routes() Routes {
 			"{{operationId}}",
 			strings.ToUpper("{{httpMethod}}"),
 			"{{{basePathWithoutHost}}}{{{path}}}",
-			c.{{operationId}},
+            {{#hasAuthMethods}}
+                Authorize(c.{{operationId}}),
+            {{/hasAuthMethods}}
+            {{^hasAuthMethods}}
+                c.{{operationId}},
+            {{/hasAuthMethods}}
+
 		},{{/operation}}{{/operations}}
 	}
 }{{#operations}}{{#operation}}
