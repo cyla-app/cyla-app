@@ -16,7 +16,6 @@ import app.cyla.decryption.ThemisOperations.Companion.createUserKey
 import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
 import app.cyla.invoker.ApiClient
 import app.cyla.invoker.auth.HttpBearerAuth
-import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SecureCompare
 import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.*
@@ -32,6 +31,13 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         private const val APP_PREFERENCES_NAME = "app_storage"
         private const val ENCRYPTION_PREFERENCES_NAME = "encryption_storage"
     }
+
+    data class UserSetupInfo(
+            val userId : String,
+            val username : String,
+            val jwtString : String,
+            val userKey : SymmetricKey
+    )
 
     private lateinit var userKey: SymmetricKey
     private lateinit var username: String
@@ -72,22 +78,17 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         getEncryptionStorage().edit().clear().apply()
     }
 
-    private fun loadStoredUser(): Triple<String, String, SymmetricKey> { //TODO: Use User instead of triple?
-        val userKeyCellData = getEncryptionStorage().getUserKeyCell()!!
+    private fun loadStoredUserInfo(): Pair<String, String> {
         val (passphraseCipherText, passphraseIV) = getEncryptionStorage().getPassphrase()!!
         val passphrase = decryptPassphrase(passphraseCipherText, passphraseIV)
-        val userKey = decryptUserKey(userKeyCellData, passphrase)
-
-        val userId = getAppStorage().getUserId()
-            ?: throw Exception("userId is not in app storage")
 
         val username = getAppStorage().getUserName()
             ?: throw Exception("username is not in app storage")
 
-        return Triple(userId, username, userKey)
+        return Pair(username, passphrase)
     }
 
-    private fun createNewUserKey(username: String, passphrase: String): Triple<String, String, SymmetricKey> {
+    private fun createNewUserKey(username: String, passphrase: String): UserSetupInfo {
         val passphraseInfo = encryptPassphrase(reactApplicationContext, passphrase)
         val (userKey, encryptedUserKey) = createUserKey(passphrase)
         val authKey = getAuthKey(username, passphrase)
@@ -97,7 +98,9 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         user.userKeyBackup = encryptedUserKey
         user.username = username
         user.authKey = authKey
-        val userId = userApi.value.createUser(user)
+        val userCreatedResponse = userApi.value.createUser(user)
+        val userId = userCreatedResponse.userId!!
+        val jwtString = userCreatedResponse.jwt!!
 
         getEncryptionStorage().edit()
                 .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo )
@@ -107,12 +110,13 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 .putUserAppInfo(userId, username)
                 .apply()
 
-        return Triple(userId, username, userKey)
+        return UserSetupInfo(userId, username, jwtString, userKey)
     }
 
-    private fun setupCylaModuleUserInfo(userKey : SymmetricKey, username : String) {
-        this.userKey = userKey
-        this.username = username
+    private fun setupCylaModuleUserInfo(userSetupInfo: UserSetupInfo) {
+        this.userKey = userSetupInfo.userKey
+        this.username = userSetupInfo.username
+        updateAuthInfo(userSetupInfo.jwtString)
     }
 
     @ReactMethod
@@ -128,15 +132,15 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     @ReactMethod
     fun setupUser(username: String?, passphrase: String?, promise: Promise) {
         try {
-            val (userId, username, userKey) = if (username == null || passphrase == null) {
-                loadStoredUser()
+            if (username == null || passphrase == null) {
+                val (username, passphrase) = loadStoredUserInfo()
+                login(username, passphrase, promise)
             } else {
-                createNewUserKey(username, passphrase)
+                 val userSetupInfo = createNewUserKey(username, passphrase)
+                setupCylaModuleUserInfo(userSetupInfo)
+                promise.resolve(userSetupInfo.userId)
             }
 
-            setupCylaModuleUserInfo(userKey, username)
-
-            promise.resolve(userId)
         } catch (e: Exception) {
             Log.e("DecryptionModule", e.message, e)
             resetEncryptionStorage()
@@ -210,8 +214,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                             .putUserAppInfo(it.uuid, username)
                             .apply()
 
-                    setupCylaModuleUserInfo(userKey, username)
-                    updateAuthInfo(it.jwt)
+                    setupCylaModuleUserInfo(UserSetupInfo(it.uuid, username, it.jwt, userKey))
                     promise.resolve(it.uuid)
                 } catch (e: Exception) {
                     promise.reject(e)

@@ -77,32 +77,38 @@ func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (*succ
 	}, nil
 }
 
-func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (string, error) {
+func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (response UserCreatedResponse, err error) {
 	matches, _ := regexp.MatchString(`^[a-zA-Z0-9._-]{4,20}$`, user.Username)
 	if !matches {
-		return "", newHTTPError(409, `User name does not follow the requirements: between 4 and 20 characters and only using alphanumeric symbols or '.', '_', '-'. `)
+		return response, newHTTPError(409, `User name does not follow the requirements: between 4 and 20 characters and only using alphanumeric symbols or '.', '_', '-'. `)
 	}
 
 	userId, err := uuid.NewRandom()
 	if err != nil {
-		return "", newHTTPErrorWithCauseError(500, "could not create random", err)
+		return response, newHTTPErrorWithCauseError(500, "could not create random", err)
 	}
 	user.Id = userId.String()
 	var redisUser map[string]interface{}
 	err = mapstructure.Decode(user, &redisUser)
 	if err != nil {
-		return "", newHTTPErrorWithCauseError(500, "could not unmarshall user", err)
+		return response, newHTTPErrorWithCauseError(500, "could not unmarshall user", err)
 	}
 
 	if !s.SetNX(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userNamePrefixKey, user.Username), user.Id, 0).Val() {
-		return "", newHTTPError(409, "User name already in use.")
+		return response, newHTTPError(409, "User name already in use.")
 	}
 
 	_, err = s.HSet(ctx, fmt.Sprintf("%v:%v", userPrefixKey, user.Id), redisUser).Result()
 	if err != nil {
-		return "", newHTTPErrorWithCauseError(500, "redis error", err)
+		return response, newHTTPErrorWithCauseError(500, "redis error", err)
 	}
-	return user.Id, nil
+	jwt, err := getJWTToken(user.Id)
+	if err != nil {
+		return response, newHTTPErrorWithCauseError(500, "error creating jwt", err)
+	}
+	response.Jwt = jwt
+	response.UserId = user.Id
+	return response, nil
 }
 
 func (s *CylaRedisClient) GetUserById(ctx context.Context, userId string) (user User, err error) {

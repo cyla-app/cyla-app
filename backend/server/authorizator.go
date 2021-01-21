@@ -72,7 +72,7 @@ func getJWTToken(uuid string) (string, error) {
 			//TODO: proper expiration time
 			//TODO: Flow for JWT refresh
 			//ExpiresAt: 15000000000,
-			Issuer:    "CylaServer",
+			Issuer: "CylaServer",
 		},
 	}
 	//TODO: User better encryption method, e.g. RS

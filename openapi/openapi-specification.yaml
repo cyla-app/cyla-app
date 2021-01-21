@@ -31,7 +31,7 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: "#/components/schemas/Id"
+                $ref: "#/components/schemas/UserCreatedResponse"
         "500":
           description: Error when creating user
   /user/{userId}:
@@ -217,6 +217,17 @@ components:
       title: id
       type: string
       description: UUID
+    UserCreatedResponse:
+      title: userCreatedResponse
+      description: Information related to user signup. Includes the UUID of the new user and a fresh JWT for further requests.
+      type: object
+      properties:
+        userId:
+          $ref: "#/components/schemas/Id"
+        jwt:
+          title: bearerJWT
+          type: string
+          description: Fresh JWT for authentication
     User:
       title: user
       type: object
