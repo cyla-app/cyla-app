@@ -91,22 +91,7 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 			if comparisonStatus == compare.Match {
 				log.Println("Comparison successful")
 				isAuthSuccessful = true
-				//TODO: Use encrypted token
-				token, err := getJWTToken(authData.UUID)
-				if err != nil {
-					log.Println("Error", err)
-					closeReason = err.Error()
-					err = conn.WriteMessage(websocket.CloseMessage,
-						websocket.FormatCloseMessage(websocket.CloseInternalServerErr, closeReason))
-				} else {
-					var authMsg = SuccessfulAuthMsg{
-						JWT: token,
-						successfulAuthData: *authData,
-					}
-					jsonObj, _ := json.Marshal(authMsg)
-					err = conn.WriteMessage(websocket.BinaryMessage, jsonObj)
-				}
-
+				sendJWT(authData, &closeReason, conn)
 			}
 			if comparisonStatus == compare.NoMatch {
 				log.Println("Comparison unsuccessful")
@@ -131,21 +116,22 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 	}
 }
 
-type successfulAuthData struct {
-	UserKey string `json:"userKey"`
-	UUID string `json:"uuid"`
-	authKey string
-
-}
-
-type SuccessfulAuthMsg struct {
-	successfulAuthData
-	JWT string `json:"jwt"`
-}
-
-type CylaClaims struct {
-	UUID string `json:"uuid"`
-	jwt.StandardClaims
+func sendJWT(authData *successfulAuthData, closeReason *string, conn *websocket.Conn){
+	//TODO: Use encrypted token
+	token, err := getJWTToken(authData.UUID)
+	if err != nil {
+		log.Println("Error", err)
+		*closeReason = err.Error()
+		err = conn.WriteMessage(websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.CloseInternalServerErr, *closeReason))
+	} else {
+		var authMsg = SuccessfulAuthMsg{
+			JWT: token,
+			successfulAuthData: *authData,
+		}
+		jsonObj, _ := json.Marshal(authMsg)
+		err = conn.WriteMessage(websocket.BinaryMessage, jsonObj)
+	}
 }
 
 func getJWTToken(uuid string) (string, error) {
