@@ -17,8 +17,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
-
 	"github.com/cossacklabs/themis/gothemis/compare"
 	"github.com/gorilla/websocket"
 )
@@ -133,19 +131,4 @@ func sendJWT(authData *successfulAuthData, closeReason *string, conn *websocket.
 		jsonObj, _ := json.Marshal(authMsg)
 		err = conn.WriteMessage(websocket.BinaryMessage, jsonObj)
 	}
-}
-
-func getJWTToken(uuid string) (string, error) {
-	claims := CylaClaims{
-		uuid,
-		jwt.StandardClaims{
-			//TODO: proper expiration time
-			//TODO: Flow for JWT refresh
-			//ExpiresAt: 15000000000,
-			Issuer:    "CylaServer",
-		},
-	}
-	//TODO: User better encryption method, e.g. RS
-	jwtString, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test"))
-	return jwtString, err
 }

@@ -10,6 +10,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type successfulAuthData struct {
+	UserKey string `json:"userKey"`
+	UUID    string `json:"uuid"`
+	authKey string
+}
+
+type SuccessfulAuthMsg struct {
+	successfulAuthData
+	JWT string `json:"jwt"`
+}
+
+type CylaClaims struct {
+	UUID string `json:"uuid"`
+	jwt.StandardClaims
+}
+
 var Authorize = authorizeBasedOnUserId
 
 func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
@@ -47,4 +63,19 @@ func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request
 			EncodeJSONResponse(errResult.Body, &errResult.Code, w)
 		}
 	}
+}
+
+func getJWTToken(uuid string) (string, error) {
+	claims := CylaClaims{
+		uuid,
+		jwt.StandardClaims{
+			//TODO: proper expiration time
+			//TODO: Flow for JWT refresh
+			//ExpiresAt: 15000000000,
+			Issuer:    "CylaServer",
+		},
+	}
+	//TODO: User better encryption method, e.g. RS
+	jwtString, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test"))
+	return jwtString, err
 }
