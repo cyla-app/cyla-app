@@ -84,27 +84,31 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     private fun createNewUserKey(username: String, passphrase: String): Triple<String, String, SymmetricKey> {
-        val (cipherText, iv) = encryptPassphrase(reactApplicationContext, passphrase)
-        val (userKey, userKeyCell) = createUserKey(passphrase)
+        val passphraseInfo = encryptPassphrase(reactApplicationContext, passphrase)
+        val (userKey, encryptedUserKey) = createUserKey(passphrase)
         val authKey = getAuthKey(username, passphrase)
-        getEncryptionStorage().edit()
-            .putUserKeyCell(userKeyCell)
-            .putUserAuthKey(authKey)
-            .putPassphrase(cipherText, iv)
-            .apply()
-        
+
         val user = User()
         user.id = null
-        user.userKeyBackup = userKeyCell
+        user.userKeyBackup = encryptedUserKey
         user.username = username
         user.authKey = authKey
         val userId = userApi.value.createUser(user)
+
+        getEncryptionStorage().edit()
+                .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo )
+                .apply()
+
         getAppStorage().edit()
-            .putUserId(userId)
-            .putUserName(username)
-            .apply()
+                .putUserAppInfo(userId, username)
+                .apply()
 
         return Triple(userId, username, userKey)
+    }
+
+    private fun setupCylaModuleUserInfo(userKey : SymmetricKey, username : String) {
+        this.userKey = userKey
+        this.username = username
     }
 
     @ReactMethod
@@ -126,8 +130,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 createNewUserKey(username, passphrase)
             }
 
-            this.userKey = userKey
-            this.username = username
+            setupCylaModuleUserInfo(userKey, username)
 
             promise.resolve(userId)
         } catch (e: Exception) {
@@ -193,21 +196,18 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             val comparator = SecureCompare()
             val wsListener = LoginWebSocketListener(authKey, comparator, promise) {
                 try {
-                    val decodedUserKey = Base64.decode(it.userKey, Base64.DEFAULT)
-                    val userCell = SecureCell.SealWithPassphrase(passphrase)
-                    val userKey = SymmetricKey(userCell.decrypt(decodedUserKey))
-                    val (cipherText, iv) = encryptPassphrase(reactApplicationContext, passphrase)
+                    val encryptedUserKey = Base64.decode(it.userKey, Base64.DEFAULT)
+                    val userKey = decryptUserKey(encryptedUserKey, passphrase)
+                    val passphraseInfo = encryptPassphrase(reactApplicationContext, passphrase)
                     getEncryptionStorage().edit()
-                            .putUserKeyCell(decodedUserKey)
-                            .putUserAuthKey(authKey)
-                            .putPassphrase(cipherText, iv)
+                            .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo)
                             .apply()
-                    this.userKey = userKey
-                    this.username = username
                     getAppStorage().edit()
-                            .putUserId(it.uuid)
-                            .putUserName(username)
+                            .putUserAppInfo(it.uuid, username)
                             .apply()
+
+                    setupCylaModuleUserInfo(userKey, username)
+
                     promise.resolve(it.uuid)
                 } catch (e: Exception) {
                     promise.reject(e)
@@ -221,7 +221,5 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             Log.e("Login", e.message, e)
             promise.reject(e)
         }
-
-
     }
 }

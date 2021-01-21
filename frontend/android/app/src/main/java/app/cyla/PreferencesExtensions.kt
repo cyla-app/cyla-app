@@ -44,7 +44,7 @@ fun SharedPreferences.getUserKeyCell(): ByteArray? {
     return this.getBase64(PREFERENCE_KEY_USER_KEY_CELL)
 }
 
-fun SharedPreferences.Editor.putUserKeyCell(userKeyCell: ByteArray): SharedPreferences.Editor {
+fun SharedPreferences.Editor.putEncryptedUserKey(userKeyCell: ByteArray): SharedPreferences.Editor {
     this.putBase64(PREFERENCE_KEY_USER_KEY_CELL, userKeyCell)
     return this
 }
@@ -79,5 +79,19 @@ fun SharedPreferences.doRequiredAttributesExist(): Boolean {
     return this.contains(PREFERENCE_KEY_PASSPHRASE_IV) &&
             this.contains(PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT) &&
             this.contains(PREFERENCE_KEY_USER_KEY_CELL)
+}
+
+fun SharedPreferences.Editor.putUserAppInfo(uuid : String, username : String): SharedPreferences.Editor {
+    this.putUserId(uuid).putUserName(username)
+    return this
+}
+
+fun SharedPreferences.Editor.putUserEncryptedInfo(encryptedUserKey : ByteArray,
+                                                  authKey : ByteArray,
+                                                  passphraseInfo : Pair<ByteArray, ByteArray>) : SharedPreferences.Editor {
+    this.putEncryptedUserKey(encryptedUserKey)
+            .putUserAuthKey(authKey)
+            .putPassphrase(passphraseInfo.first, passphraseInfo.second)
+    return this
 }
 

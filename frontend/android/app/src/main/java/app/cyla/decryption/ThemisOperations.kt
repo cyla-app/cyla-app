@@ -1,6 +1,5 @@
 package app.cyla.decryption
 
-import android.util.Log
 import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SymmetricKey
 import java.nio.charset.Charset
@@ -10,10 +9,10 @@ class ThemisOperations {
         fun createUserKey(passphrase: String): Pair<SymmetricKey, ByteArray> {
             val userKey = SymmetricKey()
 
-            val userKeyCell = SecureCell.SealWithPassphrase(passphrase)
+            val encryptedUserKey = SecureCell.SealWithPassphrase(passphrase)
                 .encrypt(userKey.toByteArray())
 
-            return Pair(userKey, userKeyCell)
+            return Pair(userKey, encryptedUserKey)
         }
 
         fun getAuthKey(username: String, passphrase: String): ByteArray {
@@ -24,11 +23,11 @@ class ThemisOperations {
         }
 
         fun decryptUserKey(
-                userKeyCellData: ByteArray,
+                encryptedUserKey: ByteArray,
                 passphrase: String
         ): SymmetricKey {
             val userKeyCell = SecureCell.SealWithPassphrase(passphrase)
-            return SymmetricKey(userKeyCell.decrypt(userKeyCellData))
+            return SymmetricKey(userKeyCell.decrypt(encryptedUserKey))
         }
 
         fun decryptData(
