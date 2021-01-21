@@ -139,11 +139,14 @@ func getJWTToken(uuid string) (string, error) {
 	claims := CylaClaims{
 		uuid,
 		jwt.StandardClaims{
-			ExpiresAt: 15000,
+			//TODO: proper expiration time
+			//TODO: Flow for JWT refresh
+			ExpiresAt: 15000000,
 			Issuer:    "CylaServer",
 		},
 	}
 	//TODO: User better encryption method, e.g. RS
-	ret, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test"))
-	return ret, err
+	jwtString, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test"))
+	log.Println("jwt string", jwtString)
+	return jwtString, err
 }
