@@ -141,12 +141,11 @@ func getJWTToken(uuid string) (string, error) {
 		jwt.StandardClaims{
 			//TODO: proper expiration time
 			//TODO: Flow for JWT refresh
-			ExpiresAt: 15000000,
+			//ExpiresAt: 15000000000,
 			Issuer:    "CylaServer",
 		},
 	}
 	//TODO: User better encryption method, e.g. RS
 	jwtString, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test"))
-	log.Println("jwt string", jwtString)
 	return jwtString, err
 }

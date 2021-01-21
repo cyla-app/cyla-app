@@ -15,6 +15,7 @@ import app.cyla.decryption.ThemisOperations.Companion.getAuthKey
 import app.cyla.decryption.ThemisOperations.Companion.createUserKey
 import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
 import app.cyla.invoker.ApiClient
+import app.cyla.invoker.auth.HttpBearerAuth
 import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SecureCompare
 import com.cossacklabs.themis.SymmetricKey
@@ -22,6 +23,9 @@ import com.facebook.react.bridge.*
 import okhttp3.Request
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
+
+// Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
+private const val JWT_AUTH_SCHEMA_NAME = "bearerJWTAuth"
 
 class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     companion object {
@@ -43,7 +47,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         apiClient.basePath = getAppStorage().getString("apiBasePath", apiClient.basePath)
         apiClient
     }
-    
+
     private val dayApi = lazy {
         DayApi(apiClient.value)
     }
@@ -148,7 +152,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     @ReactMethod
     fun postDay(iso8601date: String, dayJson: String, promise: Promise) {
         CompletableFuture.supplyAsync {
-            // Transform for validation  
+            // Transform for validation
 //            jsonDayAdapter.fromJson(dayJson)
 
             val day = Day()
@@ -207,7 +211,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                             .apply()
 
                     setupCylaModuleUserInfo(userKey, username)
-
+                    updateAuthInfo(it.jwt)
                     promise.resolve(it.uuid)
                 } catch (e: Exception) {
                     promise.reject(e)
@@ -221,5 +225,10 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             Log.e("Login", e.message, e)
             promise.reject(e)
         }
+    }
+
+    private fun updateAuthInfo(jwtString : String) {
+        val jwtAuth = apiClient.value.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
+        jwtAuth.bearerToken = jwtString
     }
 }
