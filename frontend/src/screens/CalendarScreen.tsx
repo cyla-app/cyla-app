@@ -11,6 +11,7 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { DayIndex, fetchRange } from '../daysSlice'
 import { lastDayOfMonth } from 'date-fns'
+import { formatDay } from '../utils/date'
 
 type CalendarScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Calendar'>,
@@ -38,7 +39,13 @@ export default ({
               months[months.length - 1].month - 1,
             ),
           )
-          dispatch(fetchRange({ from: first, to: last, refresh: false }))
+          dispatch(
+            fetchRange({
+              from: formatDay(first),
+              to: formatDay(last),
+              refresh: false,
+            }),
+          )
         }}
         days={days}
         onDaySelected={(day: Day) => {

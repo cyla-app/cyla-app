@@ -1,5 +1,7 @@
 import { format, isAfter, isBefore } from 'date-fns'
 
+export const DAYS_IN_WEEK = 7
+
 export const formatDay = (date: Date) => format(date, 'yyyy-MM-dd')
 
 export const parseDay = (string: string) => new Date(string)

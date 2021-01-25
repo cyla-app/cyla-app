@@ -1,16 +1,11 @@
-import {
-  DayIndex,
-  DAYS_IN_WEEK,
-  WeekIndex,
-  WeekIndexData,
-} from '../../daysSlice'
+import { DayIndex, WeekIndex, WeekIndexData } from '../../daysSlice'
 import { FlatList } from 'react-native'
 import React from 'react'
 import PointChart, { POINT_GAP } from './PointChart'
 import { ActivityIndicator } from 'react-native-paper'
 import Svg from 'react-native-svg'
 import Grid from './Grid'
-import { formatDay } from '../../utils/date'
+import { DAYS_IN_WEEK, formatDay } from '../../utils/date'
 import { add, sub } from 'date-fns'
 
 // Space below Grid

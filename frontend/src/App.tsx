@@ -12,12 +12,15 @@ import MainStackNavigation from './navigation/MainStackNavigation'
 import { StatusBar } from 'react-native'
 import { Provider } from 'react-redux'
 import {
+  AnyAction,
   applyMiddleware,
   combineReducers,
   configureStore,
+  getDefaultMiddleware,
 } from '@reduxjs/toolkit'
-import daysSlice from './daysSlice'
+import daysSlice, { fetchRangeEpic } from './daysSlice'
 import profileSlice from './profileSlice'
+import { createEpicMiddleware } from 'redux-observable'
 
 declare global {
   namespace ReactNativePaper {
@@ -57,6 +60,8 @@ const theme = {
   },
 }
 
+const epicMiddleware = createEpicMiddleware<AnyAction, AnyAction, RootState>()
+
 const rootReducer = combineReducers({
   days: daysSlice,
   profile: profileSlice,
@@ -73,8 +78,16 @@ if (__DEV__) {
 
 const store = configureStore({
   reducer: rootReducer,
+  middleware: [
+    ...getDefaultMiddleware({
+      thunk: true,
+    }),
+    epicMiddleware,
+  ],
   enhancers: [applyMiddleware(...middlewares)],
 })
+
+epicMiddleware.run(fetchRangeEpic)
 
 const App = () => {
   const { colors } = theme

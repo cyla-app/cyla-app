@@ -1,5 +1,5 @@
 import { Day } from '../../generated'
-import { formatDay, parseDay } from './date'
+import { DAYS_IN_WEEK, formatDay, parseDay } from './date'
 import {
   add,
   getISODay,
@@ -8,8 +8,6 @@ import {
   startOfISOWeek,
 } from 'date-fns'
 import { WeekIndex } from '../daysSlice'
-
-export const DAYS_IN_WEEK = 7
 
 export const groupByDay = (days: Day[]) =>
   Object.fromEntries(days.map((day) => [day.date, day]))

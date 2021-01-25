@@ -17,8 +17,8 @@ const useRefresh = (): [boolean, () => void] => {
       if (range) {
         dispatch(
           fetchRange({
-            from: parseDay(range.from),
-            to: parseDay(range.to),
+            from: range.from,
+            to: range.to,
           }),
         )
       }
