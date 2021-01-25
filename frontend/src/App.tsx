@@ -18,9 +18,9 @@ import {
   configureStore,
   getDefaultMiddleware,
 } from '@reduxjs/toolkit'
-import daysSlice, { fetchRangeEpic } from './daysSlice'
+import daysSlice, { fetchDurationEpic, fetchRangeEpic } from './daysSlice'
 import profileSlice from './profileSlice'
-import { createEpicMiddleware } from 'redux-observable'
+import { combineEpics, createEpicMiddleware } from 'redux-observable'
 
 declare global {
   namespace ReactNativePaper {
@@ -87,7 +87,7 @@ const store = configureStore({
   enhancers: [applyMiddleware(...middlewares)],
 })
 
-epicMiddleware.run(fetchRangeEpic)
+epicMiddleware.run(combineEpics(fetchRangeEpic, fetchDurationEpic))
 
 const App = () => {
   const { colors } = theme
