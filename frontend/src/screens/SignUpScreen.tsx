@@ -10,6 +10,7 @@ import LoginForm from '../components/LoginForm'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { fetchDuration } from '../daysSlice'
+import { formatDay } from '../utils/date'
 
 export const generateMockData = async () => {
   const randomDate = (start: Date, end: Date) =>
@@ -20,8 +21,8 @@ export const generateMockData = async () => {
   const random = randomDate(new Date(2020, 0, 1), new Date(2020, 2, 1))
   for (let i = 0; i < 365; i++) {
     const day = addDays(random, i)
-    await CylaModule.postDay(day, {
-      date: format(day, 'yyyy-MM-dd'),
+    await CylaModule.saveDay(day, {
+      date: formatDay(day),
       bleeding:
         getDate(day) <= 10 && getDate(day) >= 7
           ? {

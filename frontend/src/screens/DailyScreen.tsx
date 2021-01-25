@@ -9,10 +9,10 @@ import { TabsParamList } from '../navigation/TabBarNavigation'
 import CylaModule from '../modules/CylaModule'
 import { Bleeding, Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
-import { useRefresh, DayIndex, fetchDuration } from '../daysSlice'
-import { useDispatch, useSelector } from 'react-redux'
+import { useRefresh, DayIndex } from '../daysSlice'
+import { useSelector } from 'react-redux'
 import { RootState } from '../App'
-import { format } from 'date-fns'
+import { formatDay, parseDay } from '../utils/date'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -24,9 +24,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
     useSelector<RootState, DayIndex>((state) => state.days.byDay), // FIXME dynamically load from state
   )
   const [loading, refresh] = useRefresh()
-  const [selectedDate, setSelectedDate] = useState<string>(
-    format(new Date(), 'yyyy-MM-dd'),
-  )
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 
   return (
     <View
@@ -41,12 +39,11 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           <RefreshControl refreshing={loading} onRefresh={refresh} />
         }>
         <EntryDay
-          selectedDate={selectedDate}
+          selectedDate={formatDay(selectedDate)}
           onSave={async (day: Day) => {
-            await CylaModule.postDay(
-              new Date(selectedDate),
-              day,
-            ).catch((e: Error) => Alert.alert(e.message))
+            await CylaModule.saveDay(selectedDate, day).catch((e: Error) =>
+              Alert.alert(e.message),
+            )
             await refresh() // FIXME probably not the best idea to refresh after adding
           }}
         />
@@ -59,7 +56,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
               day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE,
           )}
           onDateSelected={(date: string) => {
-            setSelectedDate(date)
+            setSelectedDate(parseDay(date))
           }}
           onDaySelected={(day: Day) => {
             navigation.navigate('Detail', {

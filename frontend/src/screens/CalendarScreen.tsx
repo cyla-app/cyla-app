@@ -38,7 +38,6 @@ export default ({
               months[months.length - 1].month - 1,
             ),
           )
-          console.log(first, last)
           dispatch(fetchRange({ from: first, to: last, refresh: false }))
         }}
         days={days}

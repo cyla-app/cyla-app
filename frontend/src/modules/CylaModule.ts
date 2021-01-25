@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native'
 import { Day } from '../../generated'
 import { format } from 'date-fns'
+import { formatDay } from '../utils/date'
 
 // This type is determined by app.cyla.decryption.CylaModule
 type CylaModuleType = {
@@ -22,17 +23,14 @@ const CylaNativeModule: CylaModuleType = NativeModules.CylaModule
 class CylaModule {
   async fetchDaysByRange(from: Date, to: Date): Promise<Day[]> {
     const jsons = await CylaNativeModule.fetchDaysByRange(
-      format(from, 'yyyy-MM-dd'),
-      format(to, 'yyyy-MM-dd'),
+      formatDay(from),
+      formatDay(to),
     )
     return jsons.map((json) => JSON.parse(json))
   }
 
-  async postDay(date: Date, day: Day) {
-    await CylaNativeModule.postDay(
-      format(date, 'yyyy-MM-dd'),
-      JSON.stringify(day),
-    )
+  async saveDay(date: Date, day: Day) {
+    await CylaNativeModule.postDay(formatDay(date), JSON.stringify(day))
   }
 
   async setupUser(username?: string, passphrase?: string) {

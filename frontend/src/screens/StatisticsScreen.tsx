@@ -14,6 +14,7 @@ import {
 } from '../daysSlice'
 import { format, sub, add } from 'date-fns'
 import { ActivityIndicator } from 'react-native-paper'
+import { formatDay } from '../utils/date'
 
 // Space below Grid
 const bottomQuietZone = 15
@@ -37,8 +38,8 @@ const RenderItem = ({
     <Svg width={viewWidth} height={viewHeight + bottomQuietZone}>
       <Grid viewHeight={viewHeight} viewWidth={viewWidth} />
       <PointChart
-        previousDay={days[format(sub(firstDay, { days: 1 }), 'yyyy-MM-dd')]}
-        nextDay={days[format(add(lastDay, { days: 1 }), 'yyyy-MM-dd')]}
+        previousDay={days[formatDay(sub(firstDay, { days: 1 }))]}
+        nextDay={days[formatDay(add(lastDay, { days: 1 }))]}
         viewHeight={viewHeight}
         viewWidth={viewWidth}
         days={daysInWeek}

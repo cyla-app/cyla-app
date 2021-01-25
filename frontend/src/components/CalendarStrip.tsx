@@ -4,6 +4,7 @@ import CalendarStrip from 'react-native-calendar-strip'
 import { addWeeks } from 'date-fns'
 import moment, { Moment } from 'moment'
 import { Day } from '../../generated'
+import { formatDay } from '../utils/date'
 
 type PropTypes = {
   onDaySelected: (day: Day) => void
@@ -26,7 +27,7 @@ export default ({ onDaySelected, onDateSelected, periodDays }: PropTypes) => {
   }))
 
   const selectDay = (date: Moment) => {
-    onDateSelected(date.format('yyyy-MM-DD'))
+    onDateSelected(formatDay(date.toDate()))
     const found = periodDays.find((day) => moment(day.date).isSame(date, 'day'))
 
     if (found) {

@@ -6,12 +6,14 @@
     "android": "react-native run-android",
     "android:apk": "cd android && ./gradlew assembleRelease && adb install app/build/outputs/apk/release/app-release.apk",
     "android:aab": "cd android && ./gradlew bundleRelease",
+    "android:adb:reverse": "adb reverse tcp:5000 tcp:5000 && adb reverse tcp:8081 tcp:8081",
+    "android:start-avd": "bash -c '$ANDROID_HOME/emulator/emulator -avd $($ANDROID_HOME/emulator/emulator -list-avds | head -n 1)'",
     "ios": "react-native run-ios",
     "start": "yarn generate && react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "generate": "rimraf ./generated/* && openapi --input ../openapi/frontend-spec.yaml --output ./generated --exportCore false --exportServices false",
-    "postinstall": "patch-package && yarn run generate"
+    "openapi:generate": "rimraf ./generated/* && openapi --input ../openapi/frontend-spec.yaml --output ./generated --exportCore false --exportServices false",
+    "postinstall": "patch-package && yarn run openapi:generate"
   },
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.10",

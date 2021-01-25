@@ -15,6 +15,7 @@ import {
   sub,
 } from 'date-fns'
 import { useCallback } from 'react'
+import { formatDay, parseDay } from './utils/date'
 
 export const DAYS_IN_WEEK = 7
 
@@ -23,7 +24,7 @@ const groupByDay = (days: Day[]) =>
 
 const groupByWeeks = (dayList: Day[]) =>
   dayList.reduce((acc: WeekIndex, day) => {
-    const date = new Date(day.date)
+    const date = parseDay(day.date)
     const week = getISOWeek(date)
     const year = getISOWeekYear(date)
     const key = `${year}-${week}`
@@ -40,7 +41,7 @@ const groupByWeeks = (dayList: Day[]) =>
         index: {},
         asList: [...Array(DAYS_IN_WEEK).keys()].map((i) => ({
           volatile: true,
-          date: format(add(weekStart, { days: i }), 'yyyy-MM-dd'),
+          date: formatDay(add(weekStart, { days: i })),
         })),
       }
     }
@@ -96,15 +97,15 @@ export const fetchDuration = createAsyncThunk<
 >('days/fetchDuration', async (duration = { months: 1 }, thunkAPI) => {
   const range = thunkAPI.getState().days.range
   const now = new Date()
-  const to = range ? new Date(range.from) : now
+  const to = range ? parseDay(range.from) : now
   const from = sub(to, duration)
   const days = await CylaModule.fetchDaysByRange(from, to)
   return {
     byDay: groupByDay(days),
     byWeek: groupByWeeks(days),
     range: {
-      to: range ? range.to : format(now, 'yyyy-MM-dd'),
-      from: format(from, 'yyyy-MM-dd'),
+      to: range ? range.to : formatDay(now),
+      from: formatDay(from),
     },
   }
 })
@@ -131,8 +132,8 @@ export const fetchRange = createAsyncThunk<
       isWithin(
         { from, to },
         {
-          from: new Date(range.from),
-          to: new Date(range.from),
+          from: parseDay(range.from),
+          to: parseDay(range.from),
         },
       )
     ) {
@@ -145,15 +146,15 @@ export const fetchRange = createAsyncThunk<
   }
 
   const days = await CylaModule.fetchDaysByRange(from, to)
-  const dateStringFrom = format(args.from, 'yyyy-MM-dd')
-  const dateStringTo = format(args.to, 'yyyy-MM-dd')
+  const dateStringFrom = formatDay(args.from)
+  const dateStringTo = formatDay(args.to)
   return {
     byDay: groupByDay(days),
     byWeek: groupByWeeks(days),
     range: range
       ? {
-          to: isAfter(to, new Date(range.to)) ? dateStringTo : range.to,
-          from: isBefore(from, new Date(range.from))
+          to: isAfter(to, parseDay(range.to)) ? dateStringTo : range.to,
+          from: isBefore(from, parseDay(range.from))
             ? dateStringFrom
             : range.from,
         }
@@ -222,8 +223,8 @@ export const useRefresh = (): [boolean, () => void] => {
       if (range) {
         dispatch(
           fetchRange({
-            from: new Date(range.from),
-            to: new Date(range.to),
+            from: parseDay(range.from),
+            to: parseDay(range.to),
           }),
         )
       }
