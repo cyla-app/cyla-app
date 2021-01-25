@@ -9,10 +9,11 @@ import { TabsParamList } from '../navigation/TabBarNavigation'
 import CylaModule from '../modules/CylaModule'
 import { Bleeding, Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
-import { useRefresh, DayIndex } from '../daysSlice'
+import { DayIndex } from '../daysSlice'
 import { useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { formatDay, parseDay } from '../utils/date'
+import useRefresh from '../hooks/useRefresh'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,

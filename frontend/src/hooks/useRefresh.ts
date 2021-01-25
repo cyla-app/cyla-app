@@ -1,0 +1,29 @@
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../App'
+import { useCallback } from 'react'
+import { parseDay } from '../utils/date'
+import { fetchRange, Range } from '../daysSlice'
+
+const useRefresh = (): [boolean, () => void] => {
+  const dispatch = useDispatch()
+  const range = useSelector<RootState, Range | null>(
+    (state) => state.days.range,
+  )
+  const loading = useSelector<RootState, boolean>((state) => state.days.loading)
+
+  return [
+    loading,
+    useCallback(() => {
+      if (range) {
+        dispatch(
+          fetchRange({
+            from: parseDay(range.from),
+            to: parseDay(range.to),
+          }),
+        )
+      }
+    }, [dispatch, range]),
+  ]
+}
+
+export default useRefresh

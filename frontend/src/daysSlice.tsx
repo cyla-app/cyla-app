@@ -70,7 +70,7 @@ const mergeWeekIndices = (a: WeekIndex, override: WeekIndex): WeekIndex => {
   return copy
 }
 
-type Range = { from: string; to: string }
+export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
 export type WeekIndexData = {
   week: number
@@ -209,37 +209,3 @@ const days = createSlice({
 })
 
 export default days.reducer
-
-export const useRefresh = (): [boolean, () => void] => {
-  const dispatch = useDispatch()
-  const range = useSelector<RootState, Range | null>(
-    (state) => state.days.range,
-  )
-  const loading = useSelector<RootState, boolean>((state) => state.days.loading)
-
-  return [
-    loading,
-    useCallback(() => {
-      if (range) {
-        dispatch(
-          fetchRange({
-            from: parseDay(range.from),
-            to: parseDay(range.to),
-          }),
-        )
-      }
-    }, [dispatch, range]),
-  ]
-}
-
-export const useLoadMore = (): [boolean, () => void] => {
-  const dispatch = useDispatch()
-  const loading = useSelector<RootState, boolean>((state) => state.days.loading)
-
-  return [
-    loading,
-    useCallback(() => {
-      dispatch(fetchDuration())
-    }, [dispatch]),
-  ]
-}
