@@ -1,6 +1,5 @@
 import { NativeModules } from 'react-native'
 import { Day } from '../../generated'
-import { format } from 'date-fns'
 import { formatDay } from '../utils/date'
 
 // This type is determined by app.cyla.decryption.CylaModule
@@ -14,7 +13,6 @@ type CylaModuleType = {
     iso8601dateFrom: string,
     iso8601dateTo: string,
   ) => Promise<string[]>
-  setupUserKeyBackup: (userName: string, passphrase: string) => Promise<void>
   login: (userName: string, passphrase: string) => Promise<boolean>
 }
 
@@ -43,10 +41,6 @@ class CylaModule {
 
   async getUserId() {
     return await CylaNativeModule.getUserId()
-  }
-
-  async setupUserKeyBackup(userName: string, passphrase: string) {
-    return await CylaNativeModule.setupUserKeyBackup(userName, passphrase)
   }
 
   async login(userName: string, passphrase: string) {
