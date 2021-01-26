@@ -15,8 +15,9 @@ import {
   mergeWeekIndices,
 } from './utils/stateIndices'
 import { combineEpics, Epic } from 'redux-observable'
-import { catchError, filter, map, switchMap } from 'rxjs/operators'
+import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators'
 import { from as fromPromise, of } from 'rxjs'
+import { Alert } from 'react-native'
 
 export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
@@ -161,6 +162,25 @@ const fetchDurationEpic: MyEpic = (action$, state$) =>
     catchError((err: Error) => of(days.actions.days$rejected(err.message))),
   )
 
+const saveDayEpic: MyEpic = (action$) =>
+  action$.pipe(
+    filter(saveDay.match),
+    mergeMap((action) => {
+      const day: Day = action.payload
+      return fromPromise(CylaModule.saveDay(parseDay(day.date), day)).pipe(
+        map(() =>
+          fetchRange({
+            // FIXME: reloading the day is probably not the most efficient way
+            from: action.payload.date,
+            to: action.payload.date,
+            refresh: true,
+          }),
+        ),
+      )
+    }),
+  )
+
+export const saveDay = createAction<Day>('saveDay')
 export const fetchDuration = createAction<Duration | undefined>('fetchDuration')
 export const fetchRange = createAction<{
   from: string
@@ -168,5 +188,5 @@ export const fetchRange = createAction<{
   refresh?: boolean
 }>('fetchRange')
 
-export const epic = combineEpics(fetchRangeEpic, fetchDurationEpic)
+export const epic = combineEpics(fetchRangeEpic, fetchDurationEpic, saveDayEpic)
 export const reducer = days.reducer

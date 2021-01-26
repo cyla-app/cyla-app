@@ -1,16 +1,15 @@
 import React, { useState } from 'react'
-import { Alert, RefreshControl, ScrollView, View } from 'react-native'
+import { RefreshControl, ScrollView, View } from 'react-native'
 import CalendarStrip from '../components/CalendarStrip'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { CompositeNavigationProp } from '@react-navigation/native'
 import { TabsParamList } from '../navigation/TabBarNavigation'
-import CylaModule from '../modules/CylaModule'
 import { Bleeding, Day } from '../../generated'
 import EntryDay from '../components/EntryDay'
-import { DayIndex } from '../daysSlice'
-import { useSelector } from 'react-redux'
+import { DayIndex, saveDay } from '../daysSlice'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { formatDay, parseDay } from '../utils/date'
 import useRefresh from '../hooks/useRefresh'
@@ -26,6 +25,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   )
   const [loading, refresh] = useRefresh()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const dispatch = useDispatch()
 
   return (
     <View
@@ -41,11 +41,8 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
         }>
         <EntryDay
           selectedDate={formatDay(selectedDate)}
-          onSave={async (day: Day) => {
-            await CylaModule.saveDay(selectedDate, day).catch((e: Error) =>
-              Alert.alert(e.message),
-            )
-            await refresh() // FIXME probably not the best idea to refresh after adding
+          onSave={(day: Day) => {
+            dispatch(saveDay(day))
           }}
         />
       </ScrollView>

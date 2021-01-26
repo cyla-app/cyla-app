@@ -1,20 +1,16 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { View, ViewStyle } from 'react-native'
-import { ActivityIndicator, Headline, Snackbar } from 'react-native-paper'
+import { Headline } from 'react-native-paper'
 import { useDispatch, useSelector } from 'react-redux'
 import LoginForm from '../components/LoginForm'
 import { RootState } from '../App'
 import { signIn } from '../sessionSlice'
 
 export default () => {
-  const isProfileLoading = useSelector<RootState>(
+  const isSessionLoading = useSelector<RootState, boolean>(
     (state) => state.session.loading,
   )
   const dispatch = useDispatch()
-
-  if (isProfileLoading) {
-    return <ActivityIndicator animating={true} />
-  }
 
   const containerStyle: ViewStyle = {
     flex: 1,
@@ -27,6 +23,7 @@ export default () => {
     <View style={containerStyle}>
       <Headline>Sign In</Headline>
       <LoginForm
+        loading={isSessionLoading}
         continueName="Sign In"
         onSave={(username: string, passphrase: string) => {
           dispatch(signIn({ username, passphrase }))

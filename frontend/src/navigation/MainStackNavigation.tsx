@@ -26,14 +26,10 @@ export type MainStackParamList = {
 const Stack = createStackNavigator<MainStackParamList>()
 
 export default () => {
-  const isSignedInApp = useSelector<RootState>(
-    (state) => state.session.signedIn,
-  )
-  const isProfileLoading = useSelector<RootState>(
-    (state) => state.session.loading,
-  )
-  const profileError = useSelector<RootState, string | undefined>(
-    (state) => state.session.signInError,
+  const isSignedIn = useSelector<RootState>((state) => state.session.signedIn)
+
+  const sessionError = useSelector<RootState, string | undefined>(
+    (state) => state.session.error,
   )
 
   const [showError, setShowError] = useState<boolean>(true)
@@ -44,14 +40,10 @@ export default () => {
     dispatch(checkSignIn())
   }, [dispatch])
 
-  if (isProfileLoading) {
-    return <ActivityIndicator animating={true} />
-  }
-
   return (
     <>
       <Banner
-        visible={showError && !!profileError}
+        visible={showError && !!sessionError}
         actions={[
           {
             label: 'Dismiss',
@@ -61,11 +53,11 @@ export default () => {
         icon={({ size }) => (
           <MaterialCommunityIcons size={size} name={'alert-circle'} />
         )}>
-        {profileError ?? 'Unknown Error'}
+        {sessionError ?? 'Unknown Error'}
       </Banner>
 
       <Stack.Navigator screenOptions={{ headerShown: false }} mode="modal">
-        {!isSignedInApp ? (
+        {!isSignedIn ? (
           <>
             <Stack.Screen name="SignUp" component={SignUpScreen} />
             <Stack.Screen name="SignIn" component={SignInScreen} />

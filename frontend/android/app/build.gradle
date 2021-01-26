@@ -218,7 +218,7 @@ dependencies {
     }
 
     implementation 'com.cossacklabs.com:themis:0.13.1'
-    implementation "androidx.security:security-crypto:1.1.0-alpha03" // FIXME: Update to stable
+    implementation "androidx.security:security-crypto:1.1.0-alpha03" // FIXME: Update to stable https://developer.android.com/jetpack/androidx/releases/security
 
 //    swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.23'
 

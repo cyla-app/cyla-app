@@ -3,10 +3,11 @@ import { useState } from 'react'
 import { Button, TextInput } from 'react-native-paper'
 
 type LoginFormProps = {
+  loading: boolean
   continueName: string
   onSave: (username: string, passphrase: string) => void
 }
-export default ({ onSave, continueName }: LoginFormProps) => {
+export default ({ onSave, loading, continueName }: LoginFormProps) => {
   const [username, setUsername] = useState('')
   const [passphrase, setPassphrase] = useState('')
 
@@ -26,6 +27,7 @@ export default ({ onSave, continueName }: LoginFormProps) => {
         onChangeText={(newPassword) => setPassphrase(newPassword)}
       />
       <Button
+        loading={loading}
         icon="login"
         style={{
           margin: 20,
