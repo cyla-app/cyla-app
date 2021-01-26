@@ -48,6 +48,12 @@ func (c *DayApiController) Routes() Routes {
 			"/day/{userId}",
 			Authorize(c.ModifyDayEntry),
 		},
+		{
+			"ModifyDayEntryWithStats",
+			strings.ToUpper("Post"),
+			"/day/{userId}/withStats",
+			Authorize(c.ModifyDayEntryWithStats),
+		},
 	}
 }
 
@@ -97,6 +103,27 @@ func (c *DayApiController) ModifyDayEntry(w http.ResponseWriter, r *http.Request
 	}
 
 	result, err := c.service.ModifyDayEntry(r.Context(), userId, *day)
+	//If an error occured, encode the error with the status code
+	if err != nil {
+		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
+		return
+	}
+	//If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+
+}
+
+// ModifyDayEntryWithStats -
+func (c *DayApiController) ModifyDayEntryWithStats(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	userId := params["userId"]
+	dayStatsUpdate := &DayStatsUpdate{}
+	if err := json.NewDecoder(r.Body).Decode(&dayStatsUpdate); err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	result, err := c.service.ModifyDayEntryWithStats(r.Context(), userId, *dayStatsUpdate)
 	//If an error occured, encode the error with the status code
 	if err != nil {
 		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)

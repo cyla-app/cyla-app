@@ -23,6 +23,7 @@ type DayApiRouter interface {
 	GetDayByUserAndRange(http.ResponseWriter, *http.Request)
 	GetDaysByUserIdAndDate(http.ResponseWriter, *http.Request)
 	ModifyDayEntry(http.ResponseWriter, *http.Request)
+	ModifyDayEntryWithStats(http.ResponseWriter, *http.Request)
 }
 
 // UserApiRouter defines the required methods for binding the api requests to a responses for the UserApi
@@ -47,6 +48,7 @@ type DayApiServicer interface {
 	GetDayByUserAndRange(context.Context, string, string, string) (ImplResponse, error)
 	GetDaysByUserIdAndDate(context.Context, string, []string) (ImplResponse, error)
 	ModifyDayEntry(context.Context, string, Day) (ImplResponse, error)
+	ModifyDayEntryWithStats(context.Context, string, DayStatsUpdate) (ImplResponse, error)
 }
 
 // UserApiServicer defines the api actions for the UserApi service

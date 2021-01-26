@@ -111,11 +111,33 @@ paths:
               $ref: "#/components/schemas/Day"
       responses:
         "200":
-          description: Day succesfully created
+          description: Day succesfully created/updated
         "404":
           description: User not found
         "500":
-          description: Error when creating day
+          description: Error when creating/updating day
+  /day/{userId}/withStats:
+    post:
+      tags:
+        - day
+      description: Updates or adds a day for an user, together with relevant updated statistics.
+      operationId: modifyDayEntryWithStats
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        description: Information to add/update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DayStatsUpdate"
+      responses:
+        "200":
+          description: Day and stats successfully created/updated
+        "404":
+          description: User not found
+        "500":
+          description: Error when creating/updating day and stats
   /day/{userId}/byDate:
     get:
       tags:
@@ -267,6 +289,22 @@ components:
         - version
         - dayInfo
         - date
+    DayStatsUpdate:
+      title: dayStatsUpdate
+      type: object
+      description: DTO for updating a day and relevant stats in one server call
+      properties:
+        day:
+          $ref: "#/components/schemas/Day"
+        stats:
+          $ref: "#/components/schemas/Stats"
+    Stats:
+      title: userStats
+      type: object
+      description: Data structures used by Cyla to compute stats like average Period length.
+      properties:
+        periodLengthStructure:
+          $ref: "#/components/schemas/EncryptedAttribute"
   securitySchemes:
     bearerJWTAuth:
       type: http

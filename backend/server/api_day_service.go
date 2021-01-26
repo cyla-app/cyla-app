@@ -50,3 +50,10 @@ func (s *DayApiService) ModifyDayEntry(ctx context.Context, userId string, day D
 	response, err = httpResponse(err)
 	return
 }
+
+// ModifyDayEntryWithStats -
+func (s *DayApiService) ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) (response ImplResponse, err error) {
+	err = DBConnection.ModifyDayEntryWithStats(ctx, userId, dayStatsUpdate)
+	response, err = httpResponse(err)
+	return
+}

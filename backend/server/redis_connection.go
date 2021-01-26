@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"regexp"
 
@@ -22,6 +23,7 @@ func loadLuaScript(scriptPath string) *redis.Script {
 }
 
 var changeDayScript = loadLuaScript("resources/change_day_script.lua")
+var changeDayScriptWithStats = loadLuaScript("resources/change_stats_script.lua")
 var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua")
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
 var getHashUserKeyForLogin = loadLuaScript("resources/get_hash_user_key_for_login.lua")
@@ -29,6 +31,7 @@ var getHashUserKeyForLogin = loadLuaScript("resources/get_hash_user_key_for_logi
 const userPrefixKey = "user"
 const userNamePrefixKey = "name"
 const dayPrefixKey = "day"
+const statsPrefixKey = "stats"
 
 type CylaRedisClient struct {
 	*redis.Client
@@ -45,6 +48,7 @@ func NewRedisClient() (*CylaRedisClient, error) {
 			DB:       0,
 		})}
 		changeDayScript.Load(context.Background(), cylaClient)
+		changeDayScriptWithStats.Load(context.Background(), cylaClient)
 		updateHResourceScript.Load(context.Background(), cylaClient)
 		getDayByRange.Load(context.Background(), cylaClient)
 		getHashUserKeyForLogin.Load(context.Background(), cylaClient)
@@ -178,6 +182,41 @@ func (s *CylaRedisClient) ModifyDayEntry(ctx context.Context, userId string, day
 	}
 	return nil
 
+}
+
+func (s *CylaRedisClient) ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) error {
+	valListDay, err := flatStructToSlice(dayStatsUpdate.Day)
+	if err != nil {
+		return newHTTPErrorWithCauseError(500, "could not marshall day", err)
+	}
+
+	valListStats, err := flatStructToSlice(dayStatsUpdate.Stats)
+	if err != nil {
+		return newHTTPErrorWithCauseError(500, "could not marshall stats", err)
+	}
+
+	pipeline := s.TxPipeline()
+	scriptCmd := changeDayScript.Run(ctx, pipeline, []string{
+		fmt.Sprintf("%v:%v", userPrefixKey, userId),                                               //User resource
+		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),                              //sorted set for user's days
+		fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, dayStatsUpdate.Day.Date)}, //days resource
+		append([]interface{}{dayStatsUpdate.Day.Date}, valListDay...))
+
+	changeDayScriptWithStats.Run(ctx, pipeline, []string{
+		fmt.Sprintf("%v:%v", userPrefixKey, userId), //User resource
+		fmt.Sprintf("%v:%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, dayStatsUpdate.Day.Date, statsPrefixKey)},
+		valListStats)
+
+	_, err = pipeline.Exec(ctx)
+
+	if err != nil {
+		log.Println("Error during pipeline")
+		return newHTTPErrorWithCauseError(500, "error during execution of pipeline", err)
+	}
+	if scriptRet, _ := scriptCmd.Int(); scriptRet == 0 {
+		return newHTTPError(404, "user doesn't exist")
+	}
+	return nil
 }
 
 func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []DayDate) (days []Day, err error) {

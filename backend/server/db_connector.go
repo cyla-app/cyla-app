@@ -15,6 +15,7 @@ type DayPersistence interface {
 	GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ret []Day, err error)
 	GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ret []Day, err error)
 	ModifyDayEntry(ctx context.Context, userId string, day Day) error
+	ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) error
 }
 type UserPersistence interface {
 	CreateUser(ctx context.Context, user User) (ret UserCreatedResponse, err error)
