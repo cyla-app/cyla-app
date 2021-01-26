@@ -1,16 +1,6 @@
 import { createSlice, Dispatch, PayloadAction } from '@reduxjs/toolkit'
-import { filter, map, mergeMap } from 'rxjs/operators'
-import { Day } from '../generated'
-import {
-  from as fromPromise,
-  Observable,
-  OperatorFunction,
-  pipe,
-  UnaryFunction,
-} from 'rxjs'
-import CylaModule from './modules/CylaModule'
-import { parseDay } from './utils/date'
-import { fetchRange, MyEpic, saveDay } from './daysSlice'
+import { filter } from 'rxjs/operators'
+import { Observable } from 'rxjs'
 import NetInfo from '@react-native-community/netinfo'
 
 type ConnectivityStateType = {
