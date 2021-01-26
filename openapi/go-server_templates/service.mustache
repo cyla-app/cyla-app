@@ -32,7 +32,7 @@ return &{{classname}}Service{}
     {{#responses}}
         {{#hasHeaders}}
             if response.Code == {{code}} {
-                response.Headers = []Header{ {{#headers}} {Name: "{{baseName}}", Value: "{{defaultValue}}"}  {{/headers}} }
+                response.Headers = []Header{ {{#headers}} {Name: "{{baseName}}", Value: "{{{defaultValue}}}"}  {{/headers}} }
             }
         {{/hasHeaders}}
     {{/responses}}

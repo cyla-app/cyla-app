@@ -29,7 +29,7 @@ func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string,
 	ret, err := DBConnection.GetDayByUserAndRange(ctx, userId, startDate, endDate)
 	response, err = httpResponseWithBody(ret, err)
 	if response.Code == 200 {
-		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age&#x3D;86400"}}
+		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age=86400"}}
 	}
 	return
 }
@@ -39,7 +39,7 @@ func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId strin
 	ret, err := DBConnection.GetDaysByUserIdAndDate(ctx, userId, date)
 	response, err = httpResponseWithBody(ret, err)
 	if response.Code == 200 {
-		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age&#x3D;86400"}}
+		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age=86400"}}
 	}
 	return
 }
