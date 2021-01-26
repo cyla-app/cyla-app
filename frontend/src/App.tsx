@@ -20,7 +20,10 @@ import {
 } from '@reduxjs/toolkit'
 import { epic as daysEpic, reducer as daysReducer } from './daysSlice'
 import { reducer as sessionReducer } from './sessionSlice'
+import { reducer as statisticsReducer } from './statisticsSlice'
+import { reducer as connectivityReducer } from './connectivitySlice'
 import { combineEpics, createEpicMiddleware } from 'redux-observable'
+import { observeConnectivity } from './connectivitySlice'
 
 declare global {
   namespace ReactNativePaper {
@@ -66,6 +69,8 @@ const epicMiddleware = createEpicMiddleware<AnyAction, AnyAction, RootState>()
 const rootReducer = combineReducers({
   days: daysReducer,
   session: sessionReducer,
+  statistics: statisticsReducer,
+  connectivity: connectivityReducer,
 })
 
 export type RootState = ReturnType<typeof rootReducer>
@@ -89,6 +94,7 @@ const store = configureStore({
 })
 
 epicMiddleware.run(combineEpics(daysEpic))
+observeConnectivity(store.dispatch)
 
 const App = () => {
   const { colors } = theme

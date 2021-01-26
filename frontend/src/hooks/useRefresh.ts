@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { useCallback } from 'react'
-import { parseDay } from '../utils/date'
 import { fetchRange, Range } from '../daysSlice'
 
 const useRefresh = (): [boolean, () => void] => {

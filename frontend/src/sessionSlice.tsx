@@ -3,7 +3,39 @@ import { RootState } from './App'
 import CylaModule from './modules/CylaModule'
 import { fetchDuration } from './daysSlice'
 import NetInfo from '@react-native-community/netinfo'
-import { generateMockData } from './screens/SignUpScreen'
+import { addDays, getDate } from 'date-fns'
+import { formatDay } from './utils/date'
+import { Bleeding, Mucus } from '../generated'
+
+const generateMockData = async () => {
+  const randomDate = (start: Date, end: Date) =>
+    new Date(
+      start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+    )
+
+  const random = randomDate(new Date(2020, 0, 1), new Date(2020, 2, 1))
+  for (let i = 0; i < 365; i++) {
+    const day = addDays(random, i)
+    await CylaModule.saveDay(day, {
+      date: formatDay(day),
+      bleeding:
+        getDate(day) <= 10 && getDate(day) >= 7
+          ? {
+              strength: Bleeding.strength.STRONG,
+            }
+          : undefined,
+      temperature: {
+        value: 36.5 + 0.5 * Math.sin(Math.sin(0.1 * i) * i),
+        timestamp: day.toISOString(),
+        note: undefined,
+      },
+      mucus: {
+        feeling: Mucus.feeling.DRY,
+        texture: Mucus.texture.EGG_WHITE,
+      },
+    })
+  }
+}
 
 export const checkSignIn = createAsyncThunk<
   { signedIn: boolean },
@@ -59,7 +91,7 @@ export const signUp = createAsyncThunk<
 type SessionStateType = {
   loading: boolean
   signedIn: boolean
-  signInError?: string
+  error?: string
 }
 
 const session = createSlice({
@@ -81,6 +113,7 @@ const session = createSlice({
         ...state,
         loading: false,
         signedIn: action.payload.signedIn,
+        error: undefined,
       }
     }
 
@@ -96,7 +129,7 @@ const session = createSlice({
         ...state,
         loading: false,
         signedIn: false,
-        signInError: action.error.message,
+        error: action.error.message,
       }
     }
     const pendingReducer: CaseReducer<
@@ -110,7 +143,6 @@ const session = createSlice({
       return {
         ...state,
         loading: true,
-        signedIn: true,
       }
     }
     builder

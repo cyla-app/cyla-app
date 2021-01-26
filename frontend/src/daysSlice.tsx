@@ -15,8 +15,9 @@ import {
   mergeWeekIndices,
 } from './utils/stateIndices'
 import { combineEpics, Epic } from 'redux-observable'
-import { catchError, filter, map, switchMap } from 'rxjs/operators'
+import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators'
 import { from as fromPromise, of } from 'rxjs'
+import { markPeriod } from './statisticsSlice'
 
 export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
@@ -48,23 +49,20 @@ const days = createSlice({
     error: undefined,
   } as DaysStateType,
   reducers: {
-    days$pending: (
-      state: DaysStateType,
-      _: PayloadAction<Duration | undefined>,
-    ) => {
+    pending: (state: DaysStateType, _: PayloadAction<Duration | undefined>) => {
       return {
         ...state,
         loading: true,
       }
     },
-    days$rejected: (state, action: PayloadAction<string>) => {
+    rejected: (state, action: PayloadAction<string>) => {
       return {
         ...state,
         loading: false,
         error: action.payload,
       }
     },
-    days$fulfilled: (
+    fulfilled: (
       state,
       action: PayloadAction<{
         byWeek: WeekIndex
@@ -121,15 +119,15 @@ const fetchRangeEpic: MyEpic = (action$, state$) =>
       )
     }),
     map((action: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
-      days.actions.days$fulfilled(action),
+      days.actions.fulfilled(action),
     ),
-    catchError((err: Error) => of(days.actions.days$rejected(err.message))),
+    catchError((err: Error) => of(days.actions.rejected(err.message))),
   )
 
 const fetchDurationEpic: MyEpic = (action$, state$) =>
   action$.pipe(
     filter(fetchDuration.match),
-    map(() => days.actions.days$pending()),
+    map(() => days.actions.pending()),
     switchMap((action) => {
       const range = state$.value.days.range
       const now = new Date()
@@ -156,17 +154,41 @@ const fetchDurationEpic: MyEpic = (action$, state$) =>
       )
     }),
     map((action: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
-      days.actions.days$fulfilled(action),
+      days.actions.fulfilled(action),
     ),
-    catchError((err: Error) => of(days.actions.days$rejected(err.message))),
+    catchError((err: Error) => of(days.actions.rejected(err.message))),
   )
 
-export const fetchDuration = createAction<Duration | undefined>('fetchDuration')
+const saveDayEpic: MyEpic = (action$) =>
+  action$.pipe(
+    filter(saveDay.match),
+    mergeMap((action) => {
+      const day: Day = action.payload
+      return fromPromise(CylaModule.saveDay(parseDay(day.date), day)).pipe(
+        mergeMap(() => {
+          return of(
+            // FIXME: reloading the day is probably not the most efficient way
+            fetchRange({
+              from: day.date,
+              to: day.date,
+              refresh: true,
+            }) as AnyAction,
+            markPeriod(day) as AnyAction,
+          )
+        }),
+      )
+    }),
+  )
+
+export const saveDay = createAction<Day>('says/saveDay')
+export const fetchDuration = createAction<Duration | undefined>(
+  'days/fetchDuration',
+)
 export const fetchRange = createAction<{
   from: string
   to: string
   refresh?: boolean
-}>('fetchRange')
+}>('days/fetchRange')
 
-export const epic = combineEpics(fetchRangeEpic, fetchDurationEpic)
+export const epic = combineEpics(fetchRangeEpic, fetchDurationEpic, saveDayEpic)
 export const reducer = days.reducer
