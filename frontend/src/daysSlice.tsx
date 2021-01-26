@@ -17,7 +17,7 @@ import {
 import { combineEpics, Epic } from 'redux-observable'
 import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators'
 import { from as fromPromise, of } from 'rxjs'
-import { markPeriod } from './statisticsSlice'
+import { markPeriod, unmarkPeriod } from './statisticsSlice'
 
 export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
@@ -173,7 +173,7 @@ const saveDayEpic: MyEpic = (action$) =>
               to: day.date,
               refresh: true,
             }) as AnyAction,
-            markPeriod(day) as AnyAction,
+            (day.bleeding ? markPeriod(day) : unmarkPeriod(day)) as AnyAction,
           )
         }),
       )
