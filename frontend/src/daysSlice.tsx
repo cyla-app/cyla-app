@@ -16,8 +16,9 @@ import {
 } from './utils/stateIndices'
 import { combineEpics, Epic } from 'redux-observable'
 import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators'
-import { from as fromPromise, of } from 'rxjs'
+import { empty, from as fromPromise, of } from 'rxjs'
 import { markPeriod, unmarkPeriod } from './statisticsSlice'
+import { EMPTY } from 'rxjs/src/internal/observable/empty'
 
 export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
@@ -159,11 +160,15 @@ const fetchDurationEpic: MyEpic = (action$, state$) =>
     catchError((err: Error) => of(days.actions.rejected(err.message))),
   )
 
-const saveDayEpic: MyEpic = (action$) =>
+const saveDayEpic: MyEpic = (action$, $state) =>
   action$.pipe(
     filter(saveDay.match),
     mergeMap((action) => {
       const day: Day = action.payload
+      if (!$state.value.connectivity.online) {
+        return of(days.actions.rejected('Unable to save day while offline.'))
+      }
+
       return fromPromise(CylaModule.saveDay(parseDay(day.date), day)).pipe(
         mergeMap(() => {
           return of(

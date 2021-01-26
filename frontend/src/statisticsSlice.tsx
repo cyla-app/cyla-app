@@ -75,7 +75,7 @@ const statistics = createSlice({
         return state
       }
 
-      return state
+      throw new Error('NYI')
     },
   },
 })

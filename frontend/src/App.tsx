@@ -52,7 +52,7 @@ const theme = {
     accent: '#9E1818',
     surface: '#FFF',
     backdrop: '#000000',
-    onSurface: '#79486D',
+    onSurface: '#ac959c',
     periodRed: '#9E1818',
     buttonBackground: 'rgb(239,228,237)',
     daily: 'rgb(96,72,121)',

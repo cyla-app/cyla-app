@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { formatDay, parseDay } from '../utils/date'
 import useRefresh from '../hooks/useRefresh'
+import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -25,44 +26,51 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   )
   const [loading, refresh] = useRefresh()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const daysError = useSelector<RootState, string | undefined>(
+    (state) => state.days.error,
+  )
   const dispatch = useDispatch()
 
   return (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: 'column',
-        alignContent: 'flex-end',
-      }}>
-      <ScrollView
-        contentContainerStyle={{}}
-        refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={refresh} />
-        }>
-        <EntryDay
-          selectedDate={formatDay(selectedDate)}
-          onSave={(day: Day) => {
-            dispatch(saveDay(day))
-          }}
-        />
-      </ScrollView>
+    <>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          alignContent: 'flex-end',
+        }}>
+        <ScrollView
+          contentContainerStyle={{}}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={refresh} />
+          }>
+          <EntryDay
+            selectedDate={formatDay(selectedDate)}
+            onSave={(day: Day) => {
+              dispatch(saveDay(day))
+            }}
+          />
+        </ScrollView>
 
-      <View>
-        <CalendarStrip
-          periodDays={days.filter(
-            (day) =>
-              day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE,
-          )}
-          onDateSelected={(date: string) => {
-            setSelectedDate(parseDay(date))
-          }}
-          onDaySelected={(day: Day) => {
-            navigation.navigate('Detail', {
-              day,
-            })
-          }}
-        />
+        <View>
+          <CalendarStrip
+            periodDays={days.filter(
+              (day) =>
+                day.bleeding &&
+                day.bleeding.strength !== Bleeding.strength.NONE,
+            )}
+            onDateSelected={(date: string) => {
+              setSelectedDate(parseDay(date))
+            }}
+            onDaySelected={(day: Day) => {
+              navigation.navigate('Detail', {
+                day,
+              })
+            }}
+          />
+        </View>
       </View>
-    </View>
+      <DaysErrorSnackbar daysError={daysError} />
+    </>
   )
 }

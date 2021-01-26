@@ -12,6 +12,7 @@ import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { DayIndex, fetchRange } from '../daysSlice'
 import { lastDayOfMonth } from 'date-fns'
 import { formatDay } from '../utils/date'
+import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
 
 type CalendarScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Calendar'>,
@@ -26,34 +27,40 @@ export default ({
   const days = Object.values(
     useSelector<RootState, DayIndex>((state) => state.days.byDay), // FIXME dynamically load from state
   )
+  const daysError = useSelector<RootState, string | undefined>(
+    (state) => state.days.error,
+  )
   const dispatch = useDispatch()
 
   return (
-    <View>
-      <Calendar
-        onVisibleMonthsChange={(months) => {
-          const first = new Date(months[0].year, months[0].month - 1)
-          const last = lastDayOfMonth(
-            new Date(
-              months[months.length - 1].year,
-              months[months.length - 1].month - 1,
-            ),
-          )
-          dispatch(
-            fetchRange({
-              from: formatDay(first),
-              to: formatDay(last),
-              refresh: false,
-            }),
-          )
-        }}
-        days={days}
-        onDaySelected={(day: Day) => {
-          navigation.navigate('Detail', {
-            day,
-          })
-        }}
-      />
-    </View>
+    <>
+      <View>
+        <Calendar
+          onVisibleMonthsChange={(months) => {
+            const first = new Date(months[0].year, months[0].month - 1)
+            const last = lastDayOfMonth(
+              new Date(
+                months[months.length - 1].year,
+                months[months.length - 1].month - 1,
+              ),
+            )
+            dispatch(
+              fetchRange({
+                from: formatDay(first),
+                to: formatDay(last),
+                refresh: false,
+              }),
+            )
+          }}
+          days={days}
+          onDaySelected={(day: Day) => {
+            navigation.navigate('Detail', {
+              day,
+            })
+          }}
+        />
+      </View>
+      <DaysErrorSnackbar daysError={daysError} />
+    </>
   )
 }
