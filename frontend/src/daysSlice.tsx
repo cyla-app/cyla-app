@@ -17,7 +17,6 @@ import {
 import { combineEpics, Epic } from 'redux-observable'
 import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators'
 import { from as fromPromise, of } from 'rxjs'
-import { Alert } from 'react-native'
 
 export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
