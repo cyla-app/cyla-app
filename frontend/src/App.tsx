@@ -18,8 +18,8 @@ import {
   configureStore,
   getDefaultMiddleware,
 } from '@reduxjs/toolkit'
-import daysSlice, { fetchDurationEpic, fetchRangeEpic } from './daysSlice'
-import profileSlice from './profileSlice'
+import { epic as daysEpic, reducer as daysReducer } from './daysSlice'
+import { reducer as profileReducer } from './profileSlice'
 import { combineEpics, createEpicMiddleware } from 'redux-observable'
 
 declare global {
@@ -63,8 +63,8 @@ const theme = {
 const epicMiddleware = createEpicMiddleware<AnyAction, AnyAction, RootState>()
 
 const rootReducer = combineReducers({
-  days: daysSlice,
-  profile: profileSlice,
+  days: daysReducer,
+  profile: profileReducer,
 })
 
 export type RootState = ReturnType<typeof rootReducer>
@@ -87,7 +87,7 @@ const store = configureStore({
   enhancers: [applyMiddleware(...middlewares)],
 })
 
-epicMiddleware.run(combineEpics(fetchRangeEpic, fetchDurationEpic))
+epicMiddleware.run(combineEpics(daysEpic))
 
 const App = () => {
   const { colors } = theme

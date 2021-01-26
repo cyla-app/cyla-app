@@ -21,4 +21,4 @@ const profile = createSlice({
 
 export const { setSignedIn } = profile.actions
 
-export default profile.reducer
+export const reducer = profile.reducer
