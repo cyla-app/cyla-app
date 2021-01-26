@@ -14,7 +14,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "generate:clean": "rimraf ./generated/*",
     "generate:openapi": "openapi --input ./specs/frontend-spec.yaml --output ./generated --exportCore false --exportServices false",
-    "generate:protobuf": "mkdir -p generated && pbjs -t static-module -w es6 -o generated/protobuf.js ./specs/period-stats.proto && pbts -o generated/protobuf.d.ts generated/protobuf.js",
+    "generate:protobuf": "mkdirp generated && pbjs -t static-module -w es6 -o generated/protobuf.js ./specs/period-stats.proto && pbts -o generated/protobuf.d.ts generated/protobuf.js",
     "postinstall": "patch-package && yarn run generate:clean && yarn run generate:openapi && yarn run generate:protobuf"
   },
   "dependencies": {
@@ -28,6 +28,7 @@
     "@types/react-native-calendars": "^1.20.12",
     "@types/react-native-vector-icons": "^6.4.6",
     "date-fns": "^2.16.1",
+    "mkdirp": "^1.0.4",
     "openapi-typescript-codegen": "^0.7.0",
     "react": "16.13.1",
     "react-native": "0.63.3",
