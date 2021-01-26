@@ -44,13 +44,12 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     }
 
-    fun isNetworkAvailable(): Boolean {
+    private fun isNetworkAvailable(): Boolean {
         val cm = reactApplicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = cm.activeNetworkInfo
         return activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting
     }
-
 
     data class UserSetupInfo(
         val userId: String,
@@ -77,7 +76,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 var request = it.request();
                 request = if (isNetworkAvailable()) {
                     request.newBuilder()
-                        .header("Cache-Control", "public, max-age=" + 60).build();
+                        .header("Cache-Control", "public, max-age=0").build();
                 } else {
                     request.newBuilder()
                         .header("Cache-Control", "public, only-if-cached, max-stale=" + 60 * 60 * 24 * 7).build();
