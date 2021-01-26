@@ -1,5 +1,5 @@
 import RadioButtonGroup from './RadioButtonGroup'
-import { Bleeding, Cervix } from '../../generated'
+import { Cervix } from '../../generated'
 import React from 'react'
 
 type PropsType = {

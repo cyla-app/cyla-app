@@ -1,5 +1,5 @@
 import RadioButtonGroup from './RadioButtonGroup'
-import { ExcludeReason, Mucus } from '../../generated'
+import { Mucus } from '../../generated'
 import React from 'react'
 
 type PropsType = {

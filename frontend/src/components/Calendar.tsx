@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { CalendarList } from 'react-native-calendars'
-import { useTheme, ActivityIndicator } from 'react-native-paper'
+import { useTheme } from 'react-native-paper'
 import { Bleeding, Day } from '../../generated'
 
 type PropsType = {
@@ -58,20 +58,6 @@ export default ({ days, onDaySelected, onVisibleMonthsChange }: PropsType) => {
         : {},
     ]
   })
-
-  /*
-            useEffect(() => {
-              const timer = setTimeout(() => {
-                setReady(true)
-              }, 200)
-          
-              return () => clearTimeout(timer)
-            }, [])
-        
-          if (!ready) {
-            return <ActivityIndicator size={'large'} />
-          }  
-          */
 
   return (
     <CalendarList

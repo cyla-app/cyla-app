@@ -1,7 +1,6 @@
 import React from 'react'
 import { Text } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import Fontisto from 'react-native-vector-icons/Fontisto'
 import DailyScreen from '../screens/DailyScreen'
 import CalendarScreen from '../screens/CalendarScreen'
 import NYIScreen from '../screens/NYIScreen'
