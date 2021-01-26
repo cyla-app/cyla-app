@@ -19,7 +19,12 @@ import app.cyla.invoker.auth.HttpBearerAuth
 import com.cossacklabs.themis.SecureCompare
 import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.*
+import okhttp3.Cache
+import okhttp3.CacheControl
+import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.io.File
+import java.io.IOException
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 
@@ -28,28 +33,34 @@ private const val JWT_AUTH_SCHEMA_NAME = "bearerJWTAuth"
 
 class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     companion object {
+        private const val MEGABYTE = 1000000
         private const val APP_PREFERENCES_NAME = "app_storage"
         private const val ENCRYPTION_PREFERENCES_NAME = "encryption_storage"
     }
 
     data class UserSetupInfo(
-            val userId : String,
-            val username : String,
-            val jwtString : String,
-            val userKey : SymmetricKey
+        val userId: String,
+        val username: String,
+        val jwtString: String,
+        val userKey: SymmetricKey
     )
 
     private lateinit var userKey: SymmetricKey
     private lateinit var username: String
-//    private val moshi = Moshi.Builder()
-//        .add(KotlinJsonAdapterFactory())
-//        .add(OffsetDateTimeAdapter())
-//        .build()
-
-    //    private val jsonDayAdapter: JsonAdapter<app.cyla.decryption.models.Day> =
-//        moshi.adapter(app.cyla.decryption.models.Day::class.java)
     private val apiClient = lazy {
-        val apiClient = ApiClient()
+        val httpCacheDirectory = File(reactApplicationContext.cacheDir, "responses")
+
+        var cache: Cache? = null
+        try {
+            cache = Cache(httpCacheDirectory, 10L * MEGABYTE)
+        } catch (e: IOException) {
+            Log.e("OKHttp", "Could not create http cache", e)
+        }
+
+        val builder = OkHttpClient.Builder()
+        builder.cache(cache)
+
+        val apiClient = ApiClient(builder.build())
         apiClient.basePath = getAppStorage().getString("apiBasePath", apiClient.basePath)
         apiClient
     }
@@ -103,12 +114,12 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         val jwtString = userCreatedResponse.jwt!!
 
         getEncryptionStorage().edit()
-                .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo )
-                .apply()
+            .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo)
+            .apply()
 
         getAppStorage().edit()
-                .putUserAppInfo(userId, username)
-                .apply()
+            .putUserAppInfo(userId, username)
+            .apply()
 
         return UserSetupInfo(userId, username, jwtString, userKey)
     }
@@ -136,7 +147,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 val (username, passphrase) = loadStoredUserInfo()
                 login(username, passphrase, promise)
             } else {
-                 val userSetupInfo = createNewUserKey(username, passphrase)
+                val userSetupInfo = createNewUserKey(username, passphrase)
                 setupCylaModuleUserInfo(userSetupInfo)
                 promise.resolve(userSetupInfo.userId)
             }
@@ -156,9 +167,6 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     @ReactMethod
     fun postDay(iso8601date: String, dayJson: String, promise: Promise) {
         CompletableFuture.supplyAsync {
-            // Transform for validation
-//            jsonDayAdapter.fromJson(dayJson)
-
             val day = Day()
             day.date = LocalDate.parse(iso8601date)
             day.version = 0
@@ -198,7 +206,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     @ReactMethod
     fun login(username: String, passphrase: String, promise: Promise) {
-        try{
+        try {
             Log.v("Login", "attempting login")
             val authKey = getAuthKey(username, passphrase)
             val comparator = SecureCompare()
@@ -208,11 +216,11 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                     val userKey = decryptUserKey(encryptedUserKey, passphrase)
                     val passphraseInfo = encryptPassphrase(reactApplicationContext, passphrase)
                     getEncryptionStorage().edit()
-                            .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo)
-                            .apply()
+                        .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo)
+                        .apply()
                     getAppStorage().edit()
-                            .putUserAppInfo(it.uuid, username)
-                            .apply()
+                        .putUserAppInfo(it.uuid, username)
+                        .apply()
 
                     setupCylaModuleUserInfo(UserSetupInfo(it.uuid, username, it.jwt, userKey))
                     promise.resolve(it.uuid)
@@ -222,15 +230,19 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 }
             }
             apiClient.value.httpClient.newWebSocket(
-                    Request.Builder().url("ws://localhost:5000/login/$username").build(),
-                    wsListener)
+                Request.Builder()
+                    .cacheControl(CacheControl.Builder().noCache().build())
+                    .url("ws://localhost:5000/login/$username")
+                    .build(),
+                wsListener
+            )
         } catch (e: Exception) {
             Log.e("Login", e.message, e)
             promise.reject(e)
         }
     }
 
-    private fun updateAuthInfo(jwtString : String) {
+    private fun updateAuthInfo(jwtString: String) {
         val jwtAuth = apiClient.value.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
         jwtAuth.bearerToken = jwtString
     }
