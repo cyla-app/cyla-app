@@ -4,6 +4,7 @@ import React from 'react'
 import { Text } from 'react-native-svg'
 import { format } from 'date-fns'
 import DayLine from './DayLine'
+import { parseDay } from '../../utils/date'
 
 export const POINT_GAP = 20
 const HORIZONTAL_SHIFT = POINT_GAP / 2
@@ -73,7 +74,7 @@ export default ({
               y={viewHeight + 15}
               fontSize={10}
               textAnchor="middle">
-              {format(new Date(day.date), 'dd')}
+              {format(parseDay(day.date), 'dd')}
             </Text>
           </React.Fragment>
         )

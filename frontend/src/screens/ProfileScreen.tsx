@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { RefreshControl, ScrollView, Text } from 'react-native'
 import CylaModule from '../modules/CylaModule'
 import { useSelector } from 'react-redux'
-import { DayIndex, useRefresh } from '../daysSlice'
+import { DayIndex } from '../daysSlice'
 import { RootState } from '../App'
 import { ActivityIndicator } from 'react-native-paper'
+import useRefresh from '../hooks/useRefresh'
 
 export default () => {
   const [userId, setUserId] = useState<string>('')

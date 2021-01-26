@@ -1,75 +1,24 @@
-import { CaseReducer, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import {
+  AnyAction,
+  createAction,
+  createSlice,
+  PayloadAction,
+} from '@reduxjs/toolkit'
 import { Day } from '../generated'
 import CylaModule from './modules/CylaModule'
-import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './App'
+import { isAfter, isBefore, sub } from 'date-fns'
+import { formatDay, isWithin, parseDay } from './utils/date'
 import {
-  add,
-  format,
-  getISODay,
-  getISOWeek,
-  getISOWeekYear,
-  isAfter,
-  isBefore,
-  startOfISOWeek,
-  sub,
-} from 'date-fns'
-import { useCallback } from 'react'
+  groupByDay,
+  groupByWeeks,
+  mergeWeekIndices,
+} from './utils/stateIndices'
+import { combineEpics, Epic } from 'redux-observable'
+import { catchError, filter, map, switchMap } from 'rxjs/operators'
+import { from as fromPromise, of } from 'rxjs'
 
-export const DAYS_IN_WEEK = 7
-
-const groupByDay = (days: Day[]) =>
-  Object.fromEntries(days.map((day) => [day.date, day]))
-
-const groupByWeeks = (dayList: Day[]) =>
-  dayList.reduce((acc: WeekIndex, day) => {
-    const date = new Date(day.date)
-    const week = getISOWeek(date)
-    const year = getISOWeekYear(date)
-    const key = `${year}-${week}`
-    const weekday = getISODay(date) - 1
-    let weekIndexData = acc[key]
-
-    // Group initialization
-    if (!weekIndexData) {
-      const weekStart = startOfISOWeek(date)
-
-      acc[key] = {
-        year,
-        week,
-        index: {},
-        asList: [...Array(DAYS_IN_WEEK).keys()].map((i) => ({
-          volatile: true,
-          date: format(add(weekStart, { days: i }), 'yyyy-MM-dd'),
-        })),
-      }
-    }
-
-    // Grouping
-    weekIndexData = acc[key]
-    weekIndexData.index[day.date] = day
-    weekIndexData.asList[weekday] = day
-    return acc
-  }, {})
-
-const mergeWeekIndices = (a: WeekIndex, override: WeekIndex): WeekIndex => {
-  const copy: WeekIndex = { ...a }
-
-  for (const [key, { week, year, asList, index }] of Object.entries(override)) {
-    copy[key] = {
-      week,
-      year,
-      asList: asList.map((day, i) =>
-        copy[key] ? (day.volatile ? copy[key].asList[i] : day) : day,
-      ),
-      index: { ...(copy[key]?.index || {}), ...index },
-    }
-  }
-
-  return copy
-}
-
-type Range = { from: string; to: string }
+export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
 export type WeekIndexData = {
   week: number
@@ -89,78 +38,6 @@ export type DaysStateType = {
   loading: boolean
 }
 
-export const fetchDuration = createAsyncThunk<
-  { byWeek: WeekIndex; byDay: DayIndex; range: Range },
-  Duration | undefined,
-  { state: RootState }
->('days/fetchDuration', async (duration = { months: 1 }, thunkAPI) => {
-  const range = thunkAPI.getState().days.range
-  const now = new Date()
-  const to = range ? new Date(range.from) : now
-  const from = sub(to, duration)
-  const days = await CylaModule.fetchDaysByRange(from, to)
-  return {
-    byDay: groupByDay(days),
-    byWeek: groupByWeeks(days),
-    range: {
-      to: range ? range.to : format(now, 'yyyy-MM-dd'),
-      from: format(from, 'yyyy-MM-dd'),
-    },
-  }
-})
-
-const isWithin = (
-  range1: { from: Date; to: Date },
-  range2: { from: Date; to: Date },
-) => {
-  return isAfter(range1.from, range2.from) && isBefore(range1.to, range2.to)
-}
-
-export const fetchRange = createAsyncThunk<
-  { byWeek: WeekIndex; byDay: DayIndex; range: Range },
-  { from: Date; to: Date; refresh?: boolean },
-  { state: RootState }
->('days/fetchRange', async (args, thunkAPI) => {
-  const range = thunkAPI.getState().days.range
-  const to = args.to
-  const from = args.from
-
-  if (!args.refresh && range) {
-    // TODO: Do not fetch the whole data is part of it is already in the state
-    if (
-      isWithin(
-        { from, to },
-        {
-          from: new Date(range.from),
-          to: new Date(range.from),
-        },
-      )
-    ) {
-      return {
-        byDay: {},
-        byWeek: {},
-        range: range,
-      }
-    }
-  }
-
-  const days = await CylaModule.fetchDaysByRange(from, to)
-  const dateStringFrom = format(args.from, 'yyyy-MM-dd')
-  const dateStringTo = format(args.to, 'yyyy-MM-dd')
-  return {
-    byDay: groupByDay(days),
-    byWeek: groupByWeeks(days),
-    range: range
-      ? {
-          to: isAfter(to, new Date(range.to)) ? dateStringTo : range.to,
-          from: isBefore(from, new Date(range.from))
-            ? dateStringFrom
-            : range.from,
-        }
-      : { from: dateStringFrom, to: dateStringTo },
-  }
-})
-
 const days = createSlice({
   name: 'days',
   initialState: {
@@ -168,12 +45,30 @@ const days = createSlice({
     byDay: {},
     loading: false,
   } as DaysStateType,
-  reducers: {},
-  extraReducers: (builder) => {
-    const fulfilledReducer: CaseReducer<
-      DaysStateType,
-      ReturnType<typeof fetchDuration.fulfilled | typeof fetchRange.fulfilled>
-    > = (state, action) => {
+  reducers: {
+    days$pending: (
+      state: DaysStateType,
+      _: PayloadAction<Duration | undefined>,
+    ) => {
+      return {
+        ...state,
+        loading: true,
+      }
+    },
+    days$rejected: (state) => {
+      return {
+        ...state,
+        loading: false,
+      }
+    },
+    days$fulfilled: (
+      state,
+      action: PayloadAction<{
+        byWeek: WeekIndex
+        byDay: DayIndex
+        range: Range
+      }>,
+    ) => {
       const payload = action.payload
       const range = payload.range
       return {
@@ -183,62 +78,92 @@ const days = createSlice({
         byDay: { ...state.byDay, ...payload.byDay },
         loading: false,
       }
-    }
-
-    const rejectReducer = (state: DaysStateType) => {
-      return {
-        ...state,
-        loading: false,
-      }
-    }
-    const pendingReducer = (state: DaysStateType) => {
-      return {
-        ...state,
-        loading: true,
-      }
-    }
-    builder
-      .addCase(fetchDuration.fulfilled, fulfilledReducer)
-      .addCase(fetchDuration.rejected, rejectReducer)
-      .addCase(fetchDuration.pending, pendingReducer)
-      .addCase(fetchRange.fulfilled, fulfilledReducer)
-      .addCase(fetchRange.rejected, rejectReducer)
-      .addCase(fetchRange.pending, pendingReducer)
+    },
   },
 })
 
-export default days.reducer
+export type MyEpic = Epic<AnyAction, AnyAction, RootState>
 
-export const useRefresh = (): [boolean, () => void] => {
-  const dispatch = useDispatch()
-  const range = useSelector<RootState, Range | null>(
-    (state) => state.days.range,
-  )
-  const loading = useSelector<RootState, boolean>((state) => state.days.loading)
+const fetchRangeEpic: MyEpic = (action$, state$) =>
+  action$.pipe(
+    filter(fetchRange.match),
+    switchMap((action) => {
+      const range = state$.value.days.range
+      const to = parseDay(action.payload.to)
+      const from = parseDay(action.payload.from)
 
-  return [
-    loading,
-    useCallback(() => {
-      if (range) {
-        dispatch(
-          fetchRange({
-            from: new Date(range.from),
-            to: new Date(range.to),
-          }),
+      if (!action.payload.refresh && range) {
+        // TODO: Do not fetch the whole data is part of it is already in the state
+        const within = isWithin(
+          { from, to },
+          { from: parseDay(range.from), to: parseDay(range.from) },
         )
+        if (within) {
+          return of({ byDay: {}, byWeek: {}, range: range })
+        }
       }
-    }, [dispatch, range]),
-  ]
-}
 
-export const useLoadMore = (): [boolean, () => void] => {
-  const dispatch = useDispatch()
-  const loading = useSelector<RootState, boolean>((state) => state.days.loading)
+      return fromPromise(CylaModule.fetchDaysByRange(from, to)).pipe(
+        map((fetchedDays: Day[]) => {
+          const now = new Date()
+          return {
+            byDay: groupByDay(fetchedDays),
+            byWeek: groupByWeeks(fetchedDays),
+            range: {
+              to: range ? range.to : formatDay(now),
+              from: formatDay(from),
+            },
+          }
+        }),
+      )
+    }),
+    map((action: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
+      days.actions.days$fulfilled(action),
+    ),
+    catchError(() => of(days.actions.days$rejected())),
+  )
 
-  return [
-    loading,
-    useCallback(() => {
-      dispatch(fetchDuration())
-    }, [dispatch]),
-  ]
-}
+const fetchDurationEpic: MyEpic = (action$, state$) =>
+  action$.pipe(
+    filter(fetchDuration.match),
+    map(() => days.actions.days$pending()),
+    switchMap((action) => {
+      const range = state$.value.days.range
+      const now = new Date()
+      const to = range ? parseDay(range.from) : now
+      const from = sub(to, action.payload ?? { months: 1 })
+
+      return fromPromise(CylaModule.fetchDaysByRange(from, to)).pipe(
+        map((fetchedDays: Day[]) => {
+          const dateStringFrom = formatDay(from)
+          const dateStringTo = formatDay(to)
+          return {
+            byDay: groupByDay(fetchedDays),
+            byWeek: groupByWeeks(fetchedDays),
+            range: range
+              ? {
+                  to: isAfter(to, parseDay(range.to)) ? dateStringTo : range.to,
+                  from: isBefore(from, parseDay(range.from))
+                    ? dateStringFrom
+                    : range.from,
+                }
+              : { from: dateStringFrom, to: dateStringTo },
+          }
+        }),
+      )
+    }),
+    map((action: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
+      days.actions.days$fulfilled(action),
+    ),
+    catchError(() => of(days.actions.days$rejected())),
+  )
+
+export const fetchDuration = createAction<Duration | undefined>('fetchDuration')
+export const fetchRange = createAction<{
+  from: string
+  to: string
+  refresh?: boolean
+}>('fetchRange')
+
+export const epic = combineEpics(fetchRangeEpic, fetchDurationEpic)
+export const reducer = days.reducer

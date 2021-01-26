@@ -4,12 +4,16 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
+    "android:apk": "cd android && ./gradlew assembleRelease && adb install app/build/outputs/apk/release/app-release.apk",
+    "android:aab": "cd android && ./gradlew bundleRelease",
+    "android:adb:reverse": "adb reverse tcp:5000 tcp:5000 && adb reverse tcp:8081 tcp:8081",
+    "android:start-avd": "bash -c '$ANDROID_HOME/emulator/emulator -avd $($ANDROID_HOME/emulator/emulator -list-avds | head -n 1)'",
     "ios": "react-native run-ios",
     "start": "yarn generate && react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "generate": "rimraf ./generated/* && openapi --input ../openapi/frontend-spec.yaml --output ./generated --exportCore false --exportServices false",
-    "postinstall": "patch-package && yarn run generate"
+    "openapi:generate": "rimraf ./generated/* && openapi --input ../openapi/frontend-spec.yaml --output ./generated --exportCore false --exportServices false",
+    "postinstall": "patch-package && yarn run openapi:generate"
   },
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.10",
@@ -26,7 +30,7 @@
     "react-native": "0.63.3",
     "react-native-calendar-strip": "^2.1.0",
     "react-native-calendars": "^1.505.0",
-    "react-native-flipper": "^0.69.0",
+    "react-native-flipper": "^0.72.0",
     "react-native-gesture-handler": "^1.9.0",
     "react-native-paper": "^4.5.0",
     "react-native-reanimated": "2.0.0-rc.1",
@@ -37,7 +41,9 @@
     "react-native-vector-icons": "^7.1.0",
     "react-redux": "^7.1.12",
     "redux": "^4.0.5",
-    "redux-flipper": "^1.4.2"
+    "redux-flipper": "^1.4.2",
+    "redux-observable": "^1.2.0",
+    "rxjs": "^6.6.3"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",

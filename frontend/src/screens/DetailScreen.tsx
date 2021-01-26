@@ -4,6 +4,7 @@ import React from 'react'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { format } from 'date-fns'
 import { RouteProp } from '@react-navigation/native'
+import { parseDay } from '../utils/date'
 
 type DetailScreenRouteProp = RouteProp<MainStackParamList, 'Detail'>
 
@@ -21,7 +22,7 @@ export default ({ route }: PropType) => {
         style={[StyleSheet.absoluteFill, { height: 1000 }]}>
         <Card.Title
           titleStyle={{ textAlign: 'center' }}
-          title={format(new Date(day.date), 'd MMMM yyyy ')}
+          title={format(parseDay(day.date), 'd MMMM yyyy ')}
         />
 
         <Card.Content>
