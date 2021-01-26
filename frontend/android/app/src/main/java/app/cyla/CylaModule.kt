@@ -21,12 +21,17 @@ import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.*
 import okhttp3.Cache
 import okhttp3.CacheControl
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
+import android.net.NetworkInfo
+
+import android.net.ConnectivityManager
+
 
 // Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
 private const val JWT_AUTH_SCHEMA_NAME = "bearerJWTAuth"
@@ -36,7 +41,16 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         private const val MEGABYTE = 1000000
         private const val APP_PREFERENCES_NAME = "app_storage"
         private const val ENCRYPTION_PREFERENCES_NAME = "encryption_storage"
+
     }
+
+    fun isNetworkAvailable(): Boolean {
+        val cm = reactApplicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = cm.activeNetworkInfo
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting
+    }
+
 
     data class UserSetupInfo(
         val userId: String,
@@ -58,7 +72,18 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         }
 
         val builder = OkHttpClient.Builder()
-        builder.cache(cache)
+            .cache(cache)
+            .addInterceptor {
+                var request = it.request();
+                request = if (isNetworkAvailable()) {
+                    request.newBuilder()
+                        .header("Cache-Control", "public, max-age=" + 60).build();
+                } else {
+                    request.newBuilder()
+                        .header("Cache-Control", "public, only-if-cached, max-stale=" + 60 * 60 * 24 * 7).build();
+                }
+                it.proceed(request)
+            }
 
         val apiClient = ApiClient(builder.build())
         apiClient.basePath = getAppStorage().getString("apiBasePath", apiClient.basePath)
