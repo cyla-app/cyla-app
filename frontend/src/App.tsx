@@ -19,7 +19,7 @@ import {
   getDefaultMiddleware,
 } from '@reduxjs/toolkit'
 import { epic as daysEpic, reducer as daysReducer } from './daysSlice'
-import { reducer as profileReducer } from './profileSlice'
+import { reducer as sessionReducer } from './sessionSlice'
 import { combineEpics, createEpicMiddleware } from 'redux-observable'
 
 declare global {
@@ -48,7 +48,8 @@ const theme = {
     primary: '#79486D',
     accent: '#9E1818',
     surface: '#FFF',
-    backdrop: '#000',
+    backdrop: '#000000',
+    onSurface: '#79486D',
     periodRed: '#9E1818',
     buttonBackground: 'rgb(239,228,237)',
     daily: 'rgb(96,72,121)',
@@ -64,7 +65,7 @@ const epicMiddleware = createEpicMiddleware<AnyAction, AnyAction, RootState>()
 
 const rootReducer = combineReducers({
   days: daysReducer,
-  profile: profileReducer,
+  session: sessionReducer,
 })
 
 export type RootState = ReturnType<typeof rootReducer>

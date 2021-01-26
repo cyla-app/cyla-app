@@ -4,16 +4,26 @@ import { formatDay } from '../utils/date'
 
 // This type is determined by app.cyla.decryption.CylaModule
 type CylaModuleType = {
-  postDay: (iso8601date: string, userId: string) => Promise<void>
+  /**
+   * If username or passphrase are null then we try to login using the stored credentials.
+   * If both are not null then we create a new user and register it.
+   */
   setupUser: (username?: string, passphrase?: string) => Promise<void>
+  /**
+   * Stores the credentials and logs the user in.
+   */
+  login: (userName: string, passphrase: string) => Promise<boolean>
+  /**
+   * Checks whether credentials are stored
+   * */
   isUserSignedIn: () => Promise<boolean>
   getUserId: () => Promise<string>
+  postDay: (iso8601date: string, userId: string) => Promise<void>
   fetchDaysByMonths: (months: number) => Promise<string[]>
   fetchDaysByRange: (
     iso8601dateFrom: string,
     iso8601dateTo: string,
   ) => Promise<string[]>
-  login: (userName: string, passphrase: string) => Promise<boolean>
 }
 
 const CylaNativeModule: CylaModuleType = NativeModules.CylaModule
@@ -31,20 +41,24 @@ class CylaModule {
     await CylaNativeModule.postDay(formatDay(date), JSON.stringify(day))
   }
 
-  async setupUser(username?: string, passphrase?: string) {
+  async reuseLastSession() {
+    await CylaNativeModule.setupUser(undefined, undefined)
+  }
+
+  async signUp(username: string, passphrase: string) {
     await CylaNativeModule.setupUser(username, passphrase)
   }
 
-  async isUserSignedIn() {
+  async signIn(userName: string, passphrase: string) {
+    return await CylaNativeModule.login(userName, passphrase)
+  }
+
+  async isSessionAvailable() {
     return await CylaNativeModule.isUserSignedIn()
   }
 
   async getUserId() {
     return await CylaNativeModule.getUserId()
-  }
-
-  async login(userName: string, passphrase: string) {
-    return await CylaNativeModule.login(userName, passphrase)
   }
 }
 

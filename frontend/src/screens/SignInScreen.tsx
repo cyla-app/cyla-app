@@ -1,22 +1,23 @@
-import CylaModule from '../modules/CylaModule'
 import React, { useState } from 'react'
-import { Text, View, ViewStyle } from 'react-native'
-import { ActivityIndicator, Headline } from 'react-native-paper'
-import { useDispatch } from 'react-redux'
-import { setSignedIn } from '../profileSlice'
+import { View, ViewStyle } from 'react-native'
+import { ActivityIndicator, Headline, Snackbar } from 'react-native-paper'
+import { useDispatch, useSelector } from 'react-redux'
 import LoginForm from '../components/LoginForm'
-import { fetchDuration } from '../daysSlice'
+import { RootState } from '../App'
+import { signIn } from '../sessionSlice'
 
 export default () => {
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const isProfileLoading = useSelector<RootState>(
+    (state) => state.session.loading,
+  )
+  const profileError = useSelector<RootState, string | undefined>(
+    (state) => state.session.signInError,
+  )
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(true)
+
   const dispatch = useDispatch()
 
-  if (error) {
-    return <Text>{error}</Text>
-  }
-
-  if (loading) {
+  if (isProfileLoading) {
     return <ActivityIndicator animating={true} />
   }
 
@@ -27,27 +28,27 @@ export default () => {
     padding: 20,
   } as ViewStyle
 
-  const signIn = async (username: string, passphrase: string) => {
-    setLoading(true)
-    try {
-      await CylaModule.login(username, passphrase)
-      await dispatch(fetchDuration())
-      setLoading(false)
-      dispatch(setSignedIn(true))
-    } catch (e) {
-      setError(e.message)
-      setLoading(false)
-    }
-  }
-
   return (
-    <View style={containerStyle}>
-      <Headline>Sign In</Headline>
-      <LoginForm
-        onSave={(username: string, passphrase: string) => {
-          signIn(username, passphrase)
-        }}
-      />
-    </View>
+    <>
+      <Snackbar
+        visible={showSnackbar && !!profileError}
+        onDismiss={() => setShowSnackbar(false)}
+        duration={60000}
+        action={{
+          label: 'Dismiss',
+          onPress: () => setShowSnackbar(false),
+        }}>
+        {profileError ?? 'Unknown Error'}
+      </Snackbar>
+      <View style={containerStyle}>
+        <Headline>Sign In</Headline>
+        <LoginForm
+          continueName="Sign In"
+          onSave={(username: string, passphrase: string) => {
+            dispatch(signIn({ username, passphrase }))
+          }}
+        />
+      </View>
+    </>
   )
 }

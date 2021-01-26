@@ -1,16 +1,21 @@
 import CylaModule from '../modules/CylaModule'
 import React, { useState } from 'react'
-import { Text, View, ViewStyle } from 'react-native'
-import { ActivityIndicator, Button, Headline } from 'react-native-paper'
-import { addDays, format, getDate } from 'date-fns'
+import { View, ViewStyle } from 'react-native'
+import {
+  ActivityIndicator,
+  Button,
+  Headline,
+  Snackbar,
+} from 'react-native-paper'
+import { addDays, getDate } from 'date-fns'
 import { Bleeding, Mucus } from '../../generated'
-import { useDispatch } from 'react-redux'
-import { setSignedIn } from '../profileSlice'
+import { useDispatch, useSelector } from 'react-redux'
 import LoginForm from '../components/LoginForm'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
-import { fetchDuration } from '../daysSlice'
 import { formatDay } from '../utils/date'
+import { RootState } from '../App'
+import { signUp } from '../sessionSlice'
 
 export const generateMockData = async () => {
   const randomDate = (start: Date, end: Date) =>
@@ -52,15 +57,16 @@ type PropType = {
 }
 
 export default ({ navigation }: PropType) => {
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const isProfileLoading = useSelector<RootState>(
+    (state) => state.session.loading,
+  )
+  const profileError = useSelector<RootState, string | undefined>(
+    (state) => state.session.signInError,
+  )
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(true)
   const dispatch = useDispatch()
 
-  if (error) {
-    return <Text>{error}</Text>
-  }
-
-  if (loading) {
+  if (isProfileLoading) {
     return <ActivityIndicator animating={true} />
   }
 
@@ -71,32 +77,30 @@ export default ({ navigation }: PropType) => {
     padding: 20,
   } as ViewStyle
 
-  const signUp = async (username: string, passphrase: string) => {
-    setLoading(true)
-    try {
-      await CylaModule.setupUser(username, passphrase)
-      await generateMockData()
-      await dispatch(fetchDuration())
-
-      setLoading(false)
-      dispatch(setSignedIn(true))
-    } catch (e) {
-      setError(e.message)
-      setLoading(false)
-    }
-  }
-
   return (
-    <View style={containerStyle}>
-      <Headline>Sign Up</Headline>
-      <LoginForm
-        onSave={(username: string, passphrase: string) => {
-          signUp(username, passphrase)
-        }}
-      />
-      <Button mode="text" onPress={() => navigation.navigate('SignIn')}>
-        I already have an account. Take me to the Sign In.
-      </Button>
-    </View>
+    <>
+      <Snackbar
+        visible={showSnackbar && !!profileError}
+        onDismiss={() => setShowSnackbar(false)}
+        duration={60000}
+        action={{
+          label: 'Dismiss',
+          onPress: () => setShowSnackbar(false),
+        }}>
+        {profileError ?? 'Unknown Error'}
+      </Snackbar>
+      <View style={containerStyle}>
+        <Headline>Sign Up</Headline>
+        <LoginForm
+          continueName="Sign Up"
+          onSave={(username: string, passphrase: string) => {
+            dispatch(signUp({ username, passphrase }))
+          }}
+        />
+        <Button mode="text" onPress={() => navigation.navigate('SignIn')}>
+          I already have an account. Take me to the Sign In.
+        </Button>
+      </View>
+    </>
   )
 }

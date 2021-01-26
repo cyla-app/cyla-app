@@ -36,6 +36,7 @@ export type DaysStateType = {
   byWeek: WeekIndex
   byDay: DayIndex
   loading: boolean
+  error?: string
 }
 
 const days = createSlice({
@@ -44,6 +45,7 @@ const days = createSlice({
     byWeek: {},
     byDay: {},
     loading: false,
+    error: undefined,
   } as DaysStateType,
   reducers: {
     days$pending: (
@@ -55,10 +57,11 @@ const days = createSlice({
         loading: true,
       }
     },
-    days$rejected: (state) => {
+    days$rejected: (state, action: PayloadAction<string>) => {
       return {
         ...state,
         loading: false,
+        error: action.payload,
       }
     },
     days$fulfilled: (
@@ -120,7 +123,7 @@ const fetchRangeEpic: MyEpic = (action$, state$) =>
     map((action: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
       days.actions.days$fulfilled(action),
     ),
-    catchError(() => of(days.actions.days$rejected())),
+    catchError((err: Error) => of(days.actions.days$rejected(err.message))),
   )
 
 const fetchDurationEpic: MyEpic = (action$, state$) =>
@@ -155,7 +158,7 @@ const fetchDurationEpic: MyEpic = (action$, state$) =>
     map((action: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
       days.actions.days$fulfilled(action),
     ),
-    catchError(() => of(days.actions.days$rejected())),
+    catchError((err: Error) => of(days.actions.days$rejected(err.message))),
   )
 
 export const fetchDuration = createAction<Duration | undefined>('fetchDuration')

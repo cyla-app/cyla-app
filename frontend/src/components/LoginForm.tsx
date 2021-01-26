@@ -3,9 +3,10 @@ import { useState } from 'react'
 import { Button, TextInput } from 'react-native-paper'
 
 type LoginFormProps = {
+  continueName: string
   onSave: (username: string, passphrase: string) => void
 }
-export default ({ onSave }: LoginFormProps) => {
+export default ({ onSave, continueName }: LoginFormProps) => {
   const [username, setUsername] = useState('')
   const [passphrase, setPassphrase] = useState('')
 
@@ -25,14 +26,14 @@ export default ({ onSave }: LoginFormProps) => {
         onChangeText={(newPassword) => setPassphrase(newPassword)}
       />
       <Button
-        icon="content-save"
+        icon="login"
         style={{
           margin: 20,
         }}
         onPress={() => {
           onSave(username, passphrase)
         }}>
-        Save
+        {continueName}
       </Button>
     </>
   )

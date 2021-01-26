@@ -226,7 +226,6 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                     promise.resolve(it.uuid)
                 } catch (e: Exception) {
                     promise.reject(e)
-
                 }
             }
             apiClient.value.httpClient.newWebSocket(
