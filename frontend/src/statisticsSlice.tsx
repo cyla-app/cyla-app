@@ -1,9 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Period } from '../generated/protobuf'
+import { Bleeding, Day } from '../generated'
 
 type StatisticsStateType = {
   period: Period[]
 }
+
+type NonNullBleeding = { bleeding: Bleeding }
 
 const statistics = createSlice({
   name: 'statistics',
@@ -11,10 +14,15 @@ const statistics = createSlice({
     period: [],
   } as StatisticsStateType,
   reducers: {
-    markPeriod: (state, action) => {
+    markPeriod: (state, action: PayloadAction<Day>) => {
+      const day = action.payload
+      if (!day.bleeding) {
+        return state
+      }
+
       return state
     },
-    unmarkPeriod: (state, action) => {
+    unmarkPeriod: (state, action: PayloadAction<Day>) => {
       return state
     },
   },
