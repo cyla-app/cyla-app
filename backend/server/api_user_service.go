@@ -25,25 +25,29 @@ func NewUserApiService() UserApiServicer {
 }
 
 // CreateUser -
-func (s *UserApiService) CreateUser(ctx context.Context, user User) (ImplResponse, error) {
+func (s *UserApiService) CreateUser(ctx context.Context, user User) (response ImplResponse, err error) {
 	ret, err := DBConnection.CreateUser(ctx, user)
-	return httpResponseWithBody(ret, err)
+	response, err = httpResponseWithBody(ret, err)
+	return
 }
 
 // GetRestoreData -
-func (s *UserApiService) GetRestoreData(ctx context.Context, userId string) (ImplResponse, error) {
+func (s *UserApiService) GetRestoreData(ctx context.Context, userId string) (response ImplResponse, err error) {
 	ret, err := DBConnection.GetRestoreData(ctx, userId)
-	return httpResponseWithBody(ret, err)
+	response, err = httpResponseWithBody(ret, err)
+	return
 }
 
 // GetUserById -
-func (s *UserApiService) GetUserById(ctx context.Context, userId string) (ImplResponse, error) {
+func (s *UserApiService) GetUserById(ctx context.Context, userId string) (response ImplResponse, err error) {
 	ret, err := DBConnection.GetUserById(ctx, userId)
-	return httpResponseWithBody(ret, err)
+	response, err = httpResponseWithBody(ret, err)
+	return
 }
 
 // UpdateUser -
-func (s *UserApiService) UpdateUser(ctx context.Context, userId string, user User) (ImplResponse, error) {
-	err := DBConnection.UpdateUser(ctx, userId, user)
-	return httpResponse(err)
+func (s *UserApiService) UpdateUser(ctx context.Context, userId string, user User) (response ImplResponse, err error) {
+	err = DBConnection.UpdateUser(ctx, userId, user)
+	response, err = httpResponse(err)
+	return
 }

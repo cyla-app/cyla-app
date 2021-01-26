@@ -61,11 +61,11 @@ func (c *DayApiController) GetDayByUserAndRange(w http.ResponseWriter, r *http.R
 	result, err := c.service.GetDayByUserAndRange(r.Context(), userId, startDate, endDate)
 	//If an error occured, encode the error with the status code
 	if err != nil {
-		EncodeJSONResponse(err.Error(), &result.Code, w)
+		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
 		return
 	}
 	//If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
+	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 
 }
 
@@ -78,11 +78,11 @@ func (c *DayApiController) GetDaysByUserIdAndDate(w http.ResponseWriter, r *http
 	result, err := c.service.GetDaysByUserIdAndDate(r.Context(), userId, date)
 	//If an error occured, encode the error with the status code
 	if err != nil {
-		EncodeJSONResponse(err.Error(), &result.Code, w)
+		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
 		return
 	}
 	//If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
+	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 
 }
 
@@ -99,10 +99,10 @@ func (c *DayApiController) ModifyDayEntry(w http.ResponseWriter, r *http.Request
 	result, err := c.service.ModifyDayEntry(r.Context(), userId, *day)
 	//If an error occured, encode the error with the status code
 	if err != nil {
-		EncodeJSONResponse(err.Error(), &result.Code, w)
+		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
 		return
 	}
 	//If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
+	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 
 }

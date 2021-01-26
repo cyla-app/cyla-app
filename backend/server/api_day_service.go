@@ -25,19 +25,28 @@ func NewDayApiService() DayApiServicer {
 }
 
 // GetDayByUserAndRange -
-func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ImplResponse, error) {
+func (s *DayApiService) GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (response ImplResponse, err error) {
 	ret, err := DBConnection.GetDayByUserAndRange(ctx, userId, startDate, endDate)
-	return httpResponseWithBody(ret, err)
+	response, err = httpResponseWithBody(ret, err)
+	if response.Code == 200 {
+		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age&#x3D;86400"}}
+	}
+	return
 }
 
 // GetDaysByUserIdAndDate -
-func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ImplResponse, error) {
+func (s *DayApiService) GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (response ImplResponse, err error) {
 	ret, err := DBConnection.GetDaysByUserIdAndDate(ctx, userId, date)
-	return httpResponseWithBody(ret, err)
+	response, err = httpResponseWithBody(ret, err)
+	if response.Code == 200 {
+		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age&#x3D;86400"}}
+	}
+	return
 }
 
 // ModifyDayEntry -
-func (s *DayApiService) ModifyDayEntry(ctx context.Context, userId string, day Day) (ImplResponse, error) {
-	err := DBConnection.ModifyDayEntry(ctx, userId, day)
-	return httpResponse(err)
+func (s *DayApiService) ModifyDayEntry(ctx context.Context, userId string, day Day) (response ImplResponse, err error) {
+	err = DBConnection.ModifyDayEntry(ctx, userId, day)
+	response, err = httpResponse(err)
+	return
 }

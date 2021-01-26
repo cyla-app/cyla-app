@@ -20,14 +20,22 @@ return &{{classname}}Service{}
 }{{#operations}}{{#operation}}
 
     // {{nickname}} - {{summary}}
-    func (s *{{classname}}Service) {{nickname}}(ctx context.Context{{#allParams}}, {{paramName}} {{dataType}}{{/allParams}}) (ImplResponse, error) {
+    func (s *{{classname}}Service) {{nickname}}(ctx context.Context{{#allParams}}, {{paramName}} {{dataType}}{{/allParams}}) (response ImplResponse, err error) {
     {{#returnType}}
         ret, err := DBConnection.{{nickname}}(ctx{{#allParams}}, {{paramName}}{{/allParams}})
-        return httpResponseWithBody(ret, err)
+        response, err = httpResponseWithBody(ret, err)
     {{/returnType}}
     {{^returnType}}
-        err := DBConnection.{{nickname}}(ctx{{#allParams}}, {{paramName}}{{/allParams}})
-        return httpResponse(err)
+        err = DBConnection.{{nickname}}(ctx{{#allParams}}, {{paramName}}{{/allParams}})
+        response, err = httpResponse(err)
     {{/returnType}}
+    {{#responses}}
+        {{#hasHeaders}}
+            if response.Code == {{code}} {
+                response.Headers = []Header{ {{#headers}} {Name: "{{baseName}}", Value: "{{defaultValue}}"}  {{/headers}} }
+            }
+        {{/hasHeaders}}
+    {{/responses}}
+    return
     }{{/operation}}{{/operations}}
 

@@ -40,7 +40,7 @@ func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request
 		splitAuthHeader := strings.Split(r.Header.Get("Authorization"), " ")
 		if len(splitAuthHeader) != 2 {
 			log.Println("Error while extraction jwt")
-			EncodeJSONResponse(errResult.Body, &errResult.Code, w)
+			EncodeJSONResponse(errResult.Body, &errResult.Code, nil, w)
 			return
 		}
 		jwtString = splitAuthHeader[1]
@@ -52,7 +52,7 @@ func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request
 		})
 		if err != nil {
 			log.Println("Error while decoding", err)
-			EncodeJSONResponse(errResult.Body, &errResult.Code, w)
+			EncodeJSONResponse(errResult.Body, &errResult.Code, nil, w)
 			return
 		}
 
@@ -60,7 +60,7 @@ func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request
 			baseFunc(w, r)
 		} else {
 			log.Printf("Error during claim check: claimed id %s vs expected id %s", claims.UUID, userId)
-			EncodeJSONResponse(errResult.Body, &errResult.Code, w)
+			EncodeJSONResponse(errResult.Body, &errResult.Code, nil, w)
 		}
 	}
 }

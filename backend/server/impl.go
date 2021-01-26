@@ -9,8 +9,14 @@
 
 package server
 
+type Header struct {
+	Name  string
+	Value string
+}
+
 //Implementation response defines an error code with the associated body
 type ImplResponse struct {
-	Code int
-	Body interface{}
+	Headers []Header
+	Code    int
+	Body    interface{}
 }

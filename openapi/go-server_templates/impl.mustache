@@ -1,8 +1,14 @@
 {{>partial_header}}
 package {{packageName}}
 
+type Header struct {
+    Name string
+    Value string
+}
+
 //Implementation response defines an error code with the associated body
 type ImplResponse struct {
+    Headers []Header
 	Code int
 	Body interface{}
 }

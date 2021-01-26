@@ -54,7 +54,7 @@ func (c *LoginApiController) LoginUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Upgrade error:", err)
 		var status = 500
-		EncodeJSONResponse(err.Error(), &status, w)
+		EncodeJSONResponse(err.Error(), &status, nil, w)
 	}
 	defer conn.Close()
 	_, err = c.service.LoginUser(r.Context(), username, conn)
