@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id "org.openapi.generator" version "5.0.0-beta3"
     id 'org.hidetake.swagger.generator' version '2.18.2'
 }
 
@@ -264,35 +263,15 @@ swaggerSources {
     }
 }
 
-task generateFrontendSpec(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
-    generatorName = "kotlin"
-    inputSpec = "$rootDir/../../openapi/frontend-spec.yaml".toString()
-    outputDir = "$buildDir/generated/api-client".toString()
-    packageName = "app.cyla.decryption"
-    modelFilesConstrainedTo = [
-            "Day",
-            "Temperature",
-            "Cervix",
-            "Mucus",
-            "Bleeding",
-            "ExcludeReason"
-    ]
-    configOptions = [
-            dateLibrary: "java8"
-    ]
-}
-
 // Compile kotlin before generating code
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     it.dependsOn(swaggerSources.api.code)
-    it.dependsOn(generateFrontendSpec)
 }
 
 // Compile java before generating code
 afterEvaluate {
     android.applicationVariants.all { variant ->
         variant.javaCompileProvider.get().dependsOn(swaggerSources.api.code)
-        variant.javaCompileProvider.get().dependsOn(generateFrontendSpec)
     }
 }
 
