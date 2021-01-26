@@ -23,7 +23,7 @@ func loadLuaScript(scriptPath string) *redis.Script {
 }
 
 var changeDayScript = loadLuaScript("resources/change_day_script.lua")
-var changeDayScriptWithStats = loadLuaScript("resources/change_stats_script.lua")
+var changeStats = loadLuaScript("resources/change_stats_script.lua")
 var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua")
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
 var getHashUserKeyForLogin = loadLuaScript("resources/get_hash_user_key_for_login.lua")
@@ -48,7 +48,7 @@ func NewRedisClient() (*CylaRedisClient, error) {
 			DB:       0,
 		})}
 		changeDayScript.Load(context.Background(), cylaClient)
-		changeDayScriptWithStats.Load(context.Background(), cylaClient)
+		changeStats.Load(context.Background(), cylaClient)
 		updateHResourceScript.Load(context.Background(), cylaClient)
 		getDayByRange.Load(context.Background(), cylaClient)
 		getHashUserKeyForLogin.Load(context.Background(), cylaClient)
@@ -202,7 +202,7 @@ func (s *CylaRedisClient) ModifyDayEntryWithStats(ctx context.Context, userId st
 		fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, dayStatsUpdate.Day.Date)}, //days resource
 		append([]interface{}{dayStatsUpdate.Day.Date}, valListDay...))
 
-	changeDayScriptWithStats.Run(ctx, pipeline, []string{
+	changeStats.Run(ctx, pipeline, []string{
 		fmt.Sprintf("%v:%v", userPrefixKey, userId), //User resource
 		fmt.Sprintf("%v:%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, dayStatsUpdate.Day.Date, statsPrefixKey)},
 		valListStats)
