@@ -184,6 +184,11 @@ components:
   responses:
     DaysFound:
       description: (Empty) list of days found
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            default: max-age=86400
       content:
         application/json:
           schema:
@@ -242,7 +247,7 @@ components:
         user_key_backup:
           $ref: "#/components/schemas/EncryptedAttribute"
         auth_key:
-          $ref: '#/components/schemas/EncryptedAttribute'
+          $ref: "#/components/schemas/EncryptedAttribute"
     Day:
       title: day
       type: object
