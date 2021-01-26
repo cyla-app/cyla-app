@@ -60,10 +60,6 @@ export default ({ navigation }: PropType) => {
   const isProfileLoading = useSelector<RootState>(
     (state) => state.session.loading,
   )
-  const profileError = useSelector<RootState, string | undefined>(
-    (state) => state.session.signInError,
-  )
-  const [showSnackbar, setShowSnackbar] = useState<boolean>(true)
   const dispatch = useDispatch()
 
   if (isProfileLoading) {
@@ -78,29 +74,17 @@ export default ({ navigation }: PropType) => {
   } as ViewStyle
 
   return (
-    <>
-      <Snackbar
-        visible={showSnackbar && !!profileError}
-        onDismiss={() => setShowSnackbar(false)}
-        duration={60000}
-        action={{
-          label: 'Dismiss',
-          onPress: () => setShowSnackbar(false),
-        }}>
-        {profileError ?? 'Unknown Error'}
-      </Snackbar>
-      <View style={containerStyle}>
-        <Headline>Sign Up</Headline>
-        <LoginForm
-          continueName="Sign Up"
-          onSave={(username: string, passphrase: string) => {
-            dispatch(signUp({ username, passphrase }))
-          }}
-        />
-        <Button mode="text" onPress={() => navigation.navigate('SignIn')}>
-          I already have an account. Take me to the Sign In.
-        </Button>
-      </View>
-    </>
+    <View style={containerStyle}>
+      <Headline>Sign Up</Headline>
+      <LoginForm
+        continueName="Sign Up"
+        onSave={(username: string, passphrase: string) => {
+          dispatch(signUp({ username, passphrase }))
+        }}
+      />
+      <Button mode="text" onPress={() => navigation.navigate('SignIn')}>
+        I already have an account. Take me to the Sign In.
+      </Button>
+    </View>
   )
 }

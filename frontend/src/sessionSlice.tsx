@@ -68,7 +68,11 @@ const session = createSlice({
   extraReducers: (builder) => {
     const fulfilledReducer: CaseReducer<
       SessionStateType,
-      ReturnType<typeof checkSignIn.fulfilled>
+      ReturnType<
+        | typeof checkSignIn.fulfilled
+        | typeof signIn.fulfilled
+        | typeof signUp.fulfilled
+      >
     > = (state, action) => {
       return {
         ...state,
@@ -77,23 +81,45 @@ const session = createSlice({
       }
     }
 
+    const rejectReducer: CaseReducer<
+      SessionStateType,
+      ReturnType<
+        | typeof checkSignIn.rejected
+        | typeof signIn.rejected
+        | typeof signUp.rejected
+      >
+    > = (state, action) => {
+      return {
+        ...state,
+        loading: false,
+        signedIn: false,
+        signInError: action.error.message,
+      }
+    }
+    const pendingReducer: CaseReducer<
+      SessionStateType,
+      ReturnType<
+        | typeof checkSignIn.pending
+        | typeof signIn.pending
+        | typeof signUp.pending
+      >
+    > = (state) => {
+      return {
+        ...state,
+        loading: true,
+        signedIn: true,
+      }
+    }
     builder
       .addCase(checkSignIn.fulfilled, fulfilledReducer)
-      .addCase(checkSignIn.rejected, (state, action) => {
-        return {
-          ...state,
-          loading: false,
-          signedIn: false,
-          signInError: action.error.message,
-        }
-      })
-      .addCase(checkSignIn.pending, (state) => {
-        return {
-          ...state,
-          loading: true,
-          signedIn: true,
-        }
-      })
+      .addCase(checkSignIn.rejected, rejectReducer)
+      .addCase(checkSignIn.pending, pendingReducer)
+      .addCase(signUp.fulfilled, fulfilledReducer)
+      .addCase(signUp.rejected, rejectReducer)
+      .addCase(signUp.pending, pendingReducer)
+      .addCase(signIn.fulfilled, fulfilledReducer)
+      .addCase(signIn.rejected, rejectReducer)
+      .addCase(signIn.pending, pendingReducer)
   },
 })
 
