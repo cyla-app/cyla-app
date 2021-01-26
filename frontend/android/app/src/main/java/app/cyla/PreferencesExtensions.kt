@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import android.util.Base64
 
 private const val PREFERENCE_KEY_PASSPHRASE_IV = "passphraseIV"
-private const val PREFERENCE_KEY_USER_KEY_CELL = "userKeyCell"
+private const val PREFERENCE_KEY_ENCRYPTED_USER_KEY = "encryptedUserKey"
 private const val PREFERENCE_KEY_USER_AUTH_KEY = "authKey"
 private const val PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT = "passphraseCipherText"
 private const val PREFERENCE_KEY_USER_ID = "userId"
@@ -40,12 +40,12 @@ fun SharedPreferences.Editor.putBase64(key: String, value: ByteArray): SharedPre
     return this
 }
 
-fun SharedPreferences.getUserKeyCell(): ByteArray? {
-    return this.getBase64(PREFERENCE_KEY_USER_KEY_CELL)
+fun SharedPreferences.getEncryptedUserKey(): ByteArray? {
+    return this.getBase64(PREFERENCE_KEY_ENCRYPTED_USER_KEY)
 }
 
-fun SharedPreferences.Editor.putEncryptedUserKey(userKeyCell: ByteArray): SharedPreferences.Editor {
-    this.putBase64(PREFERENCE_KEY_USER_KEY_CELL, userKeyCell)
+fun SharedPreferences.Editor.putEncryptedUserKey(encryptedUserKey: ByteArray): SharedPreferences.Editor {
+    this.putBase64(PREFERENCE_KEY_ENCRYPTED_USER_KEY, encryptedUserKey)
     return this
 }
 
@@ -78,7 +78,7 @@ fun SharedPreferences.Editor.putPassphrase(cipherText: ByteArray, iv: ByteArray)
 fun SharedPreferences.doRequiredAttributesExist(): Boolean {
     return this.contains(PREFERENCE_KEY_PASSPHRASE_IV) &&
             this.contains(PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT) &&
-            this.contains(PREFERENCE_KEY_USER_KEY_CELL)
+            this.contains(PREFERENCE_KEY_ENCRYPTED_USER_KEY)
 }
 
 fun SharedPreferences.Editor.putUserAppInfo(uuid : String, username : String): SharedPreferences.Editor {

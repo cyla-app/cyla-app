@@ -4,11 +4,9 @@ import { formatDay } from '../utils/date'
 
 // This type is determined by app.cyla.decryption.CylaModule
 type CylaModuleType = {
-  /**
-   * If username or passphrase are null then we try to login using the stored credentials.
-   * If both are not null then we create a new user and register it.
-   */
-  setupUser: (username?: string, passphrase?: string) => Promise<void>
+  setupUserNew: (username: string, passphrase: string) => Promise<void>
+  setupUserAndSession: () => Promise<void>
+  loadUser: () => Promise<void>
   /**
    * Stores the credentials and logs the user in.
    */
@@ -41,12 +39,16 @@ class CylaModule {
     await CylaNativeModule.postDay(formatDay(date), JSON.stringify(day))
   }
 
-  async reuseLastSession() {
-    await CylaNativeModule.setupUser(undefined, undefined)
+  async setupUserAndSession() {
+    await CylaNativeModule.setupUserAndSession()
   }
 
   async signUp(username: string, passphrase: string) {
-    await CylaNativeModule.setupUser(username, passphrase)
+    await CylaNativeModule.setupUserNew(username, passphrase)
+  }
+
+  async loadUser() {
+    await CylaNativeModule.loadUser()
   }
 
   async signIn(userName: string, passphrase: string) {

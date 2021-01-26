@@ -12,10 +12,13 @@ export const checkSignIn = createAsyncThunk<
 >('session/checkSignIn', async (_, thunkAPI) => {
   const state = await NetInfo.fetch()
   const sessionAvailable = await CylaModule.isSessionAvailable()
-
-  if (sessionAvailable && state.isInternetReachable) {
-    await CylaModule.reuseLastSession()
-    await thunkAPI.dispatch(fetchDuration())
+  if (sessionAvailable) {
+    if (state.isInternetReachable) {
+      await CylaModule.setupUserAndSession()
+      await thunkAPI.dispatch(fetchDuration())
+    } else {
+      await CylaModule.loadUser()
+    }
   }
   return { signedIn: sessionAvailable }
 })

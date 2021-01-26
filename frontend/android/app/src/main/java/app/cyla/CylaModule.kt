@@ -41,7 +41,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     data class UserSetupInfo(
         val userId: String,
         val username: String,
-        val jwtString: String,
+        val jwtString: String?,
         val userKey: SymmetricKey
     )
 
@@ -89,14 +89,17 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         getEncryptionStorage().edit().clear().apply()
     }
 
-    private fun loadStoredUserInfo(): Pair<String, String> {
+    private fun loadStoredUserInfo(): Pair<UserSetupInfo, String> {
         val (passphraseCipherText, passphraseIV) = getEncryptionStorage().getPassphrase()!!
         val passphrase = decryptPassphrase(passphraseCipherText, passphraseIV)
+        val encryptedUserKey = getEncryptionStorage().getEncryptedUserKey()!!
+        val userKey = decryptUserKey(encryptedUserKey, passphrase)
 
-        val username = getAppStorage().getUserName()
-            ?: throw Exception("username is not in app storage")
-
-        return Pair(username, passphrase)
+        return Pair(UserSetupInfo(
+                userId = getAppStorage().getUserId()?: throw Exception("userId not in app storage"),
+                username = getAppStorage().getUserName()?: throw Exception("username not in app storage"),
+                userKey = userKey,
+                jwtString = null), passphrase)
     }
 
     private fun createNewUserKey(username: String, passphrase: String): UserSetupInfo {
@@ -141,16 +144,24 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun setupUser(username: String?, passphrase: String?, promise: Promise) {
+    fun loadUser(promise: Promise) {
+        val setupInfo = loadStoredUserInfo().first
+        setupCylaModuleUserInfo(setupInfo)
+        promise.resolve(setupInfo.userId)
+
+    }
+    @ReactMethod
+    fun setupUserAndSession(promise: Promise) {
+            val (setupInfo, passphrase) = loadStoredUserInfo()
+            login(setupInfo.username, passphrase, promise)
+    }
+
+    @ReactMethod
+    fun setupUserNew(username: String, passphrase: String, promise: Promise) {
         try {
-            if (username == null || passphrase == null) {
-                val (username, passphrase) = loadStoredUserInfo()
-                login(username, passphrase, promise)
-            } else {
-                val userSetupInfo = createNewUserKey(username, passphrase)
-                setupCylaModuleUserInfo(userSetupInfo)
-                promise.resolve(userSetupInfo.userId)
-            }
+            val userSetupInfo = createNewUserKey(username, passphrase)
+            setupCylaModuleUserInfo(userSetupInfo)
+            promise.resolve(userSetupInfo.userId)
 
         } catch (e: Exception) {
             Log.e("DecryptionModule", e.message, e)
@@ -221,7 +232,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                     getAppStorage().edit()
                         .putUserAppInfo(it.uuid, username)
                         .apply()
-
+                    //TODO: Move out setupCylaModuleUserInfo
                     setupCylaModuleUserInfo(UserSetupInfo(it.uuid, username, it.jwt, userKey))
                     promise.resolve(it.uuid)
                 } catch (e: Exception) {
@@ -241,7 +252,8 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         }
     }
 
-    private fun updateAuthInfo(jwtString: String) {
+    private fun updateAuthInfo(jwtString: String?) {
+        //HttpBearer ignores the header if it is null
         val jwtAuth = apiClient.value.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
         jwtAuth.bearerToken = jwtString
     }

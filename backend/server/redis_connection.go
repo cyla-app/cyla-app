@@ -163,6 +163,7 @@ func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user Us
 }
 
 func (s *CylaRedisClient) ModifyDayEntry(ctx context.Context, userId string, day Day) error {
+	//TODO: Remove duplicate code for modifyDayEntry and modifyDayEntryWithStats
 	valList, err := flatStructToSlice(day)
 	if err != nil {
 		return newHTTPErrorWithCauseError(500, "could not marshall day", err)
