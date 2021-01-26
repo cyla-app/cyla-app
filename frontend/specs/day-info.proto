@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+message Bleeding {
+  enum Strength {
+    WEAK = 0;
+    MEDIUM = 1;
+    STRONG = 2;
+  }
+
+  Strength strength = 1;
+}
+
+message Temperature {
+  float value = 1;
+  string timestamp = 2;
+  string note = 3;
+}
+
+message Mucus {
+  enum Feeling {
+    DRY = 0;
+    WET = 1;
+    SLIPPERY = 2;
+  }
+
+  enum Texture {
+    CREAMY = 0;
+    EGG_WHITE = 1;
+  }
+
+  Feeling feeling = 1;
+  Texture texture = 2;
+}
+
+message Cervix {
+  enum Opening {
+    CLOSED = 0;
+    HALF = 1;
+    RAISED = 2;
+  }
+  enum Firmness {
+    FIRM = 0;
+    MEDIUM = 1;
+    SOFT = 2;
+  }
+
+  enum Position {
+    LOW = 0;
+    CENTER = 1;
+    HIGH = 2;
+  }
+
+  Opening opening = 1;
+  Firmness firmness = 2;
+  Position position = 3;
+}
+
+enum ExcludeReason {
+    SICK = 0;
+    HUNGOVER = 1;
+    SLEEP = 2;
+}
+
+message Day {
+  string date = 1;
+  Temperature temperature = 2;
+  Bleeding bleeding = 3;
+  Mucus mucus = 4;
+  Cervix cervix = 5;
+  ExcludeReason ExcludeReason = 6;
+}

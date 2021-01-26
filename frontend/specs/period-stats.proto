@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message Period {
+  string from = 1;
+  string to = 2;
+}
+
+message PeriodStats {
+  repeated Period periods = 1;
+}
