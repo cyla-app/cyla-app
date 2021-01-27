@@ -7,6 +7,7 @@ import (
 
 type DBConnector interface {
 	DayPersistence
+	StatsPersistence
 	UserPersistence
 	LoginPersistence
 }
@@ -16,6 +17,9 @@ type DayPersistence interface {
 	GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ret []Day, err error)
 	ModifyDayEntry(ctx context.Context, userId string, day Day) error
 	ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) error
+}
+type StatsPersistence interface {
+	GetStats(ctx context.Context, userId string) (ret Stats, err error)
 }
 type UserPersistence interface {
 	CreateUser(ctx context.Context, user User) (ret UserCreatedResponse, err error)

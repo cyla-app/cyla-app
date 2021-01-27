@@ -187,6 +187,21 @@ paths:
           $ref: "#/components/responses/DaysFound"
         "500":
           description: Error when retrieving days
+  /stats/{userId}:
+    get:
+      tags:
+        - stats
+      description: Get the all stats for an user
+      operationId: getStats
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          $ref: "#/components/responses/StatsFound"
+        "404":
+          description: Stats entry not found
+        "500":
+          description: Error when retrieving stats
 components:
   parameters:
     userId:
@@ -217,6 +232,17 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Day"
+    StatsFound:
+      description: Stats for user found
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            default: max-age=86400
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/responses/Stats"
     UserNotFound:
       description: Error about missing user
       content:

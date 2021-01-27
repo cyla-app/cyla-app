@@ -205,7 +205,7 @@ func (s *CylaRedisClient) ModifyDayEntryWithStats(ctx context.Context, userId st
 
 	changeStats.Run(ctx, pipeline, []string{
 		fmt.Sprintf("%v:%v", userPrefixKey, userId), //User resource
-		fmt.Sprintf("%v:%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, dayStatsUpdate.Day.Date, statsPrefixKey)},
+		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, statsPrefixKey)},
 		valListStats)
 
 	_, err = pipeline.Exec(ctx)
@@ -277,4 +277,22 @@ func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId strin
 		days = append(days, day)
 	}
 	return days, nil
+}
+
+func (s *CylaRedisClient) GetStats(ctx context.Context, userId string) (stats Stats, err error) {
+	var redisRet map[string]string
+	redisRet, err = s.HGetAll(ctx,
+		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, statsPrefixKey)).Result()
+	if len(redisRet) == 0 {
+		return Stats{}, newHTTPError(404, "Stats not found")
+	} else if err != nil {
+		return Stats{}, newHTTPErrorWithCauseError(500, "redis error", err)
+	}
+
+	err = mapstructure.Decode(redisRet, &stats)
+	if err != nil {
+		return stats, newHTTPErrorWithCauseError(500, "could not unmarshall user", err)
+	}
+
+	return stats, nil
 }

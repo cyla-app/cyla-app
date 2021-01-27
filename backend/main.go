@@ -24,13 +24,16 @@ func main() {
 	DayApiService := server.NewDayApiService()
 	DayApiController := server.NewDayApiController(DayApiService)
 
+	StatsApiService := server.NewStatsApiService()
+	StatsApiController := server.NewStatsApiController(StatsApiService)
+
 	UserApiService := server.NewUserApiService()
 	UserApiController := server.NewUserApiController(UserApiService)
 
     LoginApiService := server.NewLoginApiService()
     LoginApiController := server.NewLoginApiController(LoginApiService)
 
-	router := server.NewRouter(LoginApiController,DayApiController, UserApiController)
+	router := server.NewRouter(LoginApiController,DayApiController, StatsApiController, UserApiController)
 
 	log.Fatal(http.ListenAndServe(":5000", router))
 }
