@@ -6,5 +6,6 @@ message Period {
 }
 
 message PeriodStats {
-  repeated Period periods = 1;
+  uint32 test = 1;
+  repeated Period periods = 2;
 }

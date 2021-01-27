@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native'
 import { Day } from '../../generated'
 import { formatDay } from '../utils/date'
+import { IPeriod, PeriodStats } from '../../generated/protobuf'
 
 // This type is determined by app.cyla.decryption.CylaModule
 type CylaModuleType = {
@@ -16,7 +17,11 @@ type CylaModuleType = {
    * */
   isUserSignedIn: () => Promise<boolean>
   getUserId: () => Promise<string>
-  postDay: (iso8601date: string, userId: string) => Promise<void>
+  saveDay: (
+    iso8601date: string,
+    userId: string,
+    periods: string,
+  ) => Promise<void>
   fetchDaysByMonths: (months: number) => Promise<string[]>
   fetchDaysByRange: (
     iso8601dateFrom: string,
@@ -25,6 +30,9 @@ type CylaModuleType = {
 }
 
 const CylaNativeModule: CylaModuleType = NativeModules.CylaModule
+
+const bin2String = (array: Uint8Array) =>
+  String.fromCharCode.apply(String, Array.from(array))
 
 class CylaModule {
   async fetchDaysByRange(from: Date, to: Date): Promise<Day[]> {
@@ -35,8 +43,16 @@ class CylaModule {
     return jsons.map((json) => JSON.parse(json))
   }
 
-  async saveDay(date: Date, day: Day) {
-    await CylaNativeModule.postDay(formatDay(date), JSON.stringify(day))
+  async saveDay(day: Day, periods: IPeriod[]) {
+    const byteArray = PeriodStats.encode(
+      new PeriodStats({ test: 0xffffff, periods }),
+    ).finish()
+    console.log(byteArray)
+    await CylaNativeModule.saveDay(
+      day.date,
+      JSON.stringify(day),
+      bin2String(byteArray),
+    )
   }
 
   async setupUserAndSession() {

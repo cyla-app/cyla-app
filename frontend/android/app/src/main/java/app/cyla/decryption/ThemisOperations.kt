@@ -30,20 +30,34 @@ class ThemisOperations {
             return SymmetricKey(userKeyCell.decrypt(encryptedUserKey))
         }
 
-        fun decryptData(
+        fun decryptString(
                 key: SymmetricKey,
                 data: ByteArray
         ): String {
+            return decryptData(key, data).toString(Charset.forName("UTF-8"))
+        }
+
+        fun decryptData(
+            key: SymmetricKey,
+            data: ByteArray
+        ): ByteArray {
             val dataCell = SecureCell.SealWithKey(key)
-            return dataCell.decrypt(data).toString(Charset.forName("UTF-8"))
-        }       
-        
-        fun encryptData(
+            return dataCell.decrypt(data)
+        }
+
+        fun encryptString(
                 key: SymmetricKey,
                 data: String
         ): ByteArray {
+            return encryptData(key, data.toByteArray())
+        }
+
+        fun encryptData(
+            key: SymmetricKey,
+            data: ByteArray
+        ): ByteArray {
             val dataCell = SecureCell.SealWithKey(key)
-            return dataCell.encrypt(data.toByteArray())
+            return dataCell.encrypt(data)
         }
     }
 }

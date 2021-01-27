@@ -21,16 +21,16 @@ import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.*
 import okhttp3.Cache
 import okhttp3.CacheControl
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
-import android.net.NetworkInfo
 
 import android.net.ConnectivityManager
+import app.cyla.api.model.DayStatsUpdate
+import app.cyla.api.model.Stats
 
 
 // Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
@@ -119,11 +119,14 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         val encryptedUserKey = getEncryptionStorage().getEncryptedUserKey()!!
         val userKey = decryptUserKey(encryptedUserKey, passphrase)
 
-        return Pair(UserSetupInfo(
-                userId = getAppStorage().getUserId()?: throw Exception("userId not in app storage"),
-                username = getAppStorage().getUserName()?: throw Exception("username not in app storage"),
+        return Pair(
+            UserSetupInfo(
+                userId = getAppStorage().getUserId() ?: throw Exception("userId not in app storage"),
+                username = getAppStorage().getUserName() ?: throw Exception("username not in app storage"),
                 userKey = userKey,
-                jwtString = null), passphrase)
+                jwtString = null
+            ), passphrase
+        )
     }
 
     private fun createNewUserKey(username: String, passphrase: String): UserSetupInfo {
@@ -174,10 +177,11 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         promise.resolve(setupInfo.userId)
 
     }
+
     @ReactMethod
     fun setupUserAndSession(promise: Promise) {
-            val (setupInfo, passphrase) = loadStoredUserInfo()
-            login(setupInfo.username, passphrase, promise)
+        val (setupInfo, passphrase) = loadStoredUserInfo()
+        login(setupInfo.username, passphrase, promise)
     }
 
     @ReactMethod
@@ -200,17 +204,48 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun postDay(iso8601date: String, dayJson: String, promise: Promise) {
+    fun saveDay(iso8601date: String, dayJson: String, periods: String, promise: Promise) {
         CompletableFuture.supplyAsync {
+            val charArray = periods.toCharArray()
+            val byteArray = ByteArray(charArray.size) {
+                charArray[it].toByte()
+            }
+            val newCharArray = IntArray(byteArray.size) {
+                byteArray[it].toInt().and(0xFF) 
+            }
+            val newString = String(newCharArray, 0, newCharArray.size)
             val day = Day()
             day.date = LocalDate.parse(iso8601date)
             day.version = 0
-            day.dayInfo = ThemisOperations.encryptData(userKey, dayJson)
+            day.dayInfo = ThemisOperations.encryptString(userKey, dayJson)
+            val stats = Stats()
+            stats.periodLengthStructure = ThemisOperations.encryptData(userKey, byteArray)
+            val statsUpdate = DayStatsUpdate()
+            statsUpdate.day = day
+            statsUpdate.stats = stats
 
-            dayApi.value.modifyDayEntry(
+            dayApi.value.modifyDayEntryWithStats(
                 getAppStorage().getUserId()!!,
-                day
+                statsUpdate
             )
+            promise.resolve(null)
+        }.exceptionally { throwable ->
+            promise.reject(throwable)
+        }
+    }
+
+    fun fetchPeriodStats(iso8601date: String, promise: Promise) {
+        CompletableFuture.supplyAsync {
+
+/*            val newCharArray = IntArray(byteArray.size) {
+                byteArray[it].toInt().and(0xFF)
+            }
+            val newString = String(newCharArray, 0, newCharArray.size)
+           
+            dayApi.value.(
+                getAppStorage().getUserId()!!,
+                statsUpdate
+            )*/
             promise.resolve(null)
         }.exceptionally { throwable ->
             promise.reject(throwable)
@@ -230,7 +265,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
             val writableNativeArray = WritableNativeArray()
             for (plainTextDay in days) {
-                val json = ThemisOperations.decryptData(userKey, plainTextDay.dayInfo)
+                val json = ThemisOperations.decryptString(userKey, plainTextDay.dayInfo)
                 writableNativeArray.pushString(json)
             }
             promise.resolve(writableNativeArray)

@@ -7,7 +7,7 @@ import {
 import { Day } from '../generated'
 import CylaModule from './modules/CylaModule'
 import { RootState } from './App'
-import { isAfter, isBefore, sub } from 'date-fns'
+import { add, isAfter, isBefore, isWithinInterval, sub } from 'date-fns'
 import { formatDay, isWithin, parseDay } from './utils/date'
 import {
   groupByDay,
@@ -16,9 +16,68 @@ import {
 } from './utils/stateIndices'
 import { combineEpics, Epic } from 'redux-observable'
 import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators'
-import { empty, from as fromPromise, of } from 'rxjs'
-import { markPeriod, unmarkPeriod } from './statisticsSlice'
-import { EMPTY } from 'rxjs/src/internal/observable/empty'
+import { from as fromPromise, of } from 'rxjs'
+import { IPeriod } from '../generated/protobuf'
+
+const findInsertIndex = (periods: IPeriod[], day: Day) => {
+  const date = parseDay(day.date)
+
+  let index = 0
+  for (; index < periods.length; index++) {
+    const period = periods[index]
+
+    const start = parseDay(period.from!)
+    const end = parseDay(period.to!)
+    const range = {
+      start: sub(start, { days: 1 }),
+      end: add(end, { days: 1 }),
+    }
+
+    if (isWithinInterval(date, range)) {
+      return { index, exists: true }
+    } else {
+      if (isAfter(date, end)) {
+        return { index, exists: false }
+      }
+    }
+  }
+  return { index, exists: false }
+}
+
+const markPeriod = (periods: IPeriod[], day: Day) => {
+  if (!day.bleeding) {
+    return periods
+  }
+
+  const newPeriods = [...periods]
+  const { index, exists } = findInsertIndex(periods, day)
+
+  if (exists) {
+    // merge into existing period
+    const period = periods[index]
+    newPeriods[index] = {
+      from: isBefore(new Date(day.date), new Date(period.from!))
+        ? day.date
+        : period.from,
+      to: isAfter(new Date(day.date), new Date(period.to!))
+        ? day.date
+        : period.to,
+    }
+  } else {
+    // create new period and insert at correct position
+    newPeriods.splice(index, 0, { from: day.date, to: day.date })
+  }
+
+  return newPeriods
+}
+
+const unmarkPeriod = (periods: IPeriod[], day: Day) => {
+  if (day.bleeding) {
+    return periods
+  }
+
+  throw new Error('NYI')
+}
 
 export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
@@ -37,6 +96,7 @@ export type DaysStateType = {
   range: Range | null
   byWeek: WeekIndex
   byDay: DayIndex
+  periodStats: IPeriod[]
   loading: boolean
   error?: string
 }
@@ -44,8 +104,10 @@ export type DaysStateType = {
 const days = createSlice({
   name: 'days',
   initialState: {
+    range: null,
     byWeek: {},
     byDay: {},
+    periodStats: [],
     loading: false,
     error: undefined,
   } as DaysStateType,
@@ -81,6 +143,20 @@ const days = createSlice({
         loading: false,
       }
     },
+    singleFulfilled: (
+      state,
+      action: PayloadAction<{
+        day: Day
+        periods: IPeriod[]
+      }>,
+    ) => {
+      const payload = action.payload
+      return {
+        ...state,
+        periods: payload.periods,
+        loading: false,
+      }
+    },
   },
 })
 
@@ -89,21 +165,24 @@ export type MyEpic = Epic<AnyAction, AnyAction, RootState>
 const fetchRangeEpic: MyEpic = (action$, state$) =>
   action$.pipe(
     filter(fetchRange.match),
-    switchMap((action) => {
+    filter((action) => {
       const range = state$.value.days.range
       const to = parseDay(action.payload.to)
       const from = parseDay(action.payload.from)
 
-      if (!action.payload.refresh && range) {
-        // TODO: Do not fetch the whole data is part of it is already in the state
-        const within = isWithin(
-          { from, to },
-          { from: parseDay(range.from), to: parseDay(range.from) },
-        )
-        if (within) {
-          return of({ byDay: {}, byWeek: {}, range: range })
-        }
+      if (!range || action.payload.refresh) {
+        return true
       }
+      // TODO: Do not fetch the whole data is part of it is already in the state
+      return !isWithin(
+        { from, to },
+        { from: parseDay(range.from), to: parseDay(range.from) },
+      )
+    }),
+    switchMap((action) => {
+      const range = state$.value.days.range
+      const to = parseDay(action.payload.to)
+      const from = parseDay(action.payload.from)
 
       return fromPromise(CylaModule.fetchDaysByRange(from, to)).pipe(
         map((fetchedDays: Day[]) => {
@@ -117,12 +196,12 @@ const fetchRangeEpic: MyEpic = (action$, state$) =>
             },
           }
         }),
+        map((result: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
+          days.actions.fulfilled(result),
+        ),
+        catchError((err: Error) => of(days.actions.rejected(err.message))),
       )
     }),
-    map((action: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
-      days.actions.fulfilled(action),
-    ),
-    catchError((err: Error) => of(days.actions.rejected(err.message))),
   )
 
 const fetchDurationEpic: MyEpic = (action$, state$) =>
@@ -152,12 +231,12 @@ const fetchDurationEpic: MyEpic = (action$, state$) =>
               : { from: dateStringFrom, to: dateStringTo },
           }
         }),
+        map((result: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
+          days.actions.fulfilled(result),
+        ),
+        catchError((err: Error) => of(days.actions.rejected(err.message))),
       )
     }),
-    map((action: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
-      days.actions.fulfilled(action),
-    ),
-    catchError((err: Error) => of(days.actions.rejected(err.message))),
   )
 
 const saveDayEpic: MyEpic = (action$, $state) =>
@@ -169,7 +248,13 @@ const saveDayEpic: MyEpic = (action$, $state) =>
         return of(days.actions.rejected('Unable to save day while offline.'))
       }
 
-      return fromPromise(CylaModule.saveDay(parseDay(day.date), day)).pipe(
+      const periods = $state.value.days.periodStats
+      return fromPromise(
+        CylaModule.saveDay(
+          day,
+          day.bleeding ? markPeriod(periods, day) : unmarkPeriod(periods, day),
+        ),
+      ).pipe(
         mergeMap(() => {
           return of(
             // FIXME: reloading the day is probably not the most efficient way
@@ -178,13 +263,12 @@ const saveDayEpic: MyEpic = (action$, $state) =>
               to: day.date,
               refresh: true,
             }) as AnyAction,
-            (day.bleeding ? markPeriod(day) : unmarkPeriod(day)) as AnyAction,
+            days.actions.singleFulfilled({ day, periods }) as AnyAction,
           )
         }),
       )
     }),
   )
-
 export const saveDay = createAction<Day>('says/saveDay')
 export const fetchDuration = createAction<Duration | undefined>(
   'days/fetchDuration',

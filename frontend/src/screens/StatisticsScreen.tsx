@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux'
 import { RootState } from '../App'
-import React, { useState } from 'react'
+import React from 'react'
 import { DaysStateType } from '../daysSlice'
 import useLoadMore from '../hooks/useLoadMore'
 import Chart from '../components/chart/Chart'
