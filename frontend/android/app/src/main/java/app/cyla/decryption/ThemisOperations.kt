@@ -1,8 +1,10 @@
 package app.cyla.decryption
 
+import app.cyla.api.model.Day
 import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SymmetricKey
 import java.nio.charset.Charset
+import java.time.LocalDate
 
 class ThemisOperations {
     companion object {
@@ -37,12 +39,40 @@ class ThemisOperations {
             return decryptData(key, data).toString(Charset.forName("UTF-8"))
         }
 
-        fun decryptData(
+        fun decryptString(
+                key: SymmetricKey,
+                data: ByteArray,
+                context: ByteArray
+        ): String {
+            return decryptData(key, data, context).toString(Charset.forName("UTF-8"))
+        }
+
+        private fun decryptData(
             key: SymmetricKey,
-            data: ByteArray
+            data: ByteArray,
+            context: ByteArray?
         ): ByteArray {
             val dataCell = SecureCell.SealWithKey(key)
-            return dataCell.decrypt(data)
+            return if(context == null || context.isEmpty()) {
+                dataCell.decrypt(data)
+            } else {
+                dataCell.decrypt(data, context)
+            }
+        }
+
+        fun decryptData(
+                key: SymmetricKey,
+                data: ByteArray
+        ): ByteArray {
+            return decryptData(key, data, null)
+        }
+
+        fun decryptDayInfo(
+                userKey: SymmetricKey,
+                day: Day
+        ): String {
+            val dayKey = SymmetricKey(decryptData(userKey, day.dayKey))
+            return decryptString(dayKey, day.dayInfo, day.date.toString().toByteArray())
         }
 
         fun encryptString(
@@ -52,12 +82,47 @@ class ThemisOperations {
             return encryptData(key, data.toByteArray())
         }
 
-        fun encryptData(
+        fun encryptString(
+                key: SymmetricKey,
+                data: String,
+                context: ByteArray
+        ) : ByteArray {
+            return encryptData(key, data.toByteArray(), context)
+        }
+
+        private fun encryptData(
             key: SymmetricKey,
-            data: ByteArray
+            data: ByteArray,
+            context : ByteArray?
         ): ByteArray {
             val dataCell = SecureCell.SealWithKey(key)
-            return dataCell.encrypt(data)
+            return if (context == null || context.isEmpty()) {
+                dataCell.encrypt(data)
+            } else {
+                dataCell.encrypt(data, context)
+            }
+        }
+
+        fun encryptData(
+                key: SymmetricKey,
+                data: ByteArray
+        ) : ByteArray {
+            return encryptData(key, data, null)
+        }
+
+        /**
+         * Encrypts day with a new, random date key. The date key is encrypted using the userKey.
+         * Additionally, the date is used as encryption context for the dayInfo.
+         */
+        fun encryptDayInfo(
+                userKey: SymmetricKey,
+                dayInfo: String,
+                dateContext: String
+        ): Pair<ByteArray, ByteArray> {
+            val dayKey = SymmetricKey();
+            return Pair(
+                    encryptString(dayKey, dayInfo, dateContext.toByteArray()),
+                    encryptData(userKey, dayKey.toByteArray()))
         }
     }
 }

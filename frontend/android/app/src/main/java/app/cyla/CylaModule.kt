@@ -211,13 +211,17 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 charArray[it].toByte()
             }
             val newCharArray = IntArray(byteArray.size) {
-                byteArray[it].toInt().and(0xFF) 
+                byteArray[it].toInt().and(0xFF)
             }
             val newString = String(newCharArray, 0, newCharArray.size)
             val day = Day()
             day.date = LocalDate.parse(iso8601date)
             day.version = 0
-            day.dayInfo = ThemisOperations.encryptString(userKey, dayJson)
+
+            val (encryptedDayInfo, encryptedDayKey) = ThemisOperations.encryptDayInfo(userKey, dayJson, iso8601date)
+            day.dayInfo = encryptedDayInfo
+            day.dayKey = encryptedDayKey
+
             val stats = Stats()
 
             // FIXME: Return better value to not give information
@@ -267,7 +271,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
             val writableNativeArray = WritableNativeArray()
             for (plainTextDay in days) {
-                val json = ThemisOperations.decryptString(userKey, plainTextDay.dayInfo)
+                val json = ThemisOperations.decryptDayInfo(userKey, plainTextDay)
                 writableNativeArray.pushString(json)
             }
             promise.resolve(writableNativeArray)
