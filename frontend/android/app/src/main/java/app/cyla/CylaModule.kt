@@ -219,7 +219,9 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             day.version = 0
             day.dayInfo = ThemisOperations.encryptString(userKey, dayJson)
             val stats = Stats()
-            stats.periodLengthStructure = ThemisOperations.encryptData(userKey, byteArray)
+
+            // FIXME: Return better value to not give information
+            stats.periodLengthStructure = if (byteArray.isEmpty()) ByteArray(0) else ThemisOperations.encryptData(userKey, byteArray)
             val statsUpdate = DayStatsUpdate()
             statsUpdate.day = day
             statsUpdate.stats = stats

@@ -75,8 +75,8 @@ const unmarkPeriod = (periods: IPeriod[], day: Day) => {
   if (day.bleeding) {
     return periods
   }
-
-  throw new Error('NYI')
+  // FIXME: Implement else case properly
+  return periods
 }
 
 export type Range = { from: string; to: string }
