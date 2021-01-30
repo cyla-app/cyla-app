@@ -76,8 +76,6 @@ export default ({
     })
     .flat(1)
 
-  console.log(Object.fromEntries(markedDates))
-
   return (
     <CalendarList
       markingType={'period'}
