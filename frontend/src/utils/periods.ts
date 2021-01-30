@@ -73,7 +73,7 @@ const unionPeriods = (periods: IPeriod[]) => {
 
 export const markPeriod = (periods: IPeriod[], day: Day) => {
   if (!day.bleeding || day.bleeding.strength === Bleeding.strength.NONE) {
-    return periods
+    return unmarkPeriod(periods, day)
   }
 
   const newPeriods = [...periods]
@@ -95,13 +95,13 @@ export const markPeriod = (periods: IPeriod[], day: Day) => {
   return unionPeriods(newPeriods)
 }
 
-export const unmarkPeriod = (periods: IPeriod[], day: Day) => {
+const unmarkPeriod = (periods: IPeriod[], day: Day) => {
   if (day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE) {
     return periods
   }
 
   const newPeriods = [...periods]
-  const { index, exists } = findIndex(periods, day, true)
+  const { index, exists } = findIndex(periods, day, false)
 
   if (!exists) {
     return periods

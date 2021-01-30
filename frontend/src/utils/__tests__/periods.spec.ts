@@ -1,4 +1,4 @@
-import { markPeriod, unmarkPeriod } from '../periods'
+import { markPeriod } from '../periods'
 import { Bleeding } from '../../../generated'
 import { IPeriod } from '../../../generated/protobuf'
 
@@ -131,7 +131,7 @@ describe('periods', () => {
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
     periods = markPeriod(periods, bleeingDay('2021-01-30'))
 
-    periods = unmarkPeriod(periods, noBleeingDay('2021-01-28'))
+    periods = markPeriod(periods, noBleeingDay('2021-01-28'))
     expect(periods).toEqual([
       {
         from: '2021-01-29',
@@ -147,7 +147,7 @@ describe('periods', () => {
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
     periods = markPeriod(periods, bleeingDay('2021-01-30'))
 
-    periods = unmarkPeriod(periods, noBleeingDay('2021-01-30'))
+    periods = markPeriod(periods, noBleeingDay('2021-01-30'))
     expect(periods).toEqual([
       {
         from: '2021-01-28',
@@ -163,7 +163,7 @@ describe('periods', () => {
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
     periods = markPeriod(periods, bleeingDay('2021-01-30'))
 
-    periods = unmarkPeriod(periods, noBleeingDay('2021-01-29'))
+    periods = markPeriod(periods, noBleeingDay('2021-01-29'))
     expect(periods).toEqual([
       {
         from: '2021-01-28',
@@ -171,6 +171,22 @@ describe('periods', () => {
       },
       {
         from: '2021-01-30',
+        to: '2021-01-30',
+      },
+    ])
+  })
+
+  it('should should not unmark if in close proximity', () => {
+    let periods: IPeriod[] = []
+
+    periods = markPeriod(periods, bleeingDay('2021-01-28'))
+    periods = markPeriod(periods, bleeingDay('2021-01-29'))
+    periods = markPeriod(periods, bleeingDay('2021-01-30'))
+
+    periods = markPeriod(periods, noBleeingDay('2021-01-31'))
+    expect(periods).toEqual([
+      {
+        from: '2021-01-28',
         to: '2021-01-30',
       },
     ])
