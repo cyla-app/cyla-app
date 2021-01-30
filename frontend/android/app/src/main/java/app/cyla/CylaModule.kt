@@ -29,6 +29,7 @@ import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 
 import android.net.ConnectivityManager
+import app.cyla.api.StatsApi
 import app.cyla.api.model.DayStatsUpdate
 import app.cyla.api.model.Stats
 
@@ -94,7 +95,13 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     private val userApi = lazy {
-        UserApi(apiClient.value)
+        val apiClient = ApiClient(OkHttpClient.Builder().build())
+        apiClient.basePath = getAppStorage().getString("apiBasePath", apiClient.basePath)
+        UserApi(apiClient)
+    }
+
+    private val statsApi = lazy {
+        StatsApi(apiClient.value)
     }
 
     override fun getName(): String {
@@ -190,7 +197,6 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             val userSetupInfo = createNewUserKey(username, passphrase)
             setupCylaModuleUserInfo(userSetupInfo)
             promise.resolve(userSetupInfo.userId)
-
         } catch (e: Exception) {
             Log.e("DecryptionModule", e.message, e)
             resetEncryptionStorage()
@@ -210,10 +216,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             val byteArray = ByteArray(charArray.size) {
                 charArray[it].toByte()
             }
-            val newCharArray = IntArray(byteArray.size) {
-                byteArray[it].toInt().and(0xFF)
-            }
-            val newString = String(newCharArray, 0, newCharArray.size)
+ 
             val day = Day()
             day.date = LocalDate.parse(iso8601date)
             day.version = 0
@@ -242,17 +245,19 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     fun fetchPeriodStats(iso8601date: String, promise: Promise) {
         CompletableFuture.supplyAsync {
+            
+            val byteArray = statsApi.value.getStats(
+                getAppStorage().getUserId()!!
+            ).periodLengthStructure
 
-/*            val newCharArray = IntArray(byteArray.size) {
-                byteArray[it].toInt().and(0xFF)
+            if (byteArray != null) {
+                val newCharArray = IntArray(byteArray.size) {
+                    byteArray[it].toInt().and(0xFF)
+                }
+                val newString = String(newCharArray, 0, newCharArray.size)
+
+                promise.resolve(newString)
             }
-            val newString = String(newCharArray, 0, newCharArray.size)
-           
-            dayApi.value.(
-                getAppStorage().getUserId()!!,
-                statsUpdate
-            )*/
-            promise.resolve(null)
         }.exceptionally { throwable ->
             promise.reject(throwable)
         }

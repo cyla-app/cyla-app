@@ -47,7 +47,6 @@ class CylaModule {
     const byteArray = PeriodStats.encode(
       new PeriodStats({ test: 0xffffff, periods }),
     ).finish()
-    console.log(byteArray)
     await CylaNativeModule.saveDay(
       day.date,
       JSON.stringify(day),

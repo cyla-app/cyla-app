@@ -7,7 +7,7 @@ import {
 import { Day } from '../generated'
 import CylaModule from './modules/CylaModule'
 import { RootState } from './App'
-import { add, isAfter, isBefore, isWithinInterval, sub } from 'date-fns'
+import { isAfter, isBefore, sub } from 'date-fns'
 import { formatDay, isWithin, parseDay } from './utils/date'
 import {
   groupByDay,
@@ -18,66 +18,7 @@ import { combineEpics, Epic } from 'redux-observable'
 import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators'
 import { from as fromPromise, of } from 'rxjs'
 import { IPeriod } from '../generated/protobuf'
-
-const findInsertIndex = (periods: IPeriod[], day: Day) => {
-  const date = parseDay(day.date)
-
-  let index = 0
-  for (; index < periods.length; index++) {
-    const period = periods[index]
-
-    const start = parseDay(period.from!)
-    const end = parseDay(period.to!)
-    const range = {
-      start: sub(start, { days: 1 }),
-      end: add(end, { days: 1 }),
-    }
-
-    if (isWithinInterval(date, range)) {
-      return { index, exists: true }
-    } else {
-      if (isAfter(date, end)) {
-        return { index, exists: false }
-      }
-    }
-  }
-  return { index, exists: false }
-}
-
-const markPeriod = (periods: IPeriod[], day: Day) => {
-  if (!day.bleeding) {
-    return periods
-  }
-
-  const newPeriods = [...periods]
-  const { index, exists } = findInsertIndex(periods, day)
-
-  if (exists) {
-    // merge into existing period
-    const period = periods[index]
-    newPeriods[index] = {
-      from: isBefore(new Date(day.date), new Date(period.from!))
-        ? day.date
-        : period.from,
-      to: isAfter(new Date(day.date), new Date(period.to!))
-        ? day.date
-        : period.to,
-    }
-  } else {
-    // create new period and insert at correct position
-    newPeriods.splice(index, 0, { from: day.date, to: day.date })
-  }
-
-  return newPeriods
-}
-
-const unmarkPeriod = (periods: IPeriod[], day: Day) => {
-  if (day.bleeding) {
-    return periods
-  }
-  // FIXME: Implement else case properly
-  return periods
-}
+import { markPeriod, unmarkPeriod } from './utils/periods'
 
 export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
@@ -153,7 +94,7 @@ const days = createSlice({
       const payload = action.payload
       return {
         ...state,
-        periods: payload.periods,
+        periodStats: payload.periods,
         loading: false,
       }
     },
@@ -248,13 +189,11 @@ const saveDayEpic: MyEpic = (action$, $state) =>
         return of(days.actions.rejected('Unable to save day while offline.'))
       }
 
-      const periods = $state.value.days.periodStats
-      return fromPromise(
-        CylaModule.saveDay(
-          day,
-          day.bleeding ? markPeriod(periods, day) : unmarkPeriod(periods, day),
-        ),
-      ).pipe(
+      const previousPeriods = $state.value.days.periodStats
+      const periods = day.bleeding
+        ? markPeriod(previousPeriods, day)
+        : unmarkPeriod(previousPeriods, day)
+      return fromPromise(CylaModule.saveDay(day, periods)).pipe(
         mergeMap(() => {
           return of(
             // FIXME: reloading the day is probably not the most efficient way
