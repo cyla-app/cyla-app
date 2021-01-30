@@ -1,19 +1,37 @@
 import React, { useMemo } from 'react'
-import { CalendarList } from 'react-native-calendars'
+import { CalendarList, CalendarTheme } from 'react-native-calendars'
 import { useTheme } from 'react-native-paper'
-import { Bleeding, Day } from '../../generated'
+import { Day } from '../../generated'
+import { IPeriod } from '../../generated/protobuf'
+import { eachDayOfInterval, isSameDay } from 'date-fns'
+import { formatDay, parseDay } from '../utils/date'
 
 type PropsType = {
   days: Day[]
+  periodStats: IPeriod[]
   onDaySelected: (day: Day) => void
   onVisibleMonthsChange: (monthYear: { month: number; year: number }[]) => void
 }
 
-export default ({ days, onDaySelected, onVisibleMonthsChange }: PropsType) => {
+export default ({
+  days,
+  periodStats,
+  onDaySelected,
+  onVisibleMonthsChange,
+}: PropsType) => {
   const { colors } = useTheme()
   //const [ready, setReady] = useState<boolean>(false)
   const theme = useMemo(
     () => ({
+      // This style fixes a problem: https://github.com/wix/react-native-calendars/issues/642#issuecomment-463523192
+      'stylesheet.day.period': {
+        base: {
+          overflow: 'hidden',
+          height: 34,
+          alignItems: 'center',
+          width: 38,
+        },
+      },
       backgroundColor: colors.background,
       calendarBackground: colors.background,
       textSectionTitleColor: colors.text,
@@ -42,28 +60,29 @@ export default ({ days, onDaySelected, onVisibleMonthsChange }: PropsType) => {
     [colors],
   )
 
-  const markedDates = days.map((day) => {
-    return [
-      day.date,
-      day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE
-        ? {
-            customStyles: {
-              container: {
-                borderColor: colors.periodRed,
-                borderWidth: 1.5,
-              },
-              text: {},
-            },
-          }
-        : {},
-    ]
-  })
+  const markedDates = periodStats
+    .map((period) => {
+      return eachDayOfInterval({
+        start: parseDay(period.from!),
+        end: parseDay(period.to!),
+      }).map((date) => [
+        formatDay(date),
+        {
+          startingDay: isSameDay(date, parseDay(period.from!)),
+          endingDay: isSameDay(date, parseDay(period.to!)),
+          color: colors.periodRed,
+        },
+      ])
+    })
+    .flat(1)
+
+  console.log(Object.fromEntries(markedDates))
 
   return (
     <CalendarList
-      markingType={'custom'}
+      markingType={'period'}
       markedDates={Object.fromEntries(markedDates)}
-      theme={theme}
+      theme={theme as CalendarTheme}
       // Initially visible month. Default = Date()
       current={new Date()}
       // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
@@ -122,7 +141,7 @@ export default ({ days, onDaySelected, onVisibleMonthsChange }: PropsType) => {
       // }}
       // Enable the option to swipe between months. Default = false
       // enableSwipeMonths={false}
-      displayLoadingIndicator={true}
+      displayLoadingIndicator={false}
       pastScrollRange={24}
       // Max amount of months allowed to scroll to the future. Default = 50
       futureScrollRange={0}

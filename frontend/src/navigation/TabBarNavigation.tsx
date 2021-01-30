@@ -1,6 +1,4 @@
 import React from 'react'
-import { Text } from 'react-native'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import DailyScreen from '../screens/DailyScreen'
 import CalendarScreen from '../screens/CalendarScreen'
 import NYIScreen from '../screens/NYIScreen'
@@ -11,30 +9,7 @@ import CalendarIcon from './icons/CalendarIcon'
 import StatisticsIcon from './icons/StatisticsIcon'
 import ProfileIcon from './icons/ProfileIcon'
 import { useTheme } from 'react-native-paper'
-
-const NavigationBarLabel = ({
-  color,
-  children,
-}: // focused,
-{
-  color: string
-  children: React.ReactNode
-  focused: boolean
-}) => {
-  return (
-    <Text
-      style={{
-        fontSize: 10,
-        lineHeight: 20,
-        height: 20,
-        textAlign: 'center',
-        color: color,
-      }}>
-      {/*{focused ? children : null}*/}
-      {children}
-    </Text>
-  )
-}
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
 
 export type TabsParamList = {
   Daily: undefined
@@ -43,7 +18,7 @@ export type TabsParamList = {
   Profile: undefined
 }
 
-const Tab = createBottomTabNavigator<TabsParamList>()
+const Tab = createMaterialBottomTabNavigator<TabsParamList>()
 
 export default () => {
   const { colors } = useTheme()
@@ -54,48 +29,38 @@ export default () => {
           name="Daily"
           component={DailyScreen}
           options={{
-            tabBarIcon: ({ size }) => (
-              <DailyIcon color={colors.daily} size={size} />
-            ),
-            tabBarLabel: (props) => (
-              <NavigationBarLabel {...props}>Today</NavigationBarLabel>
-            ),
+            tabBarColor: colors.daily,
+            tabBarIcon: ({ color }) => <DailyIcon color={color} size={20} />,
+            tabBarLabel: 'Today',
           }}
         />
         <Tab.Screen
           name="Calendar"
           component={CalendarScreen}
           options={{
-            tabBarIcon: ({ size }) => (
-              <CalendarIcon color={colors.calendar} size={size} />
-            ),
-            tabBarLabel: (props) => (
-              <NavigationBarLabel {...props}>Calendar</NavigationBarLabel>
-            ),
+            tabBarColor: colors.calendar,
+            tabBarIcon: ({ color }) => <CalendarIcon color={color} size={20} />,
+            tabBarLabel: 'Calendar',
           }}
         />
         <Tab.Screen
           name="Statistics"
           component={StatisticsScreen}
           options={{
-            tabBarIcon: ({ size }) => (
-              <StatisticsIcon color={colors.statistics} size={size} />
+            tabBarColor: colors.statistics,
+            tabBarIcon: ({ color }) => (
+              <StatisticsIcon color={color} size={20} />
             ),
-            tabBarLabel: (props) => (
-              <NavigationBarLabel {...props}>Statistics</NavigationBarLabel>
-            ),
+            tabBarLabel: 'Statistics',
           }}
         />
         <Tab.Screen
           name="Profile"
           component={__DEV__ ? ProfileScreen : NYIScreen}
           options={{
-            tabBarIcon: ({ size }) => (
-              <ProfileIcon color={colors.profile} size={size} />
-            ),
-            tabBarLabel: (props) => (
-              <NavigationBarLabel {...props}>Profile</NavigationBarLabel>
-            ),
+            tabBarColor: colors.profile,
+            tabBarIcon: ({ color }) => <ProfileIcon color={color} size={20} />,
+            tabBarLabel: 'Profile',
           }}
         />
       </Tab.Navigator>

@@ -105,6 +105,18 @@ const days = createSlice({
         loading: false,
       }
     },
+    periodStatsFulfilled: (
+      state,
+      action: PayloadAction<{
+        periodStats: IPeriod[]
+      }>,
+    ) => {
+      const payload = action.payload
+      return {
+        ...state,
+        periodStats: payload.periodStats,
+      }
+    },
   },
 })
 
@@ -231,7 +243,33 @@ const saveDayEpic: MyEpic = (action$, $state) =>
       )
     }),
   )
-export const saveDay = createAction<Day>('says/saveDay')
+
+const fetchPeriodStatsEpic: MyEpic = (action$) => {
+  return action$.pipe(
+    filter(fetchPeriodStats.match),
+    switchMap(() => {
+      return fromPromise(CylaModule.fetchPeriodStats()).pipe(
+        map((stats) =>
+          days.actions.periodStatsFulfilled({
+            periodStats: (PeriodStats.toObject(stats) as IPeriodStats).periods!,
+          }),
+        ),
+        catchError(() => {
+          // FIXME: We think that an error means that there are no stats, but there could be other reasons
+          return of(
+            days.actions.periodStatsFulfilled({
+              periodStats: [],
+            }),
+          )
+        }),
+      )
+    }),
+  )
+}
+
+export const fetchPeriodStats = createAction<void>('days/fetchPeriodStats')
+
+export const saveDay = createAction<Day>('days/saveDay')
 export const fetchDuration = createAction<Duration | undefined>(
   'days/fetchDuration',
 )
@@ -241,5 +279,10 @@ export const fetchRange = createAction<{
   refresh?: boolean
 }>('days/fetchRange')
 
-export const epic = combineEpics(fetchRangeEpic, fetchDurationEpic, saveDayEpic)
+export const epic = combineEpics(
+  fetchRangeEpic,
+  fetchDurationEpic,
+  saveDayEpic,
+  fetchPeriodStatsEpic,
+)
 export const reducer = days.reducer

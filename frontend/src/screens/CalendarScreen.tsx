@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { View } from 'react-native'
 import Calendar from '../components/Calendar'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,10 +9,11 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { TabsParamList } from '../navigation/TabBarNavigation'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
-import { DayIndex, fetchRange } from '../daysSlice'
+import { DayIndex, fetchPeriodStats, fetchRange } from '../daysSlice'
 import { lastDayOfMonth } from 'date-fns'
 import { formatDay } from '../utils/date'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
+import { IPeriod } from '../../generated/protobuf'
 
 type CalendarScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Calendar'>,
@@ -24,18 +25,26 @@ export default ({
 }: {
   navigation: CalendarScreenNavigationProp
 }) => {
+  const periodStats = Object.values(
+    useSelector<RootState, IPeriod[]>((state) => state.days.periodStats),
+  )
   const days = Object.values(
-    useSelector<RootState, DayIndex>((state) => state.days.byDay), // FIXME dynamically load from state
+    useSelector<RootState, DayIndex>((state) => state.days.byDay),
   )
   const daysError = useSelector<RootState, string | undefined>(
     (state) => state.days.error,
   )
   const dispatch = useDispatch()
 
+  useEffect(() => {
+    dispatch(fetchPeriodStats())
+  }, [dispatch])
+
   return (
     <>
       <View>
         <Calendar
+          days={days}
           onVisibleMonthsChange={(months) => {
             const first = new Date(months[0].year, months[0].month - 1)
             const last = lastDayOfMonth(
@@ -52,7 +61,7 @@ export default ({
               }),
             )
           }}
-          days={days}
+          periodStats={periodStats}
           onDaySelected={(day: Day) => {
             navigation.navigate('Detail', {
               day,
