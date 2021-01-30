@@ -243,20 +243,24 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         }
     }
 
-    fun fetchPeriodStats(iso8601date: String, promise: Promise) {
+    @ReactMethod
+    fun fetchPeriodStats(promise: Promise) {
         CompletableFuture.supplyAsync {
-            
-            val byteArray = statsApi.value.getStats(
+            val encryptedStats = statsApi.value.getStats(
                 getAppStorage().getUserId()!!
             ).periodLengthStructure
 
-            if (byteArray != null) {
-                val newCharArray = IntArray(byteArray.size) {
-                    byteArray[it].toInt().and(0xFF)
+            if (encryptedStats != null) {
+                val stats = ThemisOperations.decryptData(userKey, encryptedStats)
+                
+                val newCharArray = IntArray(stats.size) {
+                    stats[it].toInt().and(0xFF)
                 }
                 val newString = String(newCharArray, 0, newCharArray.size)
 
                 promise.resolve(newString)
+            } else {
+                promise.reject("Nothing found")
             }
         }.exceptionally { throwable ->
             promise.reject(throwable)

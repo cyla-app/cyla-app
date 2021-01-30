@@ -15,10 +15,17 @@ import {
   mergeWeekIndices,
 } from './utils/stateIndices'
 import { combineEpics, Epic } from 'redux-observable'
-import { catchError, filter, map, mergeMap, switchMap } from 'rxjs/operators'
+import {
+  catchError,
+  concatMap,
+  filter,
+  map,
+  mergeMap,
+  switchMap,
+} from 'rxjs/operators'
 import { from as fromPromise, of } from 'rxjs'
-import { IPeriod } from '../generated/protobuf'
-import { markPeriod, unmarkPeriod } from './utils/periods'
+import { IPeriod, IPeriodStats, PeriodStats } from '../generated/protobuf'
+import { markPeriod } from './utils/periods'
 
 export type Range = { from: string; to: string }
 export type DayIndex = { [date: string]: Day }
@@ -88,13 +95,13 @@ const days = createSlice({
       state,
       action: PayloadAction<{
         day: Day
-        periods: IPeriod[]
+        periodStats: IPeriod[]
       }>,
     ) => {
       const payload = action.payload
       return {
         ...state,
-        periodStats: payload.periods,
+        periodStats: payload.periodStats,
         loading: false,
       }
     },
@@ -183,26 +190,42 @@ const fetchDurationEpic: MyEpic = (action$, state$) =>
 const saveDayEpic: MyEpic = (action$, $state) =>
   action$.pipe(
     filter(saveDay.match),
-    mergeMap((action) => {
+    concatMap((action) => {
       const day: Day = action.payload
-      if (!$state.value.connectivity.online) {
-        return of(days.actions.rejected('Unable to save day while offline.'))
-      }
 
-      const previousPeriods = $state.value.days.periodStats
-      const periods = day.bleeding
-        ? markPeriod(previousPeriods, day)
-        : unmarkPeriod(previousPeriods, day)
-      return fromPromise(CylaModule.saveDay(day, periods)).pipe(
-        mergeMap(() => {
-          return of(
-            // FIXME: reloading the day is probably not the most efficient way
-            fetchRange({
-              from: day.date,
-              to: day.date,
-              refresh: true,
-            }) as AnyAction,
-            days.actions.singleFulfilled({ day, periods }) as AnyAction,
+      return fromPromise(CylaModule.fetchPeriodStats()).pipe(
+        map((stats) => ({
+          stats: (PeriodStats.toObject(stats) as IPeriodStats).periods!,
+          day,
+        })),
+        catchError((e) => {
+          // FIXME: We think that an error means that there are no stats, but there could be other reasons
+          console.error(e)
+          return of({ stats: [], day })
+        }),
+        switchMap(({ stats: previousStats, day }) => {
+          if (!$state.value.connectivity.online) {
+            return of(
+              days.actions.rejected('Unable to save day while offline.'),
+            )
+          }
+
+          const stats = markPeriod(previousStats, day)
+          return fromPromise(CylaModule.saveDay(day, stats)).pipe(
+            mergeMap(() => {
+              return of(
+                // FIXME: reloading the day is probably not the most efficient way
+                fetchRange({
+                  from: day.date,
+                  to: day.date,
+                  refresh: true,
+                }) as AnyAction,
+                days.actions.singleFulfilled({
+                  day,
+                  periodStats: stats,
+                }) as AnyAction,
+              )
+            }),
           )
         }),
       )
