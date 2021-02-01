@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="160mm"
+   height="80mm"
+   viewBox="0 0 160 80"
+   version="1.1"
+   id="svg897"
+   sodipodi:docname="drawing-1.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07, custom)">
+  <defs
+     id="defs891">
+    <inkscape:path-effect
+       effect="mirror_symmetry"
+       start_point="80,0"
+       end_point="80,80"
+       center_point="80,40"
+       id="path-effect1491"
+       is_visible="true"
+       lpeversion="1"
+       mode="free"
+       discard_orig_path="false"
+       fuse_paths="false"
+       oposite_fuse="false"
+       split_items="false" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="312.83951"
+     inkscape:cy="111.35711"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="true"
+     inkscape:window-width="1916"
+     inkscape:window-height="1035"
+     inkscape:window-x="0"
+     inkscape:window-y="43"
+     inkscape:window-maximized="1"
+     inkscape:snap-path-clip="true"
+     inkscape:snap-path-mask="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid1489" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata894">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="path1481"
+       style="fill:#000000;stroke-width:0.264583"
+       d="M 80,0 V 80 C 41.340068,80 10,48.65993 10,10 10,3.96875 6.6145833,0 0,0 m 80,0 v 80 c 38.65993,0 70,-31.34007 70,-70 0,-6.03125 3.38542,-10 10,-10"
+       sodipodi:nodetypes="cccc"
+       inkscape:original-d="M 80,0 V 80 C 41.340068,80 10,48.65993 10,10 10,3.96875 6.6145833,0 0,0"
+       inkscape:path-effect="#path-effect1491" />
+  </g>
+</svg>

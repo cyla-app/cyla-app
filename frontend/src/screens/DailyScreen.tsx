@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { RefreshControl, ScrollView, View } from 'react-native'
+import React from 'react'
+import { View, Text } from 'react-native'
 import CalendarStrip from '../components/CalendarStrip'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
@@ -7,13 +7,11 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { CompositeNavigationProp } from '@react-navigation/native'
 import { TabsParamList } from '../navigation/TabBarNavigation'
 import { Bleeding, Day } from '../../generated'
-import EntryDay from '../components/EntryDay'
-import { DayIndex, saveDay } from '../daysSlice'
-import { useDispatch, useSelector } from 'react-redux'
+import { DayIndex } from '../daysSlice'
+import { useSelector } from 'react-redux'
 import { RootState } from '../App'
-import { formatDay, parseDay } from '../utils/date'
-import useRefresh from '../hooks/useRefresh'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
+import { IPeriod } from '../../generated/protobuf'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -24,12 +22,14 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   const days = Object.values(
     useSelector<RootState, DayIndex>((state) => state.days.byDay), // FIXME dynamically load from state
   )
-  const [loading, refresh] = useRefresh()
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+
+  const periodStats = Object.values(
+    useSelector<RootState, IPeriod[]>((state) => state.days.periodStats),
+  )
+
   const daysError = useSelector<RootState, string | undefined>(
     (state) => state.days.error,
   )
-  const dispatch = useDispatch()
 
   return (
     <>
@@ -37,38 +37,24 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
         style={{
           flex: 1,
           flexDirection: 'column',
-          alignContent: 'flex-end',
+          justifyContent: 'flex-end',
+          marginBottom: 20,
         }}>
-        <ScrollView
-          contentContainerStyle={{}}
-          refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={refresh} />
-          }>
-          <EntryDay
-            selectedDate={formatDay(selectedDate)}
-            onSave={(day: Day) => {
-              dispatch(saveDay(day))
-            }}
-          />
-        </ScrollView>
-
         <View>
-          <CalendarStrip
-            periodDays={days.filter(
-              (day) =>
-                day.bleeding &&
-                day.bleeding.strength !== Bleeding.strength.NONE,
-            )}
-            onDateSelected={(date: string) => {
-              setSelectedDate(parseDay(date))
-            }}
-            onDaySelected={(day: Day) => {
-              navigation.navigate('Detail', {
-                day,
-              })
-            }}
-          />
+          <Text>{JSON.stringify(periodStats)}</Text>
         </View>
+        <CalendarStrip
+          periodDays={days.filter(
+            (day) =>
+              day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE,
+          )}
+          onDateSelected={(date: string) => {}}
+          onDaySelected={(day: Day) => {
+            navigation.navigate('Detail', {
+              day,
+            })
+          }}
+        />
       </View>
       <DaysErrorSnackbar daysError={daysError} />
     </>
