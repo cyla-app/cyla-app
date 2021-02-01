@@ -7,7 +7,7 @@
     "android:apk": "cd android && ./gradlew assembleRelease && adb install app/build/outputs/apk/release/app-release.apk",
     "android:aab": "cd android && ./gradlew bundleRelease",
     "android:adb:reverse": "adb reverse tcp:5000 tcp:5000 && adb reverse tcp:8081 tcp:8081",
-    "android:start-avd": "bash -c '$ANDROID_HOME/emulator/emulator -avd $($ANDROID_HOME/emulator/emulator -list-avds | head -n 1)'",
+    "android:start-avd": "bash -c '$ANDROID_HOME/emulator/emulator -avd $($ANDROID_HOME/emulator/emulator -list-avds | head -n 1)' && yarn run android:adb:reverse",
     "ios": "react-native run-ios",
     "start": "yarn generate && react-native start",
     "test": "jest",
