@@ -734,6 +734,14 @@
   dependencies:
     "@types/hammerjs" "^2.0.36"
 
+"@gorhom/animated-tabbar@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@gorhom/animated-tabbar/-/animated-tabbar-2.1.1.tgz#2f804646403b9838e9d24af1e994b706262f9515"
+  integrity sha512-KN+fsmqen3g+w0sDPJSnlUrNUtKno+t/4M39+V0rg78v2tM9q7TVlp23SunsY3CmssT+IRVfGX3iMNkzgOzIdQ==
+  dependencies:
+    lodash.isequal "^4.5.0"
+    react-native-redash "15.7.3"
+
 "@hapi/address@2.x.x":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.1.4.tgz#5d67ed43f3fd41a69d4b9ff7b56e7c0d1d0a81e5"
@@ -1304,6 +1312,25 @@
   integrity sha512-Pzh9O3sTK8V6I1olsXpCfj2k/ygO2q1X0vhhnDrEQyYLHZesWz+zMZMVcwXLCYf0U36EtmyYaFGPfXlTtDHe3A==
   dependencies:
     "@babel/types" "^7.3.0"
+
+"@types/color-convert@*":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/color-convert/-/color-convert-2.0.0.tgz#8f5ee6b9e863dcbee5703f5a517ffb13d3ea4e22"
+  integrity sha512-m7GG7IKKGuJUXvkZ1qqG3ChccdIM/qBBo913z+Xft0nKCX4hAU/IxKwZBU4cpRZ7GS5kV4vOblUkILtSShCPXQ==
+  dependencies:
+    "@types/color-name" "*"
+
+"@types/color-name@*":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
+  integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
+
+"@types/color@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@types/color/-/color-3.0.1.tgz#2900490ed04da8116c5058cd5dba3572d5a25071"
+  integrity sha512-oeUWVaAwI+xINDUx+3F2vJkl/vVB03VChFF/Gl3iQCdbcakjuoJyMOba+3BXRtnBhxZ7uBYqQBi9EpLnvSoztA==
+  dependencies:
+    "@types/color-convert" "*"
 
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
@@ -6174,14 +6201,23 @@ react-native-paper@^4.7.1:
     color "^3.1.2"
     react-native-iphone-x-helper "^1.3.1"
 
-react-native-reanimated@2.0.0-rc.1:
-  version "2.0.0-rc.1"
-  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-2.0.0-rc.1.tgz#51be1ca5bfa7df0d75a2878792612032bff792ae"
-  integrity sha512-97xo5N4IHNg8hwJ/sTrp7gVuS85AUH3QEjKEtkwZxkH6uijB1OViyNlly6VAIE/cZIaDEPcY7tmDYJakUUHIGA==
+react-native-reanimated@2.0.0-rc.2:
+  version "2.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-2.0.0-rc.2.tgz#8ff0210986c5234940d951e384793874802f81aa"
+  integrity sha512-drOPEIMSh+224RTBZJrMasxZBdNodTcQcJKIfH5vMZPYhfSbljxfKTGfn7ZKn7ZYkX+wCPKKhJJPdD5+9Pevyw==
   dependencies:
     "@babel/plugin-transform-object-assign" "^7.10.4"
     fbjs "^3.0.0"
     string-hash-64 "^1.0.3"
+
+react-native-redash@15.7.3:
+  version "15.7.3"
+  resolved "https://registry.yarnpkg.com/react-native-redash/-/react-native-redash-15.7.3.tgz#40524976857aa7edbed9225985df8f8958505821"
+  integrity sha512-L/Ku5mUtOhobQAVt5fMHlvV1tcB2n3Aqg6JxrZBGOuNHYEovocxXiHSY5ZgHpmYwfMpTTgPWIBOWbXRJ/XymWQ==
+  dependencies:
+    abs-svg-path "^0.1.1"
+    normalize-svg-path "^1.0.1"
+    parse-svg-path "^0.1.2"
 
 react-native-redash@^16.0.4:
   version "16.0.4"

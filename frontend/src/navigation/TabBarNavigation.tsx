@@ -1,61 +1,114 @@
 import React from 'react'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import DailyScreen from '../screens/DailyScreen'
 import CalendarScreen from '../screens/CalendarScreen'
 import NYIScreen from '../screens/NYIScreen'
 import ProfileScreen from '../screens/ProfileScreen'
+import { BottomNavigation, useTheme } from 'react-native-paper'
 import StatisticsScreen from '../screens/StatisticsScreen'
-import DailyIcon from './icons/DailyIcon'
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
+import { Link, TabActions } from '@react-navigation/native'
+import { Platform, StyleSheet } from 'react-native'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import CalendarIcon from './icons/CalendarIcon'
 import StatisticsIcon from './icons/StatisticsIcon'
 import ProfileIcon from './icons/ProfileIcon'
-import { useTheme } from 'react-native-paper'
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
-import { TouchableHighlight, View } from 'react-native'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import DailyIcon from './icons/DailyIcon'
+// import BottomNavigation from './BottomNavigation'
 
 export type TabsParamList = {
   Daily: undefined
   Calendar: undefined
-  Adding: undefined
   Statistics: undefined
   Profile: undefined
 }
 
-const SIZE = 50
+const styles = StyleSheet.create({
+  icon: {
+    backgroundColor: 'transparent',
+  },
+  touchable: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+})
+type Scene = { route: { key: string } }
 
-const AddButton = () => {
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        left: 10,
-        bottom: 10,
-        overflow: 'visible',
-      }}>
-      <TouchableHighlight
-        underlayColor="#2882D8"
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: SIZE,
-          height: SIZE,
-          borderRadius: SIZE / 2,
-          backgroundColor: '#48A2F8',
-          overflow: 'visible',
-        }}>
-        <MaterialCommunityIcons size={24} color="#F8F8F8" name={'plus'} />
-      </TouchableHighlight>
-    </View>
-  )
-}
-
-const Tab = createMaterialBottomTabNavigator<TabsParamList>()
+const Tab = createBottomTabNavigator<TabsParamList>()
 
 export default () => {
   const { colors } = useTheme()
+  const theme = useTheme()
   return (
     <>
-      <Tab.Navigator barStyle={{ paddingTop: 100, overflow: 'visible' }}>
+      <Tab.Navigator
+        tabBar={({ state, descriptors, navigation }) => {
+          return (
+            <BottomNavigation
+              theme={theme}
+              navigationState={state}
+              onIndexChange={(index: number) =>
+                navigation.dispatch({
+                  ...TabActions.jumpTo(state.routes[index].name),
+                  target: state.key,
+                })
+              }
+              renderScene={({ route }) => descriptors[route.key].render()}
+              renderIcon={({ route, focused, color }) => {
+                const { options } = descriptors[route.key]
+
+                if (typeof options.tabBarIcon === 'string') {
+                  return (
+                    <MaterialCommunityIcons
+                      name={options.tabBarIcon}
+                      color={color}
+                      size={24}
+                      style={styles.icon}
+                    />
+                  )
+                }
+
+                if (typeof options.tabBarIcon === 'function') {
+                  return options.tabBarIcon({ focused, color })
+                }
+
+                return null
+              }}
+              getLabelText={({ route }: { route: Scene }) => {
+                const { options } = descriptors[route.key]
+
+                return options.tabBarLabel !== undefined
+                  ? options.tabBarLabel
+                  : options.title !== undefined
+                  ? options.title
+                  : (route as Route<string>).name
+              }}
+              getColor={({ route }) =>
+                descriptors[route.key].options.tabBarColor
+              }
+              getBadge={({ route }) =>
+                descriptors[route.key].options.tabBarBadge
+              }
+              getAccessibilityLabel={({ route }) =>
+                descriptors[route.key].options.tabBarAccessibilityLabel
+              }
+              getTestID={({ route }) =>
+                descriptors[route.key].options.tabBarTestID
+              }
+              onTabPress={({ route, preventDefault }) => {
+                const event = navigation.emit({
+                  type: 'tabPress',
+                  target: route.key,
+                  canPreventDefault: true,
+                })
+
+                if (event.defaultPrevented) {
+                  preventDefault()
+                }
+              }}
+            />
+          )
+        }}>
         <Tab.Screen
           name="Daily"
           component={DailyScreen}
@@ -72,14 +125,6 @@ export default () => {
             tabBarColor: colors.calendar,
             tabBarIcon: ({ color }) => <CalendarIcon color={color} size={20} />,
             tabBarLabel: 'Calendar',
-          }}
-        />
-        <Tab.Screen
-          name="Adding"
-          component={() => null}
-          options={{
-            tabBarLabel: '',
-            tabBarIcon: ({}) => <AddButton />,
           }}
         />
         <Tab.Screen
