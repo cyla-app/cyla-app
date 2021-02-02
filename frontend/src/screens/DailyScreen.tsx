@@ -43,10 +43,14 @@ const calculatePercentageUntilNextPeriod = (
   const cycleStats = stats(cycleLengths)
 
   const daysSinceLastPeriod = differenceInDays(
-    parseDay(lastPeriod.to!),
     new Date(),
+    parseDay(lastPeriod.to!),
   )
-  return [daysSinceLastPeriod, daysSinceLastPeriod / cycleStats.mean]
+
+  return [
+    daysSinceLastPeriod,
+    Math.min(daysSinceLastPeriod / cycleStats.mean, 1),
+  ]
 }
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {

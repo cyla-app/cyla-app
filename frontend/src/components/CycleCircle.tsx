@@ -66,7 +66,8 @@ export default ({
         d={`M 50,-${stroke / 2 + arrowSize / 2} 
                 l ${arrowSize}, ${arrowSize} -${arrowSize}, ${arrowSize} z
         `}
-        fill={colors.buttonBackground}
+        fill={percentage >= 1 ? colors.primary : colors.buttonBackground}
+        stroke={colors.primary}
         transform={`rotate(${fullDegrees} 50 50)`}
       />
       <Text x={50} y={50} fill="black" fontSize={10} textAnchor="middle">
