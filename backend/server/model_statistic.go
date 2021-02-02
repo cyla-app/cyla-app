@@ -15,6 +15,9 @@ type Statistic struct {
 
 	// Hash value for the previous version for this user's stat. For conflict detection.
 	PrevHashValue string `json:"prevHashValue,omitempty" mapstructure:"PrevHashValue"`
+
+	// fnv32-HashSum for the value property
+	HashValue string `json:"hashValue,omitempty" mapstructure:"HashValue"`
 }
 
 func GetStatisticValueName() string {
@@ -22,4 +25,7 @@ func GetStatisticValueName() string {
 }
 func GetStatisticPrevHashValueName() string {
 	return "PrevHashValue"
+}
+func GetStatisticHashValueName() string {
+	return "HashValue"
 }

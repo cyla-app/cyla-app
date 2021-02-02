@@ -8,6 +8,11 @@ if isUserExist == 0 then
     --- TODO: return error replies instead of codes
     return 0
 else
-    redis.call('HSET', KEYS[2], unpack(ARGV))
+    local hashVal = redis.call('GET', KEYS[2])
+    if hashVal and hashVal ~= ARGV[1] then
+        return redis.error_reply("Conflict detected for " .. KEYS[2])
+    end
+    redis.call('SET', KEYS[2], ARGV[2])
+    redis.call('HSET', KEYS[3], unpack(ARGV, 3, #ARGV))
     return 1
 end

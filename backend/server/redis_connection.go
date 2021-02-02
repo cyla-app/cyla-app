@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
@@ -32,6 +34,9 @@ const userPrefixKey = "user"
 const userNamePrefixKey = "name"
 const dayPrefixKey = "day"
 const statsPrefixKey = "stats"
+const hashPrefixKey = "hashVal"
+
+const initHashVal = "init"
 
 type CylaRedisClient struct {
 	*redis.Client
@@ -206,7 +211,7 @@ func (s *CylaRedisClient) ModifyDayEntryWithStats(ctx context.Context, userId st
 	_, err = pipeline.Exec(ctx)
 
 	if err != nil {
-		log.Println("Error during pipeline")
+		log.Println("Error during pipeline", err)
 		return newHTTPErrorWithCauseError(500, "error during execution of pipeline", err)
 	}
 	if scriptRet, _ := scriptCmd.Int(); scriptRet == 0 {
@@ -222,17 +227,24 @@ func saveStats(ctx context.Context, pipeline redis.Pipeliner, userStats UserStat
 		return newHTTPErrorWithCauseError(500, "could not marshall user stats", err)
 	}
 	for statName, stat := range userStatsMap {
+		if stat.PrevHashValue == "" {
+			stat.PrevHashValue = initHashVal
+		}
+		h := fnv.New32()
+		h.Write([]byte(stat.Value))
+		stringHashValue := strconv.Itoa(int(h.Sum32()))
+		stat.HashValue = stringHashValue
 		valListStats, err := flatStructToSlice(stat)
 		if err != nil {
 			return newHTTPErrorWithCauseError(500, "could not marshall stat", err)
 		}
 
+		statPrefix := fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, statsPrefixKey, statName)
 		changeStats.Run(ctx, pipeline, []string{
-			fmt.Sprintf("%v:%v", userPrefixKey, userId),                                  //User resource
-			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, statsPrefixKey, statName)}, // TODO: Use constant stats prefix keys instead of statName
-			valListStats)
-
-		// TODO: Conflict recognition
+			fmt.Sprintf("%v:%v", userPrefixKey, userId), //User resource
+			statPrefix + fmt.Sprintf(":%v", hashPrefixKey),
+			statPrefix}, // TODO: Use constant stats prefix keys instead of statName
+			append([]interface{}{stat.PrevHashValue, stringHashValue}, valListStats...))
 
 	}
 	return nil
@@ -320,6 +332,9 @@ func (s *CylaRedisClient) GetStats(ctx context.Context, userId string) (userStat
 			return userStats, newHTTPErrorWithCauseError(500,
 				fmt.Sprintf("could not unmarshall stat with name %v", statName),
 				err)
+		}
+		if stat.PrevHashValue == initHashVal {
+			stat.PrevHashValue = ""
 		}
 		userStatsMap[statName] = stat
 	}
