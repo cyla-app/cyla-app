@@ -140,13 +140,13 @@ function MaterialBottomTabViewInner({
               height={80 * (WIDTH / 160)}
               viewBox="0 0 160 80">
               <Path
-                fill={'white'}
+                fill={colors.background}
                 d="M 80,0 V 80 C 41.340068,80 10,48.65993 10,10 10,3.96875 6.6145833,0 0,0 m 80,0 v 80 c 38.65993,0 70,-31.34007 70,-70 0,-6.03125 3.38542,-10 10,-10"
               />
             </Svg>
           </View>
         ) : (
-          <Touchable {...props} children={children} />
+          <Touchable {...props} key={props.key} children={children} />
         )
       }}
       renderIcon={({ route, focused, color }) => {
