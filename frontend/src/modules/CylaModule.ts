@@ -12,6 +12,7 @@ type CylaModuleType = {
    * Stores the credentials and logs the user in.
    */
   login: (userName: string, passphrase: string) => Promise<boolean>
+  logout: () => Promise<void>
   /**
    * Checks whether credentials are stored
    * */
@@ -76,6 +77,10 @@ class CylaModule {
 
   async loadUser() {
     await CylaNativeModule.loadUser()
+  }
+
+  async logout() {
+    await CylaNativeModule.logout()
   }
 
   async signIn(userName: string, passphrase: string) {

@@ -1,7 +1,7 @@
 import { createSlice, CaseReducer, createAsyncThunk } from '@reduxjs/toolkit'
 import { RootState } from './App'
 import CylaModule from './modules/CylaModule'
-import { fetchDuration } from './daysSlice'
+import { fetchDuration, resetDays } from './daysSlice'
 import NetInfo from '@react-native-community/netinfo'
 import { generateMockData } from './utils/mockData'
 
@@ -56,18 +56,33 @@ export const signUp = createAsyncThunk<
   return { signedIn: false }
 })
 
+export const logout = createAsyncThunk<void, void, { state: RootState }>(
+  'session/logout',
+  async (_, thunkAPI) => {
+    thunkAPI.dispatch(resetDays())
+    thunkAPI.dispatch(resetSession())
+    await CylaModule.logout()
+    return
+  },
+)
+
 type SessionStateType = {
   loading: boolean
   signedIn: boolean
   error?: string
 }
 
+const initialState: SessionStateType = {
+  loading: false,
+  signedIn: false,
+}
+
 const session = createSlice({
   name: 'session',
-  initialState: {
-    signedIn: false,
-  } as SessionStateType,
-  reducers: {},
+  initialState: initialState,
+  reducers: {
+    reset: () => initialState,
+  },
   extraReducers: (builder) => {
     const fulfilledReducer: CaseReducer<
       SessionStateType,
@@ -125,5 +140,7 @@ const session = createSlice({
       .addCase(signIn.pending, pendingReducer)
   },
 })
+
+export const resetSession = session.actions.reset
 
 export const reducer = session.reducer

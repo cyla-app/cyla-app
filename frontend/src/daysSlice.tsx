@@ -49,17 +49,20 @@ export type DaysStateType = {
   error?: string
 }
 
+const initialState: DaysStateType = {
+  range: null,
+  byWeek: {},
+  byDay: {},
+  periodStats: [],
+  loading: false,
+  error: undefined,
+}
+
 const days = createSlice({
   name: 'days',
-  initialState: {
-    range: null,
-    byWeek: {},
-    byDay: {},
-    periodStats: [],
-    loading: false,
-    error: undefined,
-  } as DaysStateType,
+  initialState: initialState,
   reducers: {
+    reset: () => initialState,
     pending: (state: DaysStateType, _: PayloadAction<Duration | undefined>) => {
       return {
         ...state,
@@ -333,4 +336,7 @@ export const epic = combineEpics(
   fetchPeriodStatsEpic,
   saveMockDaysEpic,
 )
+
+export const resetDays = days.actions.reset
+
 export const reducer = days.reducer

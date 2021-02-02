@@ -15,7 +15,6 @@ export default () => {
   const containerStyle: ViewStyle = {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: 'white',
     padding: 20,
   } as ViewStyle
 
