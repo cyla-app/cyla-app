@@ -77,7 +77,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           style={{ flex: 1 }}
           contentContainerStyle={{
             flexDirection: 'column',
-            alignItems: 'flex-start',
+            alignItems: 'center',
             justifyContent: 'flex-start',
           }}>
           <View>
@@ -101,7 +101,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
             const width = Dimensions.get('window').width * 0.8
             const month = format(parseDay(period1.to!), 'MMMM')
             return (
-              <View key={i} style={{ margin: 30 }}>
+              <View key={i} style={{ marginTop: 30 }}>
                 <Text>{month}</Text>
                 <Svg width={width} height="20" viewBox={`0 0 ${width} 20`}>
                   <Rect
@@ -121,7 +121,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
                     }
                     height={20}
                     rx="5px"
-                    fill={colors.periodRed}
+                    fill={colors.primary}
                   />
                 </Svg>
               </View>

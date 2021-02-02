@@ -34,6 +34,7 @@ export default ({ navigation }: PropType) => {
     <View style={containerStyle}>
       <Headline>Sign Up</Headline>
       <LoginForm
+        repeatPassphrase={true}
         loading={isSessionLoading}
         continueName="Sign Up"
         onSave={(username: string, passphrase: string) => {

@@ -23,6 +23,7 @@ export default () => {
     <View style={containerStyle}>
       <Headline>Sign In</Headline>
       <LoginForm
+        repeatPassphrase={false}
         loading={isSessionLoading}
         continueName="Sign In"
         onSave={(username: string, passphrase: string) => {

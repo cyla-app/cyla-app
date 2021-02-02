@@ -31,10 +31,9 @@ declare global {
       periodRed: string
       daily: string
       calendar: string
+      add: string
       statistics: string
       profile: string
-      statisticsPositive: string
-      statisticsNegative: string
     }
 
     interface Theme {}
@@ -47,19 +46,20 @@ const theme = {
   colors: {
     ...NavigationDefaultTheme.colors,
     ...PaperDefaultTheme.colors,
-    primary: '#79486D',
-    accent: '#9E1818',
+    primary: '#00075E',
+    accent: '#CC1C21',
     surface: '#FFF',
+    background: '#ffeded',
+    // background: '#FFF',
     backdrop: '#000000',
     onSurface: '#ac959c',
-    periodRed: '#9E1818',
+    periodRed: '#CC1C21',
     buttonBackground: 'rgb(239,228,237)',
-    daily: 'rgb(96,72,121)',
-    calendar: 'rgb(121,72,97)',
-    statistics: 'rgb(97,121,72)',
-    profile: 'rgb(72,121,96)',
-    statisticsPositive: 'rgb(97,121,72)',
-    statisticsNegative: 'rgb(72,97,121)',
+    daily: '#00075E',
+    calendar: 'rgb(0,8,114)',
+    add: 'rgb(0,10,133)',
+    statistics: 'rgb(0,11,153)',
+    profile: 'rgb(0,13,172)',
   },
 }
 

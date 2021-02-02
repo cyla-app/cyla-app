@@ -87,7 +87,7 @@ export default () => {
           name="Add"
           component={AddScreen}
           options={{
-            tabBarColor: colors.periodRed,
+            tabBarColor: colors.add,
             tabBarIcon: ({ color }) => <CalendarIcon color={color} size={20} />,
             tabBarLabel: 'Add',
           }}
