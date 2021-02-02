@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { View, Text, Dimensions, ScrollView } from 'react-native'
+import { View, ScrollView } from 'react-native'
 import CalendarStrip from '../components/CalendarStrip'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
@@ -12,11 +12,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
 import { IPeriod } from '../../generated/protobuf'
-import { differenceInDays, format } from 'date-fns'
+import { add, differenceInDays, format } from 'date-fns'
 import { parseDay } from '../utils/date'
 import { max, stats } from '../utils/math'
-import Svg, { Rect } from 'react-native-svg'
-import { Subheading, useTheme } from 'react-native-paper'
+import CycleBar from '../components/CycleBar'
+import CycleStats from '../components/CycleStats'
+import CycleCircle from '../components/CycleCircle'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -31,8 +32,28 @@ const pairwise = <T,>(array: T[]): [T, T][] => {
   return output
 }
 
+const calculatePercentageUntilNextPeriod = (
+  periodStats: IPeriod[],
+  cycleLengths: number[],
+): [number, number] => {
+  if (periodStats.length === 0) {
+    return [0, 0]
+  }
+  const lastPeriod = periodStats[periodStats.length - 1]
+  const cycleStats = stats(cycleLengths)
+
+  const daysSinceLastPeriod = differenceInDays(
+    new Date(),
+    parseDay(lastPeriod.to!),
+  )
+
+  return [
+    daysSinceLastPeriod,
+    Math.min(daysSinceLastPeriod / cycleStats.mean, 1),
+  ]
+}
+
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
-  const { colors } = useTheme()
   const days = Object.values(
     useSelector<RootState, DayIndex>((state) => state.days.byDay), // FIXME dynamically load from state
   )
@@ -64,6 +85,13 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
     return accumulator
   }, [])
 
+  const plainCycleLengths = cycleLengths.map(([cycleLength]) => cycleLength)
+  const maxCycleLength = cycleLengths.length > 0 ? max(plainCycleLengths) : 0
+
+  const [cycleDay, percentage] = calculatePercentageUntilNextPeriod(
+    periodStats,
+    plainCycleLengths,
+  )
   return (
     <>
       <View
@@ -71,8 +99,11 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           flex: 1,
           flexDirection: 'column',
           justifyContent: 'flex-end',
+          alignItems: 'center',
           marginBottom: 20,
         }}>
+        <CycleStats cycleLengths={plainCycleLengths} />
+        <CycleCircle cycleDay={cycleDay} percentage={percentage} />
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{
@@ -80,53 +111,14 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
             alignItems: 'center',
             justifyContent: 'flex-start',
           }}>
-          <View>
-            {cycleLengths.length > 0 ? (
-              <Subheading>
-                Average Cycle Length:{' '}
-                {Math.round(
-                  stats(cycleLengths.map(([length]) => length)).mean * 10,
-                ) / 10}{' '}
-                (+/-
-                {Math.round(
-                  stats(cycleLengths.map(([length]) => length)).variance * 10,
-                ) / 10}
-                )
-              </Subheading>
-            ) : (
-              <Subheading>Unknown</Subheading>
-            )}
-          </View>
-          {cycleLengths.map(([length, period1], i) => {
-            const width = Dimensions.get('window').width * 0.8
-            const month = format(parseDay(period1.to!), 'MMMM')
-            return (
-              <View key={i} style={{ marginTop: 30 }}>
-                <Text>{month}</Text>
-                <Svg width={width} height="20" viewBox={`0 0 ${width} 20`}>
-                  <Rect
-                    x={0}
-                    y={0}
-                    width={width}
-                    height={20}
-                    rx="5px"
-                    fill={colors.buttonBackground}
-                  />
-                  <Rect
-                    x={0}
-                    y={0}
-                    width={
-                      width *
-                      (length / max(cycleLengths.map(([length]) => length)))
-                    }
-                    height={20}
-                    rx="5px"
-                    fill={colors.primary}
-                  />
-                </Svg>
-              </View>
-            )
-          })}
+          {cycleLengths.map(([cycleLength, period1], i) => (
+            <CycleBar
+              key={i}
+              month={format(parseDay(period1.to!), 'MMMM')}
+              cycleLength={cycleLength}
+              maxCycleLength={maxCycleLength}
+            />
+          ))}
         </ScrollView>
         <CalendarStrip
           periodDays={days.filter(
