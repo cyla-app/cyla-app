@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { RefreshControl, ScrollView, Text, View } from 'react-native'
 import CylaModule from '../modules/CylaModule'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { DayIndex } from '../daysSlice'
 import { RootState } from '../App'
 import {
@@ -12,6 +12,7 @@ import {
 } from 'react-native-paper'
 import useRefresh from '../hooks/useRefresh'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { logout } from '../sessionSlice'
 
 export default () => {
   const [userId, setUserId] = useState<string>('')
@@ -20,6 +21,7 @@ export default () => {
   )
   const [realName, setRealName] = useState<string | null>('')
   const [loading, refresh] = useRefresh()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const getUserId = async () => {
@@ -59,6 +61,13 @@ export default () => {
           await AsyncStorage.setItem('realName', name)
         }}>
         Set your name
+      </Button>
+      <Button
+        icon={'logout'}
+        onPress={async () => {
+          dispatch(logout())
+        }}>
+        Logout
       </Button>
       {__DEV__ ? (
         <View>

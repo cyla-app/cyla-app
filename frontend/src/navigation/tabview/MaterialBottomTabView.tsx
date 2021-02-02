@@ -130,6 +130,7 @@ function MaterialBottomTabViewInner({
         // @ts-ignore
         return route.name === 'Add' ? (
           <View
+            key={props.key}
             style={{
               width: WIDTH,
               // alignItems: 'center',
@@ -146,7 +147,22 @@ function MaterialBottomTabViewInner({
             </Svg>
           </View>
         ) : (
-          <Touchable {...props} key={props.key} children={children} />
+          <Touchable
+            onPress={props.onPress}
+            route={props.route}
+            testID={props.testID}
+            accessibilityLabel={props.accessibilityLabel}
+            accessibilityTraits={props.accessibilityTraits}
+            accessibilityComponentType={props.accessibilityComponentType}
+            accessibilityRole={props.accessibilityRole}
+            accessibilityState={props.accessibilityState}
+            borderless={props.borderless}
+            centered={props.centered}
+            rippleColor={props.rippleColor}
+            style={props.style}
+            key={props.key}
+            children={children}
+          />
         )
       }}
       renderIcon={({ route, focused, color }) => {

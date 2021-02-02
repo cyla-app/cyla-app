@@ -120,6 +120,10 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         getEncryptionStorage().edit().clear().apply()
     }
 
+    private fun resetAppStorage() {
+        getAppStorage().edit().clear().apply()
+    }
+
     private fun loadStoredUserInfo(): Pair<UserSetupInfo, String> {
         val (passphraseCipherText, passphraseIV) = getEncryptionStorage().getPassphrase()!!
         val passphrase = decryptPassphrase(passphraseCipherText, passphraseIV)
@@ -289,6 +293,17 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         }
     }
 
+    @ReactMethod
+    fun logout(promise: Promise) {
+        resetEncryptionStorage()
+        resetAppStorage()
+        if (!reactApplicationContext.cacheDir.deleteRecursively()) {
+            promise.reject(Exception("Failed to delete complete cache"))
+        } else {
+            promise.resolve(null)
+        }
+    }
+    
     @ReactMethod
     fun login(username: String, passphrase: String, promise: Promise) {
         try {
