@@ -43,7 +43,6 @@ const Touchable = ({
   borderless,
   centered,
   rippleColor,
-  key,
   onPress,
   testID,
   accessibilityLabel,
@@ -54,7 +53,6 @@ const Touchable = ({
 }: TouchableProps) =>
   TouchableRipple.supported ? (
     <TouchableRipple
-      key={key}
       onPress={onPress}
       testID={testID}
       accessibilityLabel={accessibilityLabel}
@@ -70,7 +68,6 @@ const Touchable = ({
     </TouchableRipple>
   ) : (
     <TouchableWithoutFeedback
-      key={key}
       onPress={onPress}
       testID={testID}
       accessibilityLabel={accessibilityLabel}
@@ -130,7 +127,7 @@ function MaterialBottomTabViewInner({
         // @ts-ignore
         return route.name === 'Add' ? (
           <View
-            key={props.key}
+            key={route.key}
             style={{
               width: WIDTH,
               // alignItems: 'center',
@@ -160,7 +157,7 @@ function MaterialBottomTabViewInner({
             centered={props.centered}
             rippleColor={props.rippleColor}
             style={props.style}
-            key={props.key}
+            key={route.key}
             children={children}
           />
         )
