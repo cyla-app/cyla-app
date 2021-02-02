@@ -242,7 +242,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/responses/Stats"
+            $ref: "#/components/schemas/UserStats"
     UserNotFound:
       description: Error about missing user
       content:
@@ -323,15 +323,25 @@ components:
       properties:
         day:
           $ref: "#/components/schemas/Day"
-        stats:
-          $ref: "#/components/schemas/Stats"
-    Stats:
+        userStats:
+          $ref: "#/components/schemas/UserStats"
+    UserStats:
       title: userStats
       type: object
       description: Data structures used by Cyla to compute stats like average Period length.
       properties:
-        periodLengthStructure:
+        periodStats:
+          $ref: "#/components/schemas/Statistic"
+    Statistic:
+      title: Single stat
+      type: object
+      description: Encrypted data structure for a single stat.
+      properties:
+        value:
           $ref: "#/components/schemas/EncryptedAttribute"
+        prevHashValue:
+          type: string
+          description: Hash value for the previous version for this user's stat. For conflict detection.
   securitySchemes:
     bearerJWTAuth:
       type: http

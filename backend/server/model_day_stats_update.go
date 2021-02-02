@@ -13,12 +13,12 @@ package server
 type DayStatsUpdate struct {
 	Day Day `json:"day,omitempty" mapstructure:"Day"`
 
-	Stats Stats `json:"stats,omitempty" mapstructure:"Stats"`
+	UserStats UserStats `json:"userStats,omitempty" mapstructure:"UserStats"`
 }
 
 func GetDayStatsUpdateDayName() string {
 	return "Day"
 }
-func GetDayStatsUpdateStatsName() string {
-	return "Stats"
+func GetDayStatsUpdateUserStatsName() string {
+	return "UserStats"
 }

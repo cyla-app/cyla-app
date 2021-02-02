@@ -13,7 +13,7 @@ package server
 type Day struct {
 
 	// Day key used to encrypt sensitive information for the day.
-	DayKey string `json:"day_key,omitempty" mapstructure:"DayKey"`
+	DayKey string `json:"day_key" mapstructure:"DayKey"`
 
 	Version int32 `json:"version" mapstructure:"Version"`
 

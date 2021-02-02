@@ -19,7 +19,7 @@ type DayPersistence interface {
 	ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) error
 }
 type StatsPersistence interface {
-	GetStats(ctx context.Context, userId string) (ret Stats, err error)
+	GetStats(ctx context.Context, userId string) (ret UserStats, err error)
 }
 type UserPersistence interface {
 	CreateUser(ctx context.Context, user User) (ret UserCreatedResponse, err error)

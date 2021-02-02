@@ -27,3 +27,18 @@ func stringSliceToFlatStruct(stringList []interface{}, structPointer interface{}
 	err = mapstructure.WeakDecode(ret, structPointer)
 	return err
 }
+
+func userStatsToMap(userStats UserStats) (ret map[string]Statistic, err error) {
+	ret = make(map[string]Statistic)
+	var mapTmp = map[string]interface{}{}
+	_ = mapstructure.Decode(userStats, &mapTmp)
+	for statName, mapStat := range mapTmp {
+		var stat Statistic
+		err = mapstructure.Decode(mapStat, &stat)
+		if err != nil {
+			return nil, err
+		}
+		ret[statName] = stat
+	}
+	return
+}

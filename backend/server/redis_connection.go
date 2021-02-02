@@ -191,22 +191,17 @@ func (s *CylaRedisClient) ModifyDayEntryWithStats(ctx context.Context, userId st
 		return newHTTPErrorWithCauseError(500, "could not marshall day", err)
 	}
 
-	valListStats, err := flatStructToSlice(dayStatsUpdate.Stats)
-	if err != nil {
-		return newHTTPErrorWithCauseError(500, "could not marshall stats", err)
-	}
-
 	pipeline := s.TxPipeline()
+
 	scriptCmd := changeDayScript.Run(ctx, pipeline, []string{
 		fmt.Sprintf("%v:%v", userPrefixKey, userId),                                               //User resource
 		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),                              //sorted set for user's days
 		fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, dayStatsUpdate.Day.Date)}, //days resource
 		append([]interface{}{dayStatsUpdate.Day.Date}, valListDay...))
 
-	changeStats.Run(ctx, pipeline, []string{
-		fmt.Sprintf("%v:%v", userPrefixKey, userId), //User resource
-		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, statsPrefixKey)},
-		valListStats)
+	if err = saveStats(ctx, pipeline, dayStatsUpdate.UserStats, userId); err != nil {
+		return err
+	}
 
 	_, err = pipeline.Exec(ctx)
 
@@ -216,6 +211,29 @@ func (s *CylaRedisClient) ModifyDayEntryWithStats(ctx context.Context, userId st
 	}
 	if scriptRet, _ := scriptCmd.Int(); scriptRet == 0 {
 		return newHTTPError(404, "user doesn't exist")
+	}
+	return nil
+}
+
+func saveStats(ctx context.Context, pipeline redis.Pipeliner, userStats UserStats, userId string) error {
+
+	userStatsMap, err := userStatsToMap(userStats)
+	if err != nil {
+		return newHTTPErrorWithCauseError(500, "could not marshall user stats", err)
+	}
+	for statName, stat := range userStatsMap {
+		valListStats, err := flatStructToSlice(stat)
+		if err != nil {
+			return newHTTPErrorWithCauseError(500, "could not marshall stat", err)
+		}
+
+		changeStats.Run(ctx, pipeline, []string{
+			fmt.Sprintf("%v:%v", userPrefixKey, userId),                                  //User resource
+			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, statsPrefixKey, statName)}, // TODO: Use constant stats prefix keys instead of statName
+			valListStats)
+
+		// TODO: Conflict recognition
+
 	}
 	return nil
 }
@@ -279,20 +297,35 @@ func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId strin
 	return days, nil
 }
 
-func (s *CylaRedisClient) GetStats(ctx context.Context, userId string) (stats Stats, err error) {
-	var redisRet map[string]string
-	redisRet, err = s.HGetAll(ctx,
-		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, statsPrefixKey)).Result()
-	if len(redisRet) == 0 {
-		return Stats{}, newHTTPError(404, "Stats not found")
-	} else if err != nil {
-		return Stats{}, newHTTPErrorWithCauseError(500, "redis error", err)
+func (s *CylaRedisClient) GetStats(ctx context.Context, userId string) (userStats UserStats, err error) {
+	pipeline := s.TxPipeline()
+	userStatsMap, _ := userStatsToMap(userStats)
+	cmdMap := make(map[string]*redis.StringStringMapCmd)
+	for statName := range userStatsMap {
+		cmdMap[statName] = pipeline.HGetAll(ctx,
+			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, statsPrefixKey, statName))
 	}
-
-	err = mapstructure.Decode(redisRet, &stats)
+	_, err = pipeline.Exec(ctx)
 	if err != nil {
-		return stats, newHTTPErrorWithCauseError(500, "could not unmarshall user", err)
+		return userStats, newHTTPErrorWithCauseError(500, "error during execution of pipeline", err)
 	}
-
-	return stats, nil
+	for statName, cmd := range cmdMap {
+		ret := cmd.Val()
+		if len(ret) == 0 {
+			return userStats, newHTTPError(404, fmt.Sprintf("could not find stat with name %v", statName))
+		}
+		var stat Statistic
+		err = mapstructure.WeakDecode(ret, &stat)
+		if err != nil {
+			return userStats, newHTTPErrorWithCauseError(500,
+				fmt.Sprintf("could not unmarshall stat with name %v", statName),
+				err)
+		}
+		userStatsMap[statName] = stat
+	}
+	err = mapstructure.Decode(userStatsMap, &userStats)
+	if err != nil {
+		return userStats, newHTTPError(500, "error when marshalling user Stats")
+	}
+	return
 }

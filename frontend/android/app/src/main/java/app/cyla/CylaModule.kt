@@ -6,8 +6,6 @@ import android.util.Base64
 import android.util.Log
 import app.cyla.api.DayApi
 import app.cyla.api.UserApi
-import app.cyla.api.model.Day
-import app.cyla.api.model.User
 import app.cyla.decryption.*
 import app.cyla.decryption.AndroidEnclave.Companion.decryptPassphrase
 import app.cyla.decryption.AndroidEnclave.Companion.encryptPassphrase
@@ -30,8 +28,7 @@ import java.util.concurrent.CompletableFuture
 
 import android.net.ConnectivityManager
 import app.cyla.api.StatsApi
-import app.cyla.api.model.DayStatsUpdate
-import app.cyla.api.model.Stats
+import app.cyla.api.model.*
 
 
 // Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
@@ -225,13 +222,13 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             day.dayInfo = encryptedDayInfo
             day.dayKey = encryptedDayKey
 
-            val stats = Stats()
-
+            val stats = UserStats()
+            stats.periodStats = Statistic()
             // FIXME: Return better value to not give information
-            stats.periodLengthStructure = if (byteArray.isEmpty()) ByteArray(0) else ThemisOperations.encryptData(userKey, byteArray)
+            stats.periodStats!!.value = if (byteArray.isEmpty()) ByteArray(0) else ThemisOperations.encryptData(userKey, byteArray)
             val statsUpdate = DayStatsUpdate()
             statsUpdate.day = day
-            statsUpdate.stats = stats
+            statsUpdate.userStats = stats
 
             dayApi.value.modifyDayEntryWithStats(
                 getAppStorage().getUserId()!!,
@@ -246,9 +243,10 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     @ReactMethod
     fun fetchPeriodStats(promise: Promise) {
         CompletableFuture.supplyAsync {
-            val encryptedStats = statsApi.value.getStats(
-                getAppStorage().getUserId()!!
-            ).periodLengthStructure
+            val userStats = statsApi.value.getStats(
+                    getAppStorage().getUserId()!!
+            )
+            val encryptedStats = userStats.periodStats!!.value
 
             if (encryptedStats != null) {
                 val stats = ThemisOperations.decryptData(userKey, encryptedStats)
