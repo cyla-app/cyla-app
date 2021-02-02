@@ -1,7 +1,6 @@
 import React from 'react'
 import DailyScreen from '../screens/DailyScreen'
 import CalendarScreen from '../screens/CalendarScreen'
-import NYIScreen from '../screens/NYIScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 import { TouchableRipple, useTheme } from 'react-native-paper'
 import StatisticsScreen from '../screens/StatisticsScreen'
@@ -105,7 +104,7 @@ export default () => {
         />
         <Tab.Screen
           name="Profile"
-          component={__DEV__ ? ProfileScreen : NYIScreen}
+          component={ProfileScreen}
           options={{
             tabBarColor: colors.profile,
             tabBarIcon: ({ color }) => <ProfileIcon color={color} size={20} />,
