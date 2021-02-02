@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
 import { IPeriod } from '../../generated/protobuf'
-import { differenceInDays } from 'date-fns'
+import { differenceInDays, format } from 'date-fns'
 import { parseDay } from '../utils/date'
 import { max, stats } from '../utils/math'
 import Svg, { Rect } from 'react-native-svg'
@@ -51,17 +51,18 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
     dispatch(fetchPeriodStats())
   }, [dispatch])
 
-  const cycleLengths = pairwise(periodStats).reduceRight<number[]>(
-    (accumulator, [period1, period2]) => {
-      accumulator.push(
-        Math.abs(
-          differenceInDays(parseDay(period2.from!), parseDay(period1.to!)),
-        ),
-      )
-      return accumulator
-    },
-    [],
-  )
+  const cycleLengths = pairwise(periodStats).reduceRight<
+    [number, IPeriod, IPeriod][]
+  >((accumulator, [period1, period2]) => {
+    accumulator.push([
+      Math.abs(
+        differenceInDays(parseDay(period2.from!), parseDay(period1.to!)),
+      ),
+      period1,
+      period2,
+    ])
+    return accumulator
+  }, [])
 
   return (
     <>
@@ -83,18 +84,25 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
             {cycleLengths.length > 0 ? (
               <Subheading>
                 Average Cycle Length:{' '}
-                {Math.round(stats(cycleLengths).mean * 10) / 10} (+/-
-                {Math.round(stats(cycleLengths).variance * 10) / 10})
+                {Math.round(
+                  stats(cycleLengths.map(([length]) => length)).mean * 10,
+                ) / 10}{' '}
+                (+/-
+                {Math.round(
+                  stats(cycleLengths.map(([length]) => length)).variance * 10,
+                ) / 10}
+                )
               </Subheading>
             ) : (
               <Subheading>Unknown</Subheading>
             )}
           </View>
-          {cycleLengths.map((length) => {
+          {cycleLengths.map(([length, period1], i) => {
             const width = Dimensions.get('window').width * 0.8
+            const month = format(parseDay(period1.to!), 'MMMM')
             return (
-              <View style={{ margin: 30 }}>
-                <Text>January</Text>
+              <View key={i} style={{ margin: 30 }}>
+                <Text>{month}</Text>
                 <Svg width={width} height="20" viewBox={`0 0 ${width} 20`}>
                   <Rect
                     x={0}
@@ -107,7 +115,10 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
                   <Rect
                     x={0}
                     y={0}
-                    width={width * (length / max(cycleLengths))}
+                    width={
+                      width *
+                      (length / max(cycleLengths.map(([length]) => length)))
+                    }
                     height={20}
                     rx="5px"
                     fill={colors.periodRed}
