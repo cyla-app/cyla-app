@@ -9,7 +9,10 @@
 
 package server
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type HttpError struct {
 	Code     int
@@ -18,6 +21,7 @@ type HttpError struct {
 }
 
 func newHTTPError(code int, msg string) error {
+	log.Printf("Error: %v\n", msg)
 	return &HttpError{
 		Code: code,
 		msg:  fmt.Sprintf("%d error - %v", code, msg),
@@ -25,6 +29,7 @@ func newHTTPError(code int, msg string) error {
 }
 
 func newHTTPErrorWithCauseError(code int, msg string, cause error) error {
+	log.Printf("Error: %v\n", msg)
 	return &HttpError{
 		Code: code,
 		msg:  fmt.Sprintf("%d error - %v: %v", code, msg, cause),
