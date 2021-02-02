@@ -48,7 +48,7 @@ const AddButton = () => {
           width: SIZE,
           height: SIZE,
           borderRadius: SIZE / 2,
-          backgroundColor: colors.periodRed,
+          backgroundColor: colors.primary,
         }}>
         <View>
           <MaterialCommunityIcons name={'plus'} color={'#fff'} size={24} />

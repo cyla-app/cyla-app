@@ -260,7 +260,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
                 promise.resolve(newString)
             } else {
-                promise.reject("Nothing found")
+                promise.resolve(null)
             }
         }.exceptionally { throwable ->
             promise.reject(throwable)

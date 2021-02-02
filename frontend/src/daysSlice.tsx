@@ -23,7 +23,7 @@ import {
   mergeMap,
   switchMap,
 } from 'rxjs/operators'
-import { from as fromPromise, of } from 'rxjs'
+import { EMPTY, from, from as fromPromise, of } from 'rxjs'
 import { IPeriod, IPeriodStats, PeriodStats } from '../generated/protobuf'
 import { markPeriod } from './utils/periods'
 
@@ -199,6 +199,46 @@ const fetchDurationEpic: MyEpic = (action$, state$) =>
     }),
   )
 
+const saveMockDaysEpic: MyEpic = (action$) =>
+  action$.pipe(
+    filter(saveMockDays.match),
+    concatMap((action) => {
+      const daysToSave: Day[] = action.payload
+
+      return fromPromise(CylaModule.fetchPeriodStats()).pipe(
+        map((stats) => ({
+          stats: (PeriodStats.toObject(stats) as IPeriodStats).periods!,
+          daysToSave,
+        })),
+        catchError((e) => {
+          // FIXME: We think that an error means that there are no stats, but there could be other reasons
+          console.error(e)
+          return of({ stats: [], daysToSave })
+        }),
+        switchMap(({ stats: previousStats, daysToSave }) => {
+          return from(daysToSave).pipe(
+            concatMap((day) => {
+              const stats = markPeriod(previousStats, day)
+              previousStats = stats
+              return fromPromise(CylaModule.saveDay(day, stats)).pipe(
+                catchError((e) => {
+                  return of(
+                    days.actions.rejected(
+                      `Unable to save day because of ${e.message}.`,
+                    ),
+                  )
+                }),
+              )
+            }),
+          )
+        }),
+        mergeMap(() => {
+          return EMPTY
+        }),
+      )
+    }),
+  )
+
 const saveDayEpic: MyEpic = (action$, $state) =>
   action$.pipe(
     filter(saveDay.match),
@@ -224,6 +264,13 @@ const saveDayEpic: MyEpic = (action$, $state) =>
 
           const stats = markPeriod(previousStats, day)
           return fromPromise(CylaModule.saveDay(day, stats)).pipe(
+            catchError((e) => {
+              return of(
+                days.actions.rejected(
+                  `Unable to save day because of ${e.message}.`,
+                ),
+              )
+            }),
             mergeMap(() => {
               return of(
                 // FIXME: reloading the day is probably not the most efficient way
@@ -268,7 +315,7 @@ const fetchPeriodStatsEpic: MyEpic = (action$) => {
 }
 
 export const fetchPeriodStats = createAction<void>('days/fetchPeriodStats')
-
+export const saveMockDays = createAction<Day[]>('days/saveMockDays')
 export const saveDay = createAction<Day>('days/saveDay')
 export const fetchDuration = createAction<Duration | undefined>(
   'days/fetchDuration',
@@ -284,5 +331,6 @@ export const epic = combineEpics(
   fetchDurationEpic,
   saveDayEpic,
   fetchPeriodStatsEpic,
+  saveMockDaysEpic,
 )
 export const reducer = days.reducer
