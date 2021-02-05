@@ -58,6 +58,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     private lateinit var userKey: SymmetricKey
     private lateinit var username: String
+    
     private val apiClient = lazy {
         val httpCacheDirectory = File(reactApplicationContext.cacheDir, "responses")
 
@@ -338,7 +339,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             apiClient.value.httpClient.newWebSocket(
                 Request.Builder()
                     .cacheControl(CacheControl.Builder().noCache().build())
-                    .url("ws://localhost:5000/login/$username")
+                    .url("ws://${apiClient.value.basePath}/login/$username")
                     .build(),
                 wsListener
             )
