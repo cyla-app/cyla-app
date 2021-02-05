@@ -29,6 +29,7 @@ import java.util.concurrent.CompletableFuture
 import android.net.ConnectivityManager
 import app.cyla.api.StatsApi
 import app.cyla.api.model.*
+import java.net.URL
 
 
 // Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
@@ -336,10 +337,11 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                     promise.reject(e)
                 }
             }
+            val url = URL(apiClient.value.basePath)
             apiClient.value.httpClient.newWebSocket(
                 Request.Builder()
                     .cacheControl(CacheControl.Builder().noCache().build())
-                    .url("ws://${apiClient.value.basePath}/login/$username")
+                    .url("wss://${url.host}/login/$username") // FIXME use wss
                     .build(),
                 wsListener
             )
