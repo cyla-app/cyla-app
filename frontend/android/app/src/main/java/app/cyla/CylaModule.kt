@@ -211,7 +211,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun saveDay(iso8601date: String, dayJson: String, periods: String, promise: Promise) {
+    fun saveDay(iso8601date: String, dayJson: String, periods: String, prevHashValue: String?, promise: Promise) {
         CompletableFuture.supplyAsync {
             val charArray = periods.toCharArray()
             val byteArray = ByteArray(charArray.size) {
@@ -226,10 +226,15 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             day.dayInfo = encryptedDayInfo
             day.dayKey = encryptedDayKey
 
-            val stats = UserStats()
-            stats.periodStats = Statistic()
+            val statistics = Statistic()
+
+            statistics.prevHashValue = prevHashValue
             // FIXME: Return better value to not give information
-            stats.periodStats!!.value = if (byteArray.isEmpty()) ByteArray(0) else ThemisOperations.encryptData(userKey, byteArray)
+            statistics.value = if (byteArray.isEmpty()) ByteArray(0) else ThemisOperations.encryptData(userKey, byteArray)
+
+            val stats = UserStats()
+            stats.periodStats = statistics
+            
             val statsUpdate = DayStatsUpdate()
             statsUpdate.day = day
             statsUpdate.userStats = stats
@@ -250,17 +255,21 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             val userStats = statsApi.value.getStats(
                     getAppStorage().getUserId()!!
             )
-            val encryptedStats = userStats.periodStats!!.value
-
-            if (encryptedStats != null) {
-                val stats = ThemisOperations.decryptData(userKey, encryptedStats)
+            val periodStats = userStats.periodStats
+            val encryptedStats = periodStats?.value
+            
+            if (periodStats != null && encryptedStats != null) {
+                val decryptedStats = ThemisOperations.decryptData(userKey, encryptedStats)
                 
-                val newCharArray = IntArray(stats.size) {
-                    stats[it].toInt().and(0xFF)
+                val newCharArray = IntArray(decryptedStats.size) {
+                    decryptedStats[it].toInt().and(0xFF)
                 }
                 val newString = String(newCharArray, 0, newCharArray.size)
 
-                promise.resolve(newString)
+                val result = Arguments.createMap()
+                result.putString("periodStats", newString)
+                result.putString("prevHashValue", periodStats.hashValue)
+                promise.resolve(result)
             } else {
                 promise.resolve(null)
             }

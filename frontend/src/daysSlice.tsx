@@ -210,20 +210,24 @@ const saveMockDaysEpic: MyEpic = (action$) =>
 
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
         map((stats) => ({
-          stats: (PeriodStats.toObject(stats) as IPeriodStats).periods!,
+          stats: (PeriodStats.toObject(stats.periodStats) as IPeriodStats)
+            .periods!,
+          prevHashValue: stats.prevHashValue,
           daysToSave,
         })),
         catchError((e) => {
           // FIXME: We think that an error means that there are no stats, but there could be other reasons
           console.error(e)
-          return of({ stats: [], daysToSave })
+          return of({ stats: [], prevHashValue: null, daysToSave })
         }),
-        switchMap(({ stats: previousStats, daysToSave }) => {
+        switchMap(({ stats: previousStats, prevHashValue, daysToSave }) => {
           return from(daysToSave).pipe(
             concatMap((day) => {
               const stats = markPeriod(previousStats, day)
               previousStats = stats
-              return fromPromise(CylaModule.saveDay(day, stats)).pipe(
+              return fromPromise(
+                CylaModule.saveDay(day, stats, prevHashValue),
+              ).pipe(
                 catchError((e) => {
                   return of(
                     days.actions.rejected(
@@ -250,23 +254,29 @@ const saveDayEpic: MyEpic = (action$, $state) =>
 
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
         map((stats) => ({
-          stats: (PeriodStats.toObject(stats) as IPeriodStats).periods!,
+          stats: (PeriodStats.toObject(stats.periodStats) as IPeriodStats)
+            .periods!,
+          prevHashValue: stats.prevHashValue,
           day,
         })),
         catchError((e) => {
           // FIXME: We think that an error means that there are no stats, but there could be other reasons
           console.error(e)
-          return of({ stats: [], day })
+          return of({ stats: [], prevHashValue: null, day })
         }),
-        switchMap(({ stats: previousStats, day }) => {
+        switchMap(({ stats: previousStats, prevHashValue, day }) => {
           if (!$state.value.connectivity.online) {
             return of(
               days.actions.rejected('Unable to save day while offline.'),
             )
           }
+          console.warn(prevHashValue)
+          console.warn(typeof prevHashValue)
 
           const stats = markPeriod(previousStats, day)
-          return fromPromise(CylaModule.saveDay(day, stats)).pipe(
+          return fromPromise(
+            CylaModule.saveDay(day, stats, prevHashValue),
+          ).pipe(
             catchError((e) => {
               return of(
                 days.actions.rejected(
@@ -301,7 +311,9 @@ const fetchPeriodStatsEpic: MyEpic = (action$) => {
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
         map((stats) =>
           days.actions.periodStatsFulfilled({
-            periodStats: (PeriodStats.toObject(stats) as IPeriodStats).periods!,
+            periodStats: (PeriodStats.toObject(
+              stats.periodStats,
+            ) as IPeriodStats).periods!,
           }),
         ),
         catchError(() => {

@@ -22,8 +22,12 @@ type CylaModuleType = {
     iso8601date: string,
     userId: string,
     periods: string,
+    prevHashValue: string | null,
   ) => Promise<void>
-  fetchPeriodStats: () => Promise<string>
+  fetchPeriodStats: () => Promise<{
+    periodStats: string
+    prevHashValue: string
+  }>
   fetchDaysByMonths: (months: number) => Promise<string[]>
   fetchDaysByRange: (
     iso8601dateFrom: string,
@@ -53,18 +57,23 @@ class CylaModule {
     return jsons.map((json) => JSON.parse(json))
   }
 
-  async saveDay(day: Day, periods: IPeriod[]) {
+  async saveDay(day: Day, periods: IPeriod[], prevHashValue: string | null) {
     const binary = PeriodStats.encode(new PeriodStats({ periods })).finish()
     await CylaNativeModule.saveDay(
       day.date,
       JSON.stringify(day),
       bin2String(binary),
+      prevHashValue,
     )
   }
 
   async fetchPeriodStats() {
-    const binary = string2Bin(await CylaNativeModule.fetchPeriodStats())
-    return PeriodStats.decode(binary)
+    const {
+      periodStats,
+      prevHashValue,
+    } = await CylaNativeModule.fetchPeriodStats()
+    const binary = string2Bin(periodStats)
+    return { periodStats: PeriodStats.decode(binary), prevHashValue }
   }
 
   async setupUserAndSession() {
