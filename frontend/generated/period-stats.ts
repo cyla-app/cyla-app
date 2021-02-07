@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Writer, Reader } from 'protobufjs/minimal'
+import _m0 from 'protobufjs/minimal'
 
 export const protobufPackage = ''
 
@@ -15,14 +15,17 @@ export interface PeriodStats {
 const basePeriod: object = { from: '', to: '' }
 
 export const Period = {
-  encode(message: Period, writer: Writer = Writer.create()): Writer {
+  encode(
+    message: Period,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     writer.uint32(10).string(message.from)
     writer.uint32(18).string(message.to)
     return writer
   },
 
-  decode(input: Reader | Uint8Array, length?: number): Period {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input
+  decode(input: _m0.Reader | Uint8Array, length?: number): Period {
+    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
     const message = { ...basePeriod } as Period
     while (reader.pos < end) {
@@ -83,15 +86,18 @@ export const Period = {
 const basePeriodStats: object = {}
 
 export const PeriodStats = {
-  encode(message: PeriodStats, writer: Writer = Writer.create()): Writer {
+  encode(
+    message: PeriodStats,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     for (const v of message.periods) {
       Period.encode(v!, writer.uint32(10).fork()).ldelim()
     }
     return writer
   },
 
-  decode(input: Reader | Uint8Array, length?: number): PeriodStats {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input
+  decode(input: _m0.Reader | Uint8Array, length?: number): PeriodStats {
+    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
     const message = { ...basePeriodStats } as PeriodStats
     message.periods = []

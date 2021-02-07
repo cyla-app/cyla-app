@@ -12,9 +12,17 @@ message Bleeding {
 }
 
 message Temperature {
+  enum ExcludeReason {
+    EXCLUDE_REASON_NONE = 0;
+    EXCLUDE_REASON_SICK = 1;
+    EXCLUDE_REASON_HUNGOVER = 2;
+    EXCLUDE_REASON_SLEEP = 3;
+  }
+
   float value = 1;
   string timestamp = 2;
   string note = 3;
+  ExcludeReason exclude_reason = 4;
 }
 
 message Mucus {
@@ -61,19 +69,12 @@ message Cervix {
   Position position = 3;
 }
 
-enum ExcludeReason {
-  EXCLUDE_REASON_NONE = 0;
-  EXCLUDE_REASON_SICK = 1;
-  EXCLUDE_REASON_HUNGOVER = 2;
-  EXCLUDE_REASON_SLEEP = 3;
-}
 
 message Day {
   string date = 1;
-
-  ExcludeReason exclude_reason = 10;
-  Temperature temperature = 12;
-  Bleeding bleeding = 13;
-  Mucus mucus = 14;
-  Cervix cervix = 15;
+  
+  Temperature temperature = 10;
+  Bleeding bleeding = 11;
+  Mucus mucus = 12;
+  Cervix cervix = 13;
 }

@@ -1,51 +1,7 @@
 /* eslint-disable */
-import { Writer, Reader } from 'protobufjs/minimal'
+import _m0 from 'protobufjs/minimal'
 
 export const protobufPackage = ''
-
-export enum ExcludeReason {
-  EXCLUDE_REASON_NONE = 0,
-  EXCLUDE_REASON_SICK = 1,
-  EXCLUDE_REASON_HUNGOVER = 2,
-  EXCLUDE_REASON_SLEEP = 3,
-  UNRECOGNIZED = -1,
-}
-
-export function excludeReasonFromJSON(object: any): ExcludeReason {
-  switch (object) {
-    case 0:
-    case 'EXCLUDE_REASON_NONE':
-      return ExcludeReason.EXCLUDE_REASON_NONE
-    case 1:
-    case 'EXCLUDE_REASON_SICK':
-      return ExcludeReason.EXCLUDE_REASON_SICK
-    case 2:
-    case 'EXCLUDE_REASON_HUNGOVER':
-      return ExcludeReason.EXCLUDE_REASON_HUNGOVER
-    case 3:
-    case 'EXCLUDE_REASON_SLEEP':
-      return ExcludeReason.EXCLUDE_REASON_SLEEP
-    case -1:
-    case 'UNRECOGNIZED':
-    default:
-      return ExcludeReason.UNRECOGNIZED
-  }
-}
-
-export function excludeReasonToJSON(object: ExcludeReason): string {
-  switch (object) {
-    case ExcludeReason.EXCLUDE_REASON_NONE:
-      return 'EXCLUDE_REASON_NONE'
-    case ExcludeReason.EXCLUDE_REASON_SICK:
-      return 'EXCLUDE_REASON_SICK'
-    case ExcludeReason.EXCLUDE_REASON_HUNGOVER:
-      return 'EXCLUDE_REASON_HUNGOVER'
-    case ExcludeReason.EXCLUDE_REASON_SLEEP:
-      return 'EXCLUDE_REASON_SLEEP'
-    default:
-      return 'UNKNOWN'
-  }
-}
 
 export interface Bleeding {
   strength: Bleeding_Strength
@@ -99,6 +55,55 @@ export interface Temperature {
   value: number
   timestamp: string
   note: string
+  excludeReason: Temperature_ExcludeReason
+}
+
+export enum Temperature_ExcludeReason {
+  EXCLUDE_REASON_NONE = 0,
+  EXCLUDE_REASON_SICK = 1,
+  EXCLUDE_REASON_HUNGOVER = 2,
+  EXCLUDE_REASON_SLEEP = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function temperature_ExcludeReasonFromJSON(
+  object: any,
+): Temperature_ExcludeReason {
+  switch (object) {
+    case 0:
+    case 'EXCLUDE_REASON_NONE':
+      return Temperature_ExcludeReason.EXCLUDE_REASON_NONE
+    case 1:
+    case 'EXCLUDE_REASON_SICK':
+      return Temperature_ExcludeReason.EXCLUDE_REASON_SICK
+    case 2:
+    case 'EXCLUDE_REASON_HUNGOVER':
+      return Temperature_ExcludeReason.EXCLUDE_REASON_HUNGOVER
+    case 3:
+    case 'EXCLUDE_REASON_SLEEP':
+      return Temperature_ExcludeReason.EXCLUDE_REASON_SLEEP
+    case -1:
+    case 'UNRECOGNIZED':
+    default:
+      return Temperature_ExcludeReason.UNRECOGNIZED
+  }
+}
+
+export function temperature_ExcludeReasonToJSON(
+  object: Temperature_ExcludeReason,
+): string {
+  switch (object) {
+    case Temperature_ExcludeReason.EXCLUDE_REASON_NONE:
+      return 'EXCLUDE_REASON_NONE'
+    case Temperature_ExcludeReason.EXCLUDE_REASON_SICK:
+      return 'EXCLUDE_REASON_SICK'
+    case Temperature_ExcludeReason.EXCLUDE_REASON_HUNGOVER:
+      return 'EXCLUDE_REASON_HUNGOVER'
+    case Temperature_ExcludeReason.EXCLUDE_REASON_SLEEP:
+      return 'EXCLUDE_REASON_SLEEP'
+    default:
+      return 'UNKNOWN'
+  }
 }
 
 export interface Mucus {
@@ -328,23 +333,25 @@ export function cervix_PositionToJSON(object: Cervix_Position): string {
 
 export interface Day {
   date: string
-  excludeReason: ExcludeReason
-  temperature: Temperature | undefined
-  bleeding: Bleeding | undefined
-  mucus: Mucus | undefined
-  cervix: Cervix | undefined
+  temperature?: Temperature
+  bleeding?: Bleeding
+  mucus?: Mucus
+  cervix?: Cervix
 }
 
 const baseBleeding: object = { strength: 0 }
 
 export const Bleeding = {
-  encode(message: Bleeding, writer: Writer = Writer.create()): Writer {
+  encode(
+    message: Bleeding,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     writer.uint32(8).int32(message.strength)
     return writer
   },
 
-  decode(input: Reader | Uint8Array, length?: number): Bleeding {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input
+  decode(input: _m0.Reader | Uint8Array, length?: number): Bleeding {
+    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
     const message = { ...baseBleeding } as Bleeding
     while (reader.pos < end) {
@@ -389,18 +396,27 @@ export const Bleeding = {
   },
 }
 
-const baseTemperature: object = { value: 0, timestamp: '', note: '' }
+const baseTemperature: object = {
+  value: 0,
+  timestamp: '',
+  note: '',
+  excludeReason: 0,
+}
 
 export const Temperature = {
-  encode(message: Temperature, writer: Writer = Writer.create()): Writer {
+  encode(
+    message: Temperature,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     writer.uint32(13).float(message.value)
     writer.uint32(18).string(message.timestamp)
     writer.uint32(26).string(message.note)
+    writer.uint32(32).int32(message.excludeReason)
     return writer
   },
 
-  decode(input: Reader | Uint8Array, length?: number): Temperature {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input
+  decode(input: _m0.Reader | Uint8Array, length?: number): Temperature {
+    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
     const message = { ...baseTemperature } as Temperature
     while (reader.pos < end) {
@@ -414,6 +430,9 @@ export const Temperature = {
           break
         case 3:
           message.note = reader.string()
+          break
+        case 4:
+          message.excludeReason = reader.int32() as any
           break
         default:
           reader.skipType(tag & 7)
@@ -440,6 +459,13 @@ export const Temperature = {
     } else {
       message.note = ''
     }
+    if (object.excludeReason !== undefined && object.excludeReason !== null) {
+      message.excludeReason = temperature_ExcludeReasonFromJSON(
+        object.excludeReason,
+      )
+    } else {
+      message.excludeReason = 0
+    }
     return message
   },
 
@@ -460,6 +486,11 @@ export const Temperature = {
     } else {
       message.note = ''
     }
+    if (object.excludeReason !== undefined && object.excludeReason !== null) {
+      message.excludeReason = object.excludeReason
+    } else {
+      message.excludeReason = 0
+    }
     return message
   },
 
@@ -468,6 +499,10 @@ export const Temperature = {
     message.value !== undefined && (obj.value = message.value)
     message.timestamp !== undefined && (obj.timestamp = message.timestamp)
     message.note !== undefined && (obj.note = message.note)
+    message.excludeReason !== undefined &&
+      (obj.excludeReason = temperature_ExcludeReasonToJSON(
+        message.excludeReason,
+      ))
     return obj
   },
 }
@@ -475,14 +510,14 @@ export const Temperature = {
 const baseMucus: object = { feeling: 0, texture: 0 }
 
 export const Mucus = {
-  encode(message: Mucus, writer: Writer = Writer.create()): Writer {
+  encode(message: Mucus, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     writer.uint32(8).int32(message.feeling)
     writer.uint32(16).int32(message.texture)
     return writer
   },
 
-  decode(input: Reader | Uint8Array, length?: number): Mucus {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input
+  decode(input: _m0.Reader | Uint8Array, length?: number): Mucus {
+    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
     const message = { ...baseMucus } as Mucus
     while (reader.pos < end) {
@@ -545,15 +580,18 @@ export const Mucus = {
 const baseCervix: object = { opening: 0, firmness: 0, position: 0 }
 
 export const Cervix = {
-  encode(message: Cervix, writer: Writer = Writer.create()): Writer {
+  encode(
+    message: Cervix,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     writer.uint32(8).int32(message.opening)
     writer.uint32(16).int32(message.firmness)
     writer.uint32(24).int32(message.position)
     return writer
   },
 
-  decode(input: Reader | Uint8Array, length?: number): Cervix {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input
+  decode(input: _m0.Reader | Uint8Array, length?: number): Cervix {
+    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
     const message = { ...baseCervix } as Cervix
     while (reader.pos < end) {
@@ -628,32 +666,31 @@ export const Cervix = {
   },
 }
 
-const baseDay: object = { date: '', excludeReason: 0 }
+const baseDay: object = { date: '' }
 
 export const Day = {
-  encode(message: Day, writer: Writer = Writer.create()): Writer {
+  encode(message: Day, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
     writer.uint32(10).string(message.date)
-    writer.uint32(80).int32(message.excludeReason)
     if (
       message.temperature !== undefined &&
       message.temperature !== undefined
     ) {
-      Temperature.encode(message.temperature, writer.uint32(98).fork()).ldelim()
+      Temperature.encode(message.temperature, writer.uint32(82).fork()).ldelim()
     }
     if (message.bleeding !== undefined && message.bleeding !== undefined) {
-      Bleeding.encode(message.bleeding, writer.uint32(106).fork()).ldelim()
+      Bleeding.encode(message.bleeding, writer.uint32(90).fork()).ldelim()
     }
     if (message.mucus !== undefined && message.mucus !== undefined) {
-      Mucus.encode(message.mucus, writer.uint32(114).fork()).ldelim()
+      Mucus.encode(message.mucus, writer.uint32(98).fork()).ldelim()
     }
     if (message.cervix !== undefined && message.cervix !== undefined) {
-      Cervix.encode(message.cervix, writer.uint32(122).fork()).ldelim()
+      Cervix.encode(message.cervix, writer.uint32(106).fork()).ldelim()
     }
     return writer
   },
 
-  decode(input: Reader | Uint8Array, length?: number): Day {
-    const reader = input instanceof Uint8Array ? new Reader(input) : input
+  decode(input: _m0.Reader | Uint8Array, length?: number): Day {
+    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input
     let end = length === undefined ? reader.len : reader.pos + length
     const message = { ...baseDay } as Day
     while (reader.pos < end) {
@@ -663,18 +700,15 @@ export const Day = {
           message.date = reader.string()
           break
         case 10:
-          message.excludeReason = reader.int32() as any
-          break
-        case 12:
           message.temperature = Temperature.decode(reader, reader.uint32())
           break
-        case 13:
+        case 11:
           message.bleeding = Bleeding.decode(reader, reader.uint32())
           break
-        case 14:
+        case 12:
           message.mucus = Mucus.decode(reader, reader.uint32())
           break
-        case 15:
+        case 13:
           message.cervix = Cervix.decode(reader, reader.uint32())
           break
         default:
@@ -691,11 +725,6 @@ export const Day = {
       message.date = String(object.date)
     } else {
       message.date = ''
-    }
-    if (object.excludeReason !== undefined && object.excludeReason !== null) {
-      message.excludeReason = excludeReasonFromJSON(object.excludeReason)
-    } else {
-      message.excludeReason = 0
     }
     if (object.temperature !== undefined && object.temperature !== null) {
       message.temperature = Temperature.fromJSON(object.temperature)
@@ -727,11 +756,6 @@ export const Day = {
     } else {
       message.date = ''
     }
-    if (object.excludeReason !== undefined && object.excludeReason !== null) {
-      message.excludeReason = object.excludeReason
-    } else {
-      message.excludeReason = 0
-    }
     if (object.temperature !== undefined && object.temperature !== null) {
       message.temperature = Temperature.fromPartial(object.temperature)
     } else {
@@ -758,8 +782,6 @@ export const Day = {
   toJSON(message: Day): unknown {
     const obj: any = {}
     message.date !== undefined && (obj.date = message.date)
-    message.excludeReason !== undefined &&
-      (obj.excludeReason = excludeReasonToJSON(message.excludeReason))
     message.temperature !== undefined &&
       (obj.temperature = message.temperature
         ? Temperature.toJSON(message.temperature)
