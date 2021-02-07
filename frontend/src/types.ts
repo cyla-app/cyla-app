@@ -46,10 +46,13 @@ export const PeriodStats = {
       .map((period) => {
         const from = parseDay(period.from)
         const to = parseDay(period.to)
-        return eachDayOfInterval({
-          start: from,
-          end: to,
-        }).map((date) => {
+        return (isSameDay(from, to)
+          ? [from]
+          : eachDayOfInterval({
+              start: from,
+              end: to,
+            })
+        ).map((date) => {
           return {
             date,
             position: isSameDay(date, from)

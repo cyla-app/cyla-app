@@ -25,7 +25,7 @@ export default ({
   const markedDates = PeriodStats.mapToDates({ periods: periodStats }).map(
     ({ date }) => ({
       date: moment(date),
-      dots: [
+      lines: [
         {
           color: colors.periodRed,
           selectedColor: colors.periodRed,

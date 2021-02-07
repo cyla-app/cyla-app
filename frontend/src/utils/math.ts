@@ -13,3 +13,8 @@ export const max = (array: number[]) =>
   array.reduce(function (a, b) {
     return Math.max(a, b)
   })
+
+export const min = (array: number[]) =>
+  array.reduce(function (a, b) {
+    return Math.min(a, b)
+  })

@@ -172,7 +172,7 @@ describe('periods', () => {
     ])
   })
 
-  it('should should not unmark if in close proximity', () => {
+  it('should not unmark if in close proximity', () => {
     let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-28'))
@@ -184,6 +184,21 @@ describe('periods', () => {
       {
         from: '2021-01-28',
         to: '2021-01-30',
+      },
+    ])
+  })
+
+  it('should allow to mark the same day multiple times', () => {
+    let periods: Period[] = []
+
+    periods = markPeriod(periods, bleeingDay('2021-01-28'))
+    periods = markPeriod(periods, bleeingDay('2021-01-28'))
+
+    periods = markPeriod(periods, noBleeingDay('2021-01-28'))
+    expect(periods).toEqual([
+      {
+        from: '2021-01-28',
+        to: '2021-01-28',
       },
     ])
   })

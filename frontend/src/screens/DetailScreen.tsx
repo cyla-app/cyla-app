@@ -35,7 +35,9 @@ export default ({ route }: PropType) => {
               <List.Item
                 title="Temperature"
                 left={() => <List.Icon icon="thermometer" />}
-                right={() => <Text>{temperature.value}</Text>}
+                right={() => (
+                  <Text>{Math.round(temperature.value * 100) / 100}</Text>
+                )}
               />
             )}
             {bleeding && Day.isBleeding(day) && (

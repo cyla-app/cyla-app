@@ -42,9 +42,9 @@ const calculatePercentageUntilNextPeriod = (
   const lastPeriod = periodStats[periodStats.length - 1]
   const cycleStats = stats(cycleLengths)
 
-  const daysSinceLastPeriod = differenceInDays(
-    new Date(),
-    parseDay(lastPeriod.to),
+  const daysSinceLastPeriod = Math.max(
+    differenceInDays(new Date(), parseDay(lastPeriod.from)),
+    0,
   )
 
   return [
@@ -92,32 +92,26 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   )
   return (
     <>
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
+      <ScrollView
+        contentContainerStyle={{
+          justifyContent: 'flex-start',
           alignItems: 'center',
           marginBottom: 20,
         }}>
         <CycleStats cycleLengths={plainCycleLengths} />
         <CycleCircle cycleDay={cycleDay} percentage={percentage} />
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-          }}>
-          {cycleLengths.map(([cycleLength, period1], i) => (
-            <CycleBar
-              key={i}
-              month={format(parseDay(period1.to), 'MMMM')}
-              cycleLength={cycleLength}
-              maxCycleLength={maxCycleLength}
-            />
-          ))}
-        </ScrollView>
+
+        {cycleLengths.map(([cycleLength, period1], i) => (
+          <CycleBar
+            key={i}
+            month={format(parseDay(period1.to), 'MMMM')}
+            cycleLength={cycleLength}
+            maxCycleLength={maxCycleLength}
+          />
+        ))}
+      </ScrollView>
+
+      <View style={{ marginBottom: 20 }}>
         <CalendarStrip
           days={days}
           periodStats={periodStats}

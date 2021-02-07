@@ -13,6 +13,7 @@ import { RootState } from '../App'
 import { formatDay } from '../utils/date'
 import useRefresh from '../hooks/useRefresh'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
+import { Headline } from 'react-native-paper'
 
 type AddScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Add'>,
@@ -26,6 +27,7 @@ export default ({}: { navigation: AddScreenNavigationProp }) => {
   )
   const dispatch = useDispatch()
 
+  const selectedDate = formatDay(new Date())
   return (
     <>
       <View
@@ -35,13 +37,14 @@ export default ({}: { navigation: AddScreenNavigationProp }) => {
           alignContent: 'flex-end',
           marginBottom: 30,
         }}>
+        <Headline>Editing {selectedDate}</Headline>
         <ScrollView
           contentContainerStyle={{}}
           refreshControl={
             <RefreshControl refreshing={loading} onRefresh={refresh} />
           }>
           <EntryDay
-            selectedDate={formatDay(new Date())}
+            selectedDate={selectedDate}
             onSave={(day: Day) => {
               dispatch(saveDay(day))
             }}
