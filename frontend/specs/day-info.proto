@@ -2,9 +2,10 @@ syntax = "proto3";
 
 message Bleeding {
   enum Strength {
-    WEAK = 0;
-    MEDIUM = 1;
-    STRONG = 2;
+    STRENGTH_NONE = 0;
+    STRENGTH_WEAK = 1;
+    STRENGTH_MEDIUM = 2;
+    STRENGTH_STRONG = 3;
   }
 
   Strength strength = 1;
@@ -18,14 +19,16 @@ message Temperature {
 
 message Mucus {
   enum Feeling {
-    DRY = 0;
-    WET = 1;
-    SLIPPERY = 2;
+    FEELING_NONE = 0;
+    FEELING_DRY = 1;
+    FEELING_WET = 2;
+    FEELING_SLIPPERY = 3;
   }
 
   enum Texture {
-    CREAMY = 0;
-    EGG_WHITE = 1;
+    TEXTURE_NONE = 0;
+    TEXTURE_CREAMY = 1;
+    TEXTURE_EGG_WHITE = 2;
   }
 
   Feeling feeling = 1;
@@ -34,20 +37,23 @@ message Mucus {
 
 message Cervix {
   enum Opening {
-    CLOSED = 0;
-    HALF = 1;
-    RAISED = 2;
+    OPENING_NONE = 0;
+    OPENING_CLOSED = 1;
+    OPENING_MEDIUM = 2;
+    OPENING_RAISED = 3;
   }
   enum Firmness {
-    FIRM = 0;
-    MEDIUM = 1;
-    SOFT = 2;
+    FIRMNESS_NONE = 0;
+    FIRMNESS_FIRM = 1;
+    FIRMNESS_MEDIUM = 2;
+    FIRMNESS_SOFT = 3;
   }
 
   enum Position {
-    LOW = 0;
-    CENTER = 1;
-    HIGH = 2;
+    POSITION_NONE = 0;
+    POSITION_LOW = 1;
+    POSITION_CENTER = 2;
+    POSITION_HIGH = 3;
   }
 
   Opening opening = 1;
@@ -56,16 +62,18 @@ message Cervix {
 }
 
 enum ExcludeReason {
-    SICK = 0;
-    HUNGOVER = 1;
-    SLEEP = 2;
+  EXCLUDE_REASON_NONE = 0;
+  EXCLUDE_REASON_SICK = 1;
+  EXCLUDE_REASON_HUNGOVER = 2;
+  EXCLUDE_REASON_SLEEP = 3;
 }
 
 message Day {
   string date = 1;
-  Temperature temperature = 2;
-  Bleeding bleeding = 3;
-  Mucus mucus = 4;
-  Cervix cervix = 5;
-  ExcludeReason ExcludeReason = 6;
+
+  ExcludeReason exclude_reason = 10;
+  Temperature temperature = 12;
+  Bleeding bleeding = 13;
+  Mucus mucus = 14;
+  Cervix cervix = 15;
 }
