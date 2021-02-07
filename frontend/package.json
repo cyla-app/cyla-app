@@ -13,9 +13,8 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "generate:clean": "rimraf ./generated/*.ts",
-    "generate:protobuf": "cd specs && protoc --plugin=\"protoc-gen-ts=../node_modules/.bin/protoc-gen-ts\" --js_out=\"import_style=commonjs,binary:../generated\" --ts_out=../generated ./period-stats.proto ./day-info.proto",
-    "postinstall": "patch-package && yarn run generate:clean && yarn run generate:protobuf",
-    "generate:protobuf1": "cd specs && protoc --plugin=../node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=../generated/ ./period-stats.proto ./day-info.proto"
+    "postinstall": "patch-package",
+    "generate:protobuf": "cd specs && protoc --plugin=../node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_opt=useOptionals=true --ts_proto_out=../generated/ ./period-stats.proto ./day-info.proto"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.4",
