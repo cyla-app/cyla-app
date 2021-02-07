@@ -1,8 +1,22 @@
 import { Text, View } from 'react-native'
 import { ToggleButton } from 'react-native-paper'
 import React from 'react'
+import {
+  BleedingStrength,
+  CervixOpening,
+  ExcludeReason,
+  MucusFeeling,
+  MucusTexture,
+} from '../types'
 
-export default function <ValueType extends string>({
+export default function <
+  ValueType extends
+    | BleedingStrength
+    | CervixOpening
+    | ExcludeReason
+    | MucusFeeling
+    | MucusTexture
+>({
   value,
   defaultValue,
   onValueChange,
@@ -17,12 +31,12 @@ export default function <ValueType extends string>({
     title: string
   }>
 }) {
-  const changeValue: (value: ValueType) => void = (newValue) => {
-    onValueChange(newValue || defaultValue)
+  const changeValue: (value: string) => void = (newValue) => {
+    onValueChange((parseInt(newValue, 10) as ValueType) ?? defaultValue)
   }
   return (
     /* @ts-ignore */
-    <ToggleButton.Group onValueChange={changeValue} value={value}>
+    <ToggleButton.Group onValueChange={changeValue} value={value.toString()}>
       <View
         style={{
           flexDirection: 'row',
@@ -42,7 +56,7 @@ export default function <ValueType extends string>({
                   // backgroundColor: useTheme().colors.buttonBackground,
                 }}
                 icon={button.icon}
-                value={button.value}
+                value={button.value.toString()}
               />
               <Text
                 style={{

@@ -32,13 +32,13 @@ export const generateMockData = (dispatch: Dispatch) => {
         value: 36.5 + 0.5 * Math.sin(Math.sin(0.1 * i) * i),
         timestamp: day.toISOString(),
         note: '',
-        excludeReason: ExcludeReason.EXCLUDE_REASON_HUNGOVER,
+        excludeReason: ExcludeReason.EXCLUDE_REASON_NONE,
       },
       mucus: {
         feeling: MucusFeeling.FEELING_DRY,
         texture: MucusTexture.TEXTURE_EGG_WHITE,
       },
-    } as Day)
+    })
   }
   dispatch(saveMockDays(days))
 }

@@ -1,9 +1,5 @@
 import { NativeModules } from 'react-native'
-import { Day, Period } from '../types'
-import {
-  PeriodStats as PeriodStatsProto,
-  Period as PeriodProto,
-} from '../../generated/period-stats_pb'
+import { Day, Period, PeriodStats } from '../types'
 import { formatDay } from '../utils/date'
 
 // This type is determined by app.cyla.decryption.CylaModule
@@ -31,7 +27,6 @@ type CylaModuleType = {
     periodStats: string
     prevHashValue: string
   }>
-  fetchDaysByMonths: (months: number) => Promise<string[]>
   fetchDaysByRange: (
     iso8601dateFrom: string,
     iso8601dateTo: string,
@@ -57,23 +52,14 @@ class CylaModule {
       formatDay(from),
       formatDay(to),
     )
-    return jsons.map((json) => JSON.parse(json))
+    return jsons.map((json) => Day.fromJSON(JSON.parse(json)))
   }
 
   async saveDay(day: Day, periods: Period[], prevHashValue: string | null) {
-    const stats = new PeriodStatsProto()
-    stats.setPeriodsList(
-      periods.map((period) => {
-        const periodProto = new PeriodProto()
-        periodProto.setFrom(period.from)
-        periodProto.setTo(period.to)
-        return periodProto
-      }),
-    )
-    const binary = stats.serializeBinary()
+    const binary = PeriodStats.encode({ periods }).finish()
     await CylaNativeModule.saveDay(
       day.date,
-      JSON.stringify(day),
+      JSON.stringify(Day.toJSON(day)),
       bin2String(binary),
       prevHashValue,
     )
@@ -85,7 +71,7 @@ class CylaModule {
       prevHashValue,
     } = await CylaNativeModule.fetchPeriodStats()
     const binary = string2Bin(periodStatsBinary)
-    const periodStats = PeriodStatsProto.deserializeBinary(binary).toObject()
+    const periodStats = PeriodStats.decode(binary)
     return { periodStats, prevHashValue }
   }
 

@@ -5,6 +5,7 @@ import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { format } from 'date-fns'
 import { RouteProp } from '@react-navigation/native'
 import { parseDay } from '../utils/date'
+import { BleedingStrength, MucusFeeling, MucusTexture } from '../types'
 
 type DetailScreenRouteProp = RouteProp<MainStackParamList, 'Detail'>
 
@@ -15,6 +16,9 @@ type PropType = {
 export default ({ route }: PropType) => {
   const { day } = route.params
 
+  const temperature = day.temperature
+  const bleeding = day.bleeding
+  const mucus = day.mucus
   return (
     <View style={[StyleSheet.absoluteFill]}>
       <Card
@@ -27,27 +31,30 @@ export default ({ route }: PropType) => {
 
         <Card.Content>
           <List.Section>
-            {day.temperature && (
+            {temperature && (
               <List.Item
                 title="Temperature"
                 left={() => <List.Icon icon="thermometer" />}
-                right={() => <Text>{day.temperature!.value}</Text>}
+                right={() => <Text>{temperature.value}</Text>}
               />
             )}
-            {day.bleeding && (
+            {bleeding && (
               <List.Item
                 title="Bleeding"
                 left={() => <List.Icon icon="water" />}
-                right={() => <Text>{day.bleeding!.strength}</Text>}
+                right={() => {
+                  return <Text>{BleedingStrength[bleeding.strength]}</Text>
+                }}
               />
             )}
-            {day.mucus && (
+            {mucus && (
               <List.Item
                 title="Mucus"
                 left={() => <List.Icon icon="waves" />}
                 right={() => (
                   <Text>
-                    {day.mucus?.feeling} & {day.mucus!.texture}
+                    {MucusFeeling[mucus.feeling]} &{' '}
+                    {MucusTexture[mucus.texture]}
                   </Text>
                 )}
               />

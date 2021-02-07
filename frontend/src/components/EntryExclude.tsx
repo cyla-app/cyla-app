@@ -1,5 +1,5 @@
 import RadioButtonGroup from './RadioButtonGroup'
-import { ExcludeReason } from '../../generated'
+import { ExcludeReason } from '../types'
 import React from 'react'
 
 type PropsType = {
@@ -11,22 +11,22 @@ export default ({ excludeReason, onExcludeReasonChanged }: PropsType) => {
   return (
     <RadioButtonGroup
       value={excludeReason}
-      defaultValue={ExcludeReason.NONE}
+      defaultValue={ExcludeReason.EXCLUDE_REASON_NONE}
       onValueChange={(value) => onExcludeReasonChanged(value as ExcludeReason)}
       buttons={[
         {
           title: 'Sick',
-          value: ExcludeReason.SICK,
+          value: ExcludeReason.EXCLUDE_REASON_SICK,
           icon: 'virus',
         },
         {
           title: 'Hungover',
-          value: ExcludeReason.HUNGOVER,
+          value: ExcludeReason.EXCLUDE_REASON_HUNGOVER,
           icon: 'glass-cocktail',
         },
         {
           title: 'Sleep',
-          value: ExcludeReason.SLEEP,
+          value: ExcludeReason.EXCLUDE_REASON_SLEEP,
           icon: 'sleep',
         },
       ]}

@@ -23,7 +23,7 @@ import {
   switchMap,
 } from 'rxjs/operators'
 import { EMPTY, from, from as fromPromise, of } from 'rxjs'
-import { Period, Day, PeriodStats } from './types'
+import { Period, Day } from './types'
 import { markPeriod } from './utils/periods'
 
 export type Range = { from: string; to: string }
@@ -209,7 +209,7 @@ const saveMockDaysEpic: MyEpic = (action$) =>
 
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
         map((stats) => ({
-          stats: stats.periodStats.periodsList,
+          stats: stats.periodStats.periods,
           prevHashValue: stats.prevHashValue,
           daysToSave,
         })),
@@ -252,7 +252,7 @@ const saveDayEpic: MyEpic = (action$, $state) =>
 
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
         map((stats) => ({
-          stats: stats.periodStats.periodsList,
+          stats: stats.periodStats.periods,
           prevHashValue: stats.prevHashValue,
           day,
         })),
@@ -308,7 +308,7 @@ const fetchPeriodStatsEpic: MyEpic = (action$) => {
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
         map((stats) =>
           days.actions.periodStatsFulfilled({
-            periodStats: stats.periodStats.periodsList,
+            periodStats: stats.periodStats.periods,
           }),
         ),
         catchError(() => {

@@ -1,6 +1,5 @@
 import { markPeriod } from '../periods'
-import { Period, BleedingStrength } from '../../types'
-import { Day } from '../../types'
+import { BleedingStrength, Day, Period } from '../../types'
 
 describe('periods', () => {
   const bleeingDay = (date: string): Day => ({

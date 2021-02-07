@@ -1,14 +1,14 @@
 import RadioButtonGroup from './RadioButtonGroup'
-import { Cervix } from '../../generated'
+import { Cervix, CervixOpening, CervixPosition, CervixFirmness } from '../types'
 import React from 'react'
 
 type PropsType = {
-  opening: Cervix.opening
-  onOpeningChanged: (feeling: Cervix.opening) => void
-  firmness: Cervix.firmness
-  onFirmnessChanged: (texture: Cervix.firmness) => void
-  position: Cervix.position
-  onPositionChanged: (texture: Cervix.position) => void
+  opening: CervixOpening
+  onOpeningChanged: (feeling: CervixOpening) => void
+  firmness: CervixFirmness
+  onFirmnessChanged: (texture: CervixFirmness) => void
+  position: CervixPosition
+  onPositionChanged: (texture: CervixPosition) => void
 }
 
 export default ({
@@ -23,69 +23,69 @@ export default ({
     <>
       <RadioButtonGroup
         value={opening}
-        defaultValue={Cervix.opening.NONE}
+        defaultValue={CervixOpening.OPENING_NONE}
         onValueChange={(value) => onOpeningChanged(value)}
         // TODO pick fitting icons
         buttons={[
           {
             title: 'Closed',
-            value: Cervix.opening.CLOSED,
+            value: CervixOpening.OPENING_CLOSED,
             icon: 'water',
           },
           {
             title: 'Medium',
-            value: Cervix.opening.MEDIUM,
+            value: CervixOpening.OPENING_MEDIUM,
             icon: 'water',
           },
           {
             title: 'Raised',
-            value: Cervix.opening.RAISED,
+            value: CervixOpening.OPENING_RAISED,
             icon: 'water',
           },
         ]}
       />
       <RadioButtonGroup
         value={firmness}
-        defaultValue={Cervix.firmness.NONE}
+        defaultValue={CervixFirmness.FIRMNESS_NONE}
         onValueChange={(value) => onFirmnessChanged(value)}
         // TODO pick fitting icons
         buttons={[
           {
             title: 'Firm',
-            value: Cervix.firmness.FIRM,
+            value: CervixFirmness.FIRMNESS_FIRM,
             icon: 'water',
           },
           {
             title: 'Medium',
-            value: Cervix.firmness.MEDIUM,
+            value: CervixFirmness.FIRMNESS_MEDIUM,
             icon: 'water',
           },
           {
             title: 'Soft',
-            value: Cervix.firmness.SOFT,
+            value: CervixFirmness.FIRMNESS_SOFT,
             icon: 'water',
           },
         ]}
       />
       <RadioButtonGroup
         value={position}
-        defaultValue={Cervix.position.NONE}
+        defaultValue={CervixPosition.POSITION_NONE}
         onValueChange={(value) => onPositionChanged(value)}
         // TODO pick fitting icons
         buttons={[
           {
             title: 'Low',
-            value: Cervix.position.LOW,
+            value: CervixPosition.POSITION_LOW,
             icon: 'water',
           },
           {
             title: 'Medium',
-            value: Cervix.position.MEDIUM,
+            value: CervixPosition.POSITION_CENTER,
             icon: 'water',
           },
           {
             title: 'High',
-            value: Cervix.position.HIGH,
+            value: CervixPosition.POSITION_HIGH,
             icon: 'water',
           },
         ]}

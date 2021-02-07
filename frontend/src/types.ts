@@ -1,26 +1,15 @@
-import {
-  Day as DayNamespace,
-  Bleeding as BleedingNamespace,
-  Mucus as MucusNamespace,
-  Cervix as CervixNamespace,
-  Temperature as TemperatureNamespace,
-} from '../generated/day-info_pb'
-
-import {
-  Period as PeriodNamespace,
-  PeriodStats as PeriodStatsNamespace,
-} from '../generated/period-stats_pb'
-
-export type Day = DayNamespace.AsObject
-export type Bleeding = BleedingNamespace.AsObject
-export const BleedingStrength = BleedingNamespace.Strength
-
-export type Mucus = MucusNamespace.AsObject
-export const MucusFeeling = MucusNamespace.Feeling
-export const MucusTexture = MucusNamespace.Texture
-export type Cervix = CervixNamespace.AsObject
-export { ExcludeReason } from '../generated/day-info_pb'
-export type Temperature = TemperatureNamespace.AsObject
-
-export type Period = PeriodNamespace.AsObject
-export type PeriodStats = PeriodStatsNamespace.AsObject
+export {
+  Day,
+  Bleeding,
+  Mucus,
+  Cervix,
+  Temperature,
+  Temperature_ExcludeReason as ExcludeReason,
+  Mucus_Texture as MucusTexture,
+  Mucus_Feeling as MucusFeeling,
+  Bleeding_Strength as BleedingStrength,
+  Cervix_Opening as CervixOpening,
+  Cervix_Firmness as CervixFirmness,
+  Cervix_Position as CervixPosition,
+} from '../generated/day-info'
+export { Period, PeriodStats } from '../generated/period-stats'

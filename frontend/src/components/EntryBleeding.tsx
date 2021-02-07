@@ -1,32 +1,32 @@
 import RadioButtonGroup from './RadioButtonGroup'
-import { Bleeding } from '../../generated'
+import { BleedingStrength } from '../types'
 import React from 'react'
 
 type PropsType = {
-  strength: Bleeding.strength
-  onStrengthChanged: (strength: Bleeding.strength) => void
+  strength: BleedingStrength
+  onStrengthChanged: (strength: BleedingStrength) => void
 }
 
 export default ({ strength, onStrengthChanged }: PropsType) => {
   return (
     <RadioButtonGroup
       value={strength}
-      defaultValue={Bleeding.strength.NONE}
+      defaultValue={BleedingStrength.STRENGTH_NONE}
       onValueChange={onStrengthChanged}
       buttons={[
         {
           title: 'Weak',
-          value: Bleeding.strength.WEAK,
+          value: BleedingStrength.STRENGTH_WEAK,
           icon: 'water',
         },
         {
           title: 'Medium',
-          value: Bleeding.strength.MEDIUM,
+          value: BleedingStrength.STRENGTH_MEDIUM,
           icon: 'water',
         },
         {
           title: 'Strong',
-          value: Bleeding.strength.STRONG,
+          value: BleedingStrength.STRENGTH_STRONG,
           icon: 'water',
         },
       ]}

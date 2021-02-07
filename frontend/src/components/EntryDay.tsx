@@ -2,16 +2,22 @@ import { View, ViewStyle } from 'react-native'
 import React, { useState } from 'react'
 import { Button, Subheading } from 'react-native-paper'
 import {
-  Bleeding,
+  BleedingStrength,
   Day,
   ExcludeReason,
-  Mucus,
+  MucusFeeling,
+  MucusTexture,
   Temperature,
-} from '../../generated'
+} from '../types'
 import EntryBleeding from './EntryBleeding'
 import EntryExclude from './EntryExclude'
 import EntryTemperature from './EntryTemperature'
 import EntryMucus from './EntryMucus'
+import {
+  Bleeding_Strength,
+  Mucus_Feeling,
+  Mucus_Texture,
+} from '../../generated/day-info'
 
 const PropertyHeadline = ({ children }: { children: React.ReactNode }) => (
   <Subheading style={{ marginTop: 10, fontWeight: '700' }}>
@@ -28,17 +34,17 @@ export default ({ onSave, selectedDate }: PropsType) => {
   const [temperature, setTemperature] = useState<Temperature['value'] | null>(
     null,
   )
-  const [bleedingStrength, setBleedingStrength] = useState<Bleeding.strength>(
-    Bleeding.strength.NONE,
+  const [bleedingStrength, setBleedingStrength] = useState<BleedingStrength>(
+    Bleeding_Strength.STRENGTH_NONE,
   )
-  const [mucusFeeling, setMucusFeeling] = useState<Mucus.feeling>(
-    Mucus.feeling.NONE,
+  const [mucusFeeling, setMucusFeeling] = useState<MucusFeeling>(
+    Mucus_Feeling.FEELING_NONE,
   )
-  const [mucusTexture, setMucusTexture] = useState<Mucus.texture>(
-    Mucus.texture.NONE,
+  const [mucusTexture, setMucusTexture] = useState<MucusTexture>(
+    Mucus_Texture.TEXTURE_NONE,
   )
   const [excludeReason, setExcludeReason] = useState<ExcludeReason>(
-    ExcludeReason.NONE,
+    ExcludeReason.EXCLUDE_REASON_NONE,
   )
 
   return (
@@ -87,7 +93,8 @@ export default ({ onSave, selectedDate }: PropsType) => {
               ? {
                   value: temperature,
                   timestamp: new Date().toISOString(),
-                  note: undefined,
+                  note: 'Note',
+                  excludeReason: ExcludeReason.EXCLUDE_REASON_NONE,
                 }
               : undefined,
             bleeding: {

@@ -1,12 +1,12 @@
 import RadioButtonGroup from './RadioButtonGroup'
-import { Mucus } from '../../generated'
+import { MucusTexture, MucusFeeling } from '../types'
 import React from 'react'
 
 type PropsType = {
-  feeling: Mucus.feeling
-  onFeelingChanged: (feeling: Mucus.feeling) => void
-  texture: Mucus.texture
-  onTextureChanged: (texture: Mucus.texture) => void
+  feeling: MucusFeeling
+  onFeelingChanged: (feeling: MucusFeeling) => void
+  texture: MucusTexture
+  onTextureChanged: (texture: MucusTexture) => void
 }
 
 export default ({
@@ -19,40 +19,40 @@ export default ({
     <>
       <RadioButtonGroup
         value={feeling}
-        defaultValue={Mucus.feeling.NONE}
+        defaultValue={MucusFeeling.FEELING_NONE}
         onValueChange={onFeelingChanged}
         // TODO pick fitting icons
         buttons={[
           {
             title: 'Dry',
-            value: Mucus.feeling.DRY,
+            value: MucusFeeling.FEELING_DRY,
             icon: 'hair-dryer',
           },
           {
             title: 'Slippery',
-            value: Mucus.feeling.SLIPPERY,
+            value: MucusFeeling.FEELING_SLIPPERY,
             icon: 'wave',
           },
           {
             title: 'Wet',
-            value: Mucus.feeling.WET,
+            value: MucusFeeling.FEELING_WET,
             icon: 'waves',
           },
         ]}
       />
       <RadioButtonGroup
         value={texture}
-        defaultValue={Mucus.texture.NONE}
+        defaultValue={MucusTexture.TEXTURE_NONE}
         onValueChange={onTextureChanged}
         buttons={[
           {
             title: 'Creamy',
-            value: Mucus.texture.CREAMY,
+            value: MucusTexture.TEXTURE_CREAMY,
             icon: 'ice-cream',
           },
           {
             title: 'Egg White',
-            value: Mucus.texture.EGG_WHITE,
+            value: MucusTexture.TEXTURE_EGG_WHITE,
             icon: 'egg',
           },
         ]}
