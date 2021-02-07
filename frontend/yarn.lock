@@ -1317,11 +1317,6 @@
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
   integrity sha512-OCutwjDZ4aFS6PB1UZ988C4YgwlBHJd6wCeQqaLdmadZ/7e+w79+hbMUFC1QXDNCmdyoRfAFdm0RypzwR+Qpag==
 
-"@types/google-protobuf@^3.7.4":
-  version "3.7.4"
-  resolved "https://registry.yarnpkg.com/@types/google-protobuf/-/google-protobuf-3.7.4.tgz#1621c50ceaf5aefa699851da8e0ea606a2943a39"
-  integrity sha512-6PjMFKl13cgB4kRdYtvyjKl8VVa0PXS2IdVxHhQ8GEKbxBkyJtSbaIeK1eZGjDKN7dvUh4vkOvU9FMwYNv4GQQ==
-
 "@types/graceful-fs@^4.1.2":
   version "4.1.4"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.4.tgz#4ff9f641a7c6d1a3508ff88bc3141b152772e753"
@@ -3558,11 +3553,6 @@ globals@^12.1.0:
   integrity sha512-BWICuzzDvDoH54NHKCseDanAhE3CeDorgDL5MT6LMXXj2WCnd9UC2szdk4AWLfjdgNBCXLUanXYcpBBKOSWGwg==
   dependencies:
     type-fest "^0.8.1"
-
-google-protobuf@^3.6.1:
-  version "3.14.0"
-  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.14.0.tgz#20373d22046e63831a5110e11a84f713cc43651e"
-  integrity sha512-bwa8dBuMpOxg7COyqkW6muQuvNnWgVN8TX/epDRGW5m0jcrmq2QJyCyiV8ZE2/6LaIIqJtiv9bYokFhfpy/o6w==
 
 graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.3, graceful-fs@^4.1.6, graceful-fs@^4.1.9, graceful-fs@^4.2.0, graceful-fs@^4.2.4:
   version "4.2.4"
@@ -7385,13 +7375,6 @@ ts-proto@^1.54.0:
     object-hash "^1.3.1"
     protobufjs "^6.8.8"
     ts-poet "^4.4.1"
-
-ts-protoc-gen@^0.14.0:
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/ts-protoc-gen/-/ts-protoc-gen-0.14.0.tgz#a6f4c3fc37d1d449915551c18404fb7e9aa8fef6"
-  integrity sha512-2z6w2HioMCMVNcgNHBcEvudmQfzrn+3BjAlz+xgYZ9L0o8n8UG8WUiTJcbXHFiEg2SU8IltwH2pm1otLoMSKwg==
-  dependencies:
-    google-protobuf "^3.6.1"
 
 tslib@^1.8.1, tslib@^1.9.0:
   version "1.14.1"
