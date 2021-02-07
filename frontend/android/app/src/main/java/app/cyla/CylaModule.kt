@@ -213,7 +213,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun saveDay(iso8601date: String, dayJson: String, periods: String, prevHashValue: String?, promise: Promise) {
+    fun saveDay(iso8601date: String, dayBase64: String, periods: String, prevHashValue: String?, promise: Promise) {
         CompletableFuture.supplyAsync {
             val charArray = periods.toCharArray()
             val byteArray = ByteArray(charArray.size) {
@@ -224,7 +224,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             day.date = LocalDate.parse(iso8601date)
             day.version = 0
 
-            val (encryptedDayInfo, encryptedDayKey) = ThemisOperations.encryptDayInfo(userKey, dayJson, iso8601date)
+            val (encryptedDayInfo, encryptedDayKey) = ThemisOperations.encryptDayInfo(userKey, Base64.decode(dayBase64, Base64.DEFAULT), iso8601date)
             day.dayInfo = encryptedDayInfo
             day.dayKey = encryptedDayKey
 
@@ -292,9 +292,9 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             )
 
             val writableNativeArray = WritableNativeArray()
-            for (plainTextDay in days) {
-                val json = ThemisOperations.decryptDayInfo(userKey, plainTextDay)
-                writableNativeArray.pushString(json)
+            for (day in days) {
+                val plaintextDay = ThemisOperations.decryptDayInfo(userKey, day)
+                writableNativeArray.pushString(Base64.encodeToString(plaintextDay, Base64.NO_WRAP))
             }
             promise.resolve(writableNativeArray)
         }.exceptionally { throwable ->

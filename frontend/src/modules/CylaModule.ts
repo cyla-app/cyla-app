@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native'
 import { Day, Period, PeriodStats } from '../types'
 import { formatDay } from '../utils/date'
+import minimal from 'protobufjs/minimal'
 
 // This type is determined by app.cyla.decryption.CylaModule
 type CylaModuleType = {
@@ -19,7 +20,7 @@ type CylaModuleType = {
   getUserId: () => Promise<string>
   saveDay: (
     iso8601date: string,
-    userId: string,
+    dayBase64: string,
     periods: string,
     prevHashValue: string | null,
   ) => Promise<void>
@@ -48,19 +49,29 @@ const string2Bin = (str: string) => {
 
 class CylaModule {
   async fetchDaysByRange(from: Date, to: Date): Promise<Day[]> {
-    const jsons = await CylaNativeModule.fetchDaysByRange(
+    const days = await CylaNativeModule.fetchDaysByRange(
       formatDay(from),
       formatDay(to),
     )
-    return jsons.map((json) => Day.fromJSON(JSON.parse(json)))
+
+    return days.map((base64) => {
+      //base64 = base64.replace('\n', '')
+      console.log(base64)
+      const number = Math.round(minimal.util.base64.length(base64))
+      console.log(minimal.util.base64.length(base64))
+      const buffer = new Uint8Array(number)
+      minimal.util.base64.decode(base64, buffer, 0)
+      return Day.decode(buffer)
+    })
   }
 
   async saveDay(day: Day, periods: Period[], prevHashValue: string | null) {
-    const binary = PeriodStats.encode({ periods }).finish()
+    const periodBuffer = PeriodStats.encode({ periods }).finish()
+    const dayBuffer = Day.encode(day).finish()
     await CylaNativeModule.saveDay(
       day.date,
-      JSON.stringify(Day.toJSON(day)),
-      bin2String(binary),
+      minimal.util.base64.encode(dayBuffer, 0, dayBuffer.length),
+      bin2String(periodBuffer),
       prevHashValue,
     )
   }

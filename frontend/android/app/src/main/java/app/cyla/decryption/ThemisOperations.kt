@@ -70,24 +70,9 @@ class ThemisOperations {
         fun decryptDayInfo(
                 userKey: SymmetricKey,
                 day: Day
-        ): String {
-            val dayKey = SymmetricKey(decryptData(userKey, day.dayKey))
-            return decryptString(dayKey, day.dayInfo, day.date.toString().toByteArray())
-        }
-
-        fun encryptString(
-                key: SymmetricKey,
-                data: String
         ): ByteArray {
-            return encryptData(key, data.toByteArray())
-        }
-
-        fun encryptString(
-                key: SymmetricKey,
-                data: String,
-                context: ByteArray
-        ) : ByteArray {
-            return encryptData(key, data.toByteArray(), context)
+            val dayKey = SymmetricKey(decryptData(userKey, day.dayKey))
+            return decryptData(dayKey, day.dayInfo, day.date.toString().toByteArray())
         }
 
         private fun encryptData(
@@ -116,12 +101,12 @@ class ThemisOperations {
          */
         fun encryptDayInfo(
                 userKey: SymmetricKey,
-                dayInfo: String,
+                dayInfo: ByteArray,
                 dateContext: String
         ): Pair<ByteArray, ByteArray> {
             val dayKey = SymmetricKey();
             return Pair(
-                    encryptString(dayKey, dayInfo, dateContext.toByteArray()),
+                    encryptData(dayKey, dayInfo, dateContext.toByteArray()),
                     encryptData(userKey, dayKey.toByteArray()))
         }
     }

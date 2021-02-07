@@ -267,8 +267,6 @@ const saveDayEpic: MyEpic = (action$, $state) =>
               days.actions.rejected('Unable to save day while offline.'),
             )
           }
-          console.warn(prevHashValue)
-          console.warn(typeof prevHashValue)
 
           const stats = markPeriod(previousStats, day)
           return fromPromise(
