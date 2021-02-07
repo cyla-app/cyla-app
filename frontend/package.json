@@ -12,12 +12,10 @@
     "start": "yarn generate && react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "generate:clean": "rimraf ./generated/*",
-    "generate:openapi": "openapi --input ./specs/frontend-spec.yaml --output ./generated --exportCore false --exportServices false",
-    "generate:protobuf": "mkdirp generated && pbjs -t static-module -w es6 -o generated/protobuf.js ./specs/period-stats.proto && pbts -o generated/protobuf.d.ts generated/protobuf.js",
-    "generate:protobuf1": "protoc --plugin=node_modules/ts-proto/protoc-gen-ts_proto ./specs/period-stats.proto --ts_proto_out=generated/",
-    "generate:protobuf2": "protoc --plugin=\"protoc-gen-ts=./node_modules/.bin/protoc-gen-ts\" --js_out=\"import_style=commonjs,binary:generated/\" generated --ts_out=generated/ ./specs/period-stats.proto ",
-    "postinstall": "patch-package && yarn run generate:clean && yarn run generate:openapi && yarn run generate:protobuf"
+    "generate:clean": "rimraf ./generated/*.ts",
+    "generate:protobuf": "cd specs && protoc --plugin=\"protoc-gen-ts=../node_modules/.bin/protoc-gen-ts\" --js_out=\"import_style=commonjs,binary:../generated\" --ts_out=../generated ./period-stats.proto ./day-info.proto",
+    "postinstall": "patch-package && yarn run generate:clean && yarn run generate:protobuf",
+    "generate:protobuf1": "cd specs && protoc --plugin=../node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_out=../generated/ ./period-stats.proto ./day-info.proto"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.4",
@@ -29,11 +27,11 @@
     "@react-navigation/native": "^5.8.10",
     "@react-navigation/stack": "^5.12.8",
     "@reduxjs/toolkit": "^1.5.0",
+    "@types/google-protobuf": "^3.7.4",
     "@types/react-native-calendars": "^1.20.12",
     "@types/react-native-vector-icons": "^6.4.6",
     "date-fns": "^2.16.1",
     "mkdirp": "^1.0.4",
-    "openapi-typescript-codegen": "^0.7.0",
     "react": "16.13.1",
     "react-native": "0.63.3",
     "react-native-calendar-strip": "^2.1.0",
@@ -52,8 +50,7 @@
     "redux-flipper": "^1.4.2",
     "redux-observable": "^1.2.0",
     "rxjs": "^6.6.3",
-    "ts-proto": "^1.54.0",
-    "ts-protoc-gen": "^0.14.0"
+    "ts-proto": "^1.54.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
@@ -66,15 +63,13 @@
     "@typescript-eslint/parser": "^2.27.0",
     "babel-jest": "^25.1.0",
     "eslint": "^6.5.1",
-    "google-protobuf": "^3.14.0",
     "jest": "^25.1.0",
     "metro-react-native-babel-preset": "^0.59.0",
     "patch-package": "^6.2.2",
-    "protobufjs": "^6.10.2",
     "react-test-renderer": "16.13.1",
     "rimraf": "^3.0.2",
-    "typescript": "^3.8.3",
-    "yarn-deduplicate": "^3.1.0"
+    "ts-protoc-gen": "^0.14.0",
+    "typescript": "^3.8.3"
   },
   "jest": {
     "preset": "react-native",
