@@ -13,11 +13,6 @@ import EntryBleeding from './EntryBleeding'
 import EntryExclude from './EntryExclude'
 import EntryTemperature from './EntryTemperature'
 import EntryMucus from './EntryMucus'
-import {
-  Bleeding_Strength,
-  Mucus_Feeling,
-  Mucus_Texture,
-} from '../../generated/day-info'
 
 const PropertyHeadline = ({ children }: { children: React.ReactNode }) => (
   <Subheading style={{ marginTop: 10, fontWeight: '700' }}>
@@ -35,13 +30,13 @@ export default ({ onSave, selectedDate }: PropsType) => {
     null,
   )
   const [bleedingStrength, setBleedingStrength] = useState<BleedingStrength>(
-    Bleeding_Strength.STRENGTH_NONE,
+    BleedingStrength.STRENGTH_NONE,
   )
   const [mucusFeeling, setMucusFeeling] = useState<MucusFeeling>(
-    Mucus_Feeling.FEELING_NONE,
+    MucusFeeling.FEELING_NONE,
   )
   const [mucusTexture, setMucusTexture] = useState<MucusTexture>(
-    Mucus_Texture.TEXTURE_NONE,
+    MucusTexture.TEXTURE_NONE,
   )
   const [excludeReason, setExcludeReason] = useState<ExcludeReason>(
     ExcludeReason.EXCLUDE_REASON_NONE,

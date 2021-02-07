@@ -1,12 +1,10 @@
-import { Period } from '../period-stats_pb'
+import { PeriodStats } from '../period-stats'
 
 describe('protobuf', () => {
   it('should a', () => {
-    const period = new Period()
-    period.setFrom('from')
-    period.setTo('d')
+    const periodStats = { periods: [{ from: 'a', to: 'b' }] }
 
-    let buff = Buffer.from(period.serializeBinary())
+    let buff = Buffer.from(PeriodStats.encode(periodStats).finish())
     let base64data = buff.toString('base64')
     console.log(base64data)
   })

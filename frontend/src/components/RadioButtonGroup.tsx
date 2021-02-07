@@ -3,7 +3,9 @@ import { ToggleButton } from 'react-native-paper'
 import React from 'react'
 import {
   BleedingStrength,
+  CervixFirmness,
   CervixOpening,
+  CervixPosition,
   ExcludeReason,
   MucusFeeling,
   MucusTexture,
@@ -13,6 +15,8 @@ export default function <
   ValueType extends
     | BleedingStrength
     | CervixOpening
+    | CervixFirmness
+    | CervixPosition
     | ExcludeReason
     | MucusFeeling
     | MucusTexture
@@ -35,7 +39,6 @@ export default function <
     onValueChange((parseInt(newValue, 10) as ValueType) ?? defaultValue)
   }
   return (
-    /* @ts-ignore */
     <ToggleButton.Group onValueChange={changeValue} value={value.toString()}>
       <View
         style={{
@@ -53,7 +56,6 @@ export default function <
               <ToggleButton
                 style={{
                   width: 60,
-                  // backgroundColor: useTheme().colors.buttonBackground,
                 }}
                 icon={button.icon}
                 value={button.value.toString()}

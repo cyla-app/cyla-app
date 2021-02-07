@@ -4,7 +4,12 @@ export const DAYS_IN_WEEK = 7
 
 export const formatDay = (date: Date) => format(date, 'yyyy-MM-dd')
 
-export const parseDay = (string: string) => new Date(string)
+export const parseDay = (string: string) => {
+  if (string === '') {
+    throw new Error('Can not parse empty string to a date')
+  }
+  return new Date(string)
+}
 
 /**
  * Checks whether range1 is within range2

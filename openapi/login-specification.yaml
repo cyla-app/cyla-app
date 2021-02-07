@@ -4,8 +4,10 @@ info:
   version: 0.1.0
   title: "Login Cyla App API"
 servers:
+  - url: "wss://api.cyla.app:443"
+    description: "Production server"
   - url: "ws://localhost:5000"
-    description: "DEV server"
+    description: "Development server"
 paths:
   # OpenAPI is not meant to define WebSocket behaviour. This endpoint only tries to make explicit that
   # there is a (WebSocket) endpoint for login, but does not use the specification to describe it's behaviour.
@@ -31,4 +33,3 @@ paths:
             text/plain:
               schema:
                 $ref: "#/components/schemas/EncryptedAttribute"
-  

@@ -5,7 +5,7 @@ import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { format } from 'date-fns'
 import { RouteProp } from '@react-navigation/native'
 import { parseDay } from '../utils/date'
-import { BleedingStrength, MucusFeeling, MucusTexture } from '../types'
+import { BleedingStrength, Day, MucusFeeling, MucusTexture } from '../types'
 
 type DetailScreenRouteProp = RouteProp<MainStackParamList, 'Detail'>
 
@@ -38,7 +38,7 @@ export default ({ route }: PropType) => {
                 right={() => <Text>{temperature.value}</Text>}
               />
             )}
-            {bleeding && (
+            {bleeding && Day.isBleeding(day) && (
               <List.Item
                 title="Bleeding"
                 left={() => <List.Icon icon="water" />}

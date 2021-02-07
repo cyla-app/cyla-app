@@ -44,7 +44,7 @@ const calculatePercentageUntilNextPeriod = (
 
   const daysSinceLastPeriod = differenceInDays(
     new Date(),
-    parseDay(lastPeriod.to!),
+    parseDay(lastPeriod.to),
   )
 
   return [
@@ -58,8 +58,8 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
     useSelector<RootState, DayIndex>((state) => state.days.byDay), // FIXME dynamically load from state
   )
 
-  const periodStats = Object.values(
-    useSelector<RootState, Period[]>((state) => state.days.periodStats),
+  const periodStats = useSelector<RootState, Period[]>(
+    (state) => state.days.periodStats,
   )
 
   const daysError = useSelector<RootState, string | undefined>(
@@ -76,9 +76,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
     [number, Period, Period][]
   >((accumulator, [period1, period2]) => {
     accumulator.push([
-      Math.abs(
-        differenceInDays(parseDay(period2.from!), parseDay(period1.to!)),
-      ),
+      Math.abs(differenceInDays(parseDay(period2.from), parseDay(period1.to))),
       period1,
       period2,
     ])
@@ -114,14 +112,15 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           {cycleLengths.map(([cycleLength, period1], i) => (
             <CycleBar
               key={i}
-              month={format(parseDay(period1.to!), 'MMMM')}
+              month={format(parseDay(period1.to), 'MMMM')}
               cycleLength={cycleLength}
               maxCycleLength={maxCycleLength}
             />
           ))}
         </ScrollView>
         <CalendarStrip
-          periodDays={days.filter((day) => day.bleeding)}
+          days={days}
+          periodStats={periodStats}
           onDateSelected={(_: string) => {}}
           onDaySelected={(day: Day) => {
             navigation.navigate('Detail', {

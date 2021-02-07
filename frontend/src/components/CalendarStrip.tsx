@@ -3,32 +3,40 @@ import { useTheme } from 'react-native-paper'
 import CalendarStrip from 'react-native-calendar-strip'
 import { addWeeks } from 'date-fns'
 import moment, { Moment } from 'moment'
-import { Day } from '../types'
+import { Day, Period, PeriodStats } from '../types'
 import { formatDay } from '../utils/date'
 
 type PropTypes = {
   onDaySelected: (day: Day) => void
   onDateSelected: (date: string) => void
-  periodDays: Day[]
+  days: Day[]
+  periodStats: Period[]
 }
 
-export default ({ onDaySelected, onDateSelected, periodDays }: PropTypes) => {
+export default ({
+  onDaySelected,
+  onDateSelected,
+  periodStats,
+  days,
+}: PropTypes) => {
   const { colors } = useTheme()
   const now = new Date()
 
-  const markedDates: any[] = periodDays.map((day) => ({
-    date: moment(day.date),
-    dots: [
-      {
-        color: colors.periodRed,
-        selectedColor: colors.periodRed,
-      },
-    ],
-  }))
+  const markedDates = PeriodStats.mapToDates({ periods: periodStats }).map(
+    ({ date }) => ({
+      date: moment(date),
+      dots: [
+        {
+          color: colors.periodRed,
+          selectedColor: colors.periodRed,
+        },
+      ],
+    }),
+  )
 
   const selectDay = (date: Moment) => {
     onDateSelected(formatDay(date.toDate()))
-    const found = periodDays.find((day) => moment(day.date).isSame(date, 'day'))
+    const found = days.find((day) => moment(day.date).isSame(date, 'day'))
 
     if (found) {
       onDaySelected(found)

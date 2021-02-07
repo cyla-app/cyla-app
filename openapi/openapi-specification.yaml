@@ -4,16 +4,18 @@ info:
   version: 0.1.0
   title: "Cyla App API"
 servers:
-  - url: "https://api.cyla.app"
-    description: "DEV server"
+  - url: "https://api.cyla.app:443"
+    description: "Production server"
+  - url: "http://localhost:5000"
+    description: "Development server"
 security:
   # By default, all endpoints are protected. There are some exceptions, like user sign up.
-  - bearerJWTAuth: []
+  - bearerJWTAuth: [ ]
 paths:
   /user:
     post:
       # No authorization for this endpoint needed
-      security: []
+      security: [ ]
       tags:
         - user
       description: Create a new user
@@ -263,7 +265,7 @@ components:
       format: byte
     DayDate:
       title: date
-      description:  ISO-8601-formatted date for an day entry. Only the date, no time is given.
+      description: ISO-8601-formatted date for an day entry. Only the date, no time is given.
       type: string
       format: date
     Id:

@@ -14,7 +14,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "generate:clean": "rimraf ./generated/*.ts",
     "postinstall": "patch-package",
-    "generate:protobuf": "cd specs && protoc --plugin=../node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_opt=useOptionals=true --ts_proto_out=../generated/ ./period-stats.proto ./day-info.proto"
+    "generate:protobuf": "cd specs && protoc --plugin=../node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_opt=useOptionals=true --ts_proto_out=../generated/ ./period-stats.proto ./day.proto"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.4",

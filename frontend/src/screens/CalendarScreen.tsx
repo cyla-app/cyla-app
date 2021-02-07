@@ -25,9 +25,10 @@ export default ({
 }: {
   navigation: CalendarScreenNavigationProp
 }) => {
-  const periodStats = Object.values(
-    useSelector<RootState, Period[]>((state) => state.days.periodStats),
+  const periodStats = useSelector<RootState, Period[]>(
+    (state) => state.days.periodStats,
   )
+
   const days = Object.values(
     useSelector<RootState, DayIndex>((state) => state.days.byDay),
   )

@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react'
 import { CalendarList, CalendarTheme } from 'react-native-calendars'
 import { useTheme } from 'react-native-paper'
-import { Day } from '../types'
-import { Period } from '../types'
-import { eachDayOfInterval, isSameDay } from 'date-fns'
+import { Day, DayPosition, Period, PeriodStats } from '../types'
+import { isSameDay } from 'date-fns'
 import { formatDay, parseDay } from '../utils/date'
 
 type PropsType = {
@@ -60,21 +59,16 @@ export default ({
     [colors],
   )
 
-  const markedDates = periodStats
-    .map((period) => {
-      return eachDayOfInterval({
-        start: parseDay(period.from!),
-        end: parseDay(period.to!),
-      }).map((date) => [
-        formatDay(date),
-        {
-          startingDay: isSameDay(date, parseDay(period.from!)),
-          endingDay: isSameDay(date, parseDay(period.to!)),
-          color: colors.periodRed,
-        },
-      ])
-    })
-    .flat(1)
+  const markedDates = PeriodStats.mapToDates({ periods: periodStats }).map(
+    ({ date, position }) => [
+      formatDay(date),
+      {
+        startingDay: position === DayPosition.START,
+        endingDay: position === DayPosition.END,
+        color: colors.periodRed,
+      },
+    ],
+  )
 
   return (
     <CalendarList

@@ -20,8 +20,8 @@ const findIndex = (
   for (; index < periods.length; index++) {
     const period = periods[index]
 
-    const start = parseDay(period.from!)
-    const end = parseDay(period.to!)
+    const start = parseDay(period.from)
+    const end = parseDay(period.to)
     const range = {
       start: includeCloseProximity ? sub(start, { days: 1 }) : start,
       end: includeCloseProximity ? add(end, { days: 1 }) : end,
@@ -54,8 +54,8 @@ const unionPeriods = (periods: Period[]) => {
     const nextPeriod = periods[i + 1]
     if (
       isSameDay(
-        add(parseDay(period.to!), { days: 1 }),
-        parseDay(nextPeriod.from!),
+        add(parseDay(period.to), { days: 1 }),
+        parseDay(nextPeriod.from),
       )
     ) {
       newPeriods.push({
@@ -72,7 +72,7 @@ const unionPeriods = (periods: Period[]) => {
 }
 
 export const markPeriod = (periods: Period[], day: Day) => {
-  if (!day.bleeding) {
+  if (!Day.isBleeding(day)) {
     return unmarkPeriod(periods, day)
   }
 
@@ -84,8 +84,8 @@ export const markPeriod = (periods: Period[], day: Day) => {
     const period = periods[index]
     const dayDate = parseDay(day.date)
     newPeriods[index] = {
-      from: isBefore(dayDate, new Date(period.from!)) ? day.date : period.from,
-      to: isAfter(dayDate, new Date(period.to!)) ? day.date : period.to,
+      from: isBefore(dayDate, new Date(period.from)) ? day.date : period.from,
+      to: isAfter(dayDate, new Date(period.to)) ? day.date : period.to,
     }
   } else {
     // create new period and insert at correct position
@@ -96,7 +96,7 @@ export const markPeriod = (periods: Period[], day: Day) => {
 }
 
 const unmarkPeriod = (periods: Period[], day: Day) => {
-  if (day.bleeding) {
+  if (Day.isBleeding(day)) {
     return periods
   }
 
@@ -110,12 +110,12 @@ const unmarkPeriod = (periods: Period[], day: Day) => {
   const dayDate = parseDay(day.date)
   const period = periods[index]
 
-  if (isSameDay(dayDate, parseDay(period.from!))) {
+  if (isSameDay(dayDate, parseDay(period.from))) {
     newPeriods[index] = {
       from: formatDay(add(dayDate, { days: 1 })),
       to: period.to,
     }
-  } else if (isSameDay(dayDate, parseDay(period.to!))) {
+  } else if (isSameDay(dayDate, parseDay(period.to))) {
     newPeriods[index] = {
       from: period.from,
       to: formatDay(sub(dayDate, { days: 1 })),
