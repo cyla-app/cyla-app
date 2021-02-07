@@ -4,7 +4,6 @@ import {
   createSlice,
   PayloadAction,
 } from '@reduxjs/toolkit'
-import { Day } from '../generated'
 import CylaModule from './modules/CylaModule'
 import { RootState } from './App'
 import { isAfter, isBefore, sub } from 'date-fns'
@@ -24,7 +23,7 @@ import {
   switchMap,
 } from 'rxjs/operators'
 import { EMPTY, from, from as fromPromise, of } from 'rxjs'
-import { IPeriod, IPeriodStats, PeriodStats } from '../generated/protobuf'
+import { Period, Day, PeriodStats } from './types'
 import { markPeriod } from './utils/periods'
 
 export type Range = { from: string; to: string }
@@ -44,7 +43,7 @@ export type DaysStateType = {
   range: Range | null
   byWeek: WeekIndex
   byDay: DayIndex
-  periodStats: IPeriod[]
+  periodStats: Period[]
   loading: boolean
   error?: string
 }
@@ -98,7 +97,7 @@ const days = createSlice({
       state,
       action: PayloadAction<{
         day: Day
-        periodStats: IPeriod[]
+        periodStats: Period[]
       }>,
     ) => {
       const payload = action.payload
@@ -111,7 +110,7 @@ const days = createSlice({
     periodStatsFulfilled: (
       state,
       action: PayloadAction<{
-        periodStats: IPeriod[]
+        periodStats: Period[]
       }>,
     ) => {
       const payload = action.payload
@@ -210,8 +209,7 @@ const saveMockDaysEpic: MyEpic = (action$) =>
 
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
         map((stats) => ({
-          stats: (PeriodStats.toObject(stats.periodStats) as IPeriodStats)
-            .periods!,
+          stats: stats.periodStats.periodsList,
           prevHashValue: stats.prevHashValue,
           daysToSave,
         })),
@@ -254,8 +252,7 @@ const saveDayEpic: MyEpic = (action$, $state) =>
 
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
         map((stats) => ({
-          stats: (PeriodStats.toObject(stats.periodStats) as IPeriodStats)
-            .periods!,
+          stats: stats.periodStats.periodsList,
           prevHashValue: stats.prevHashValue,
           day,
         })),
@@ -311,9 +308,7 @@ const fetchPeriodStatsEpic: MyEpic = (action$) => {
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
         map((stats) =>
           days.actions.periodStatsFulfilled({
-            periodStats: (PeriodStats.toObject(
-              stats.periodStats,
-            ) as IPeriodStats).periods!,
+            periodStats: stats.periodStats.periodsList,
           }),
         ),
         catchError(() => {

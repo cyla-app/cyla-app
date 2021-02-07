@@ -1,4 +1,4 @@
-import { Day } from '../../generated'
+import { Day } from '../types'
 import { DAYS_IN_WEEK, formatDay, parseDay } from './date'
 import {
   add,

@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react'
 import { CalendarList, CalendarTheme } from 'react-native-calendars'
 import { useTheme } from 'react-native-paper'
-import { Day } from '../../generated'
-import { IPeriod } from '../../generated/protobuf'
+import { Day } from '../types'
+import { Period } from '../types'
 import { eachDayOfInterval, isSameDay } from 'date-fns'
 import { formatDay, parseDay } from '../utils/date'
 
 type PropsType = {
   days: Day[]
-  periodStats: IPeriod[]
+  periodStats: Period[]
   onDaySelected: (day: Day) => void
   onVisibleMonthsChange: (monthYear: { month: number; year: number }[]) => void
 }

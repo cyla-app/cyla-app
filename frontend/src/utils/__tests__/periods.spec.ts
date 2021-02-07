@@ -1,24 +1,21 @@
 import { markPeriod } from '../periods'
-import { Bleeding } from '../../../generated'
-import { IPeriod } from '../../../generated/protobuf'
+import { Period, BleedingStrength } from '../../types'
+import { Day } from '../../types'
 
 describe('periods', () => {
-  const bleeingDay = (date: string) => ({
+  const bleeingDay = (date: string): Day => ({
     date,
     bleeding: {
-      strength: Bleeding.strength.STRONG,
+      strength: BleedingStrength.STRENGTH_STRONG,
     },
   })
 
-  const noBleeingDay = (date: string) => ({
+  const noBleeingDay = (date: string): Day => ({
     date,
-    bleeding: {
-      strength: Bleeding.strength.NONE,
-    },
   })
 
   it('should add a day afterwards to period if touching', () => {
-    let periods: IPeriod[] = []
+    let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
     periods = markPeriod(periods, bleeingDay('2021-01-30'))
@@ -32,7 +29,7 @@ describe('periods', () => {
   })
 
   it('should add a day previous to period if touching', () => {
-    let periods: IPeriod[] = []
+    let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-30'))
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
@@ -46,7 +43,7 @@ describe('periods', () => {
   })
 
   it('should create new periods before the other one', () => {
-    let periods: IPeriod[] = []
+    let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
     periods = markPeriod(periods, bleeingDay('2021-01-30'))
@@ -67,7 +64,7 @@ describe('periods', () => {
   })
 
   it('should create new periods after other one', () => {
-    let periods: IPeriod[] = []
+    let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-15'))
     periods = markPeriod(periods, bleeingDay('2021-01-16'))
@@ -88,7 +85,7 @@ describe('periods', () => {
   })
 
   it('should merge if two periods reach each other', () => {
-    let periods: IPeriod[] = []
+    let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
     periods = markPeriod(periods, bleeingDay('2021-01-30'))
@@ -125,7 +122,7 @@ describe('periods', () => {
   })
 
   it('should narrow period if first day is unmarked', () => {
-    let periods: IPeriod[] = []
+    let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-28'))
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
@@ -141,7 +138,7 @@ describe('periods', () => {
   })
 
   it('should narrow period if last day is unmarked', () => {
-    let periods: IPeriod[] = []
+    let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-28'))
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
@@ -157,7 +154,7 @@ describe('periods', () => {
   })
 
   it('should split if day in the middle is unmarked', () => {
-    let periods: IPeriod[] = []
+    let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-28'))
     periods = markPeriod(periods, bleeingDay('2021-01-29'))
@@ -177,7 +174,7 @@ describe('periods', () => {
   })
 
   it('should should not unmark if in close proximity', () => {
-    let periods: IPeriod[] = []
+    let periods: Period[] = []
 
     periods = markPeriod(periods, bleeingDay('2021-01-28'))
     periods = markPeriod(periods, bleeingDay('2021-01-29'))

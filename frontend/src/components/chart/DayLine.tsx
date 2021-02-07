@@ -1,4 +1,4 @@
-import { Day } from '../../../generated'
+import { Day } from '../../types'
 import { scaleY } from './worklets'
 import { Circle, Line } from 'react-native-svg'
 import React from 'react'

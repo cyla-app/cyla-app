@@ -3,7 +3,7 @@ import { useTheme } from 'react-native-paper'
 import CalendarStrip from 'react-native-calendar-strip'
 import { addWeeks } from 'date-fns'
 import moment, { Moment } from 'moment'
-import { Day } from '../../generated'
+import { Day } from '../types'
 import { formatDay } from '../utils/date'
 
 type PropTypes = {

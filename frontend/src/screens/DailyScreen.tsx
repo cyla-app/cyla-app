@@ -6,13 +6,13 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { CompositeNavigationProp } from '@react-navigation/native'
 import { TabsParamList } from '../navigation/TabBarNavigation'
-import { Bleeding, Day } from '../../generated'
+import { Day } from '../types'
 import { DayIndex, fetchPeriodStats } from '../daysSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
-import { IPeriod } from '../../generated/protobuf'
-import { add, differenceInDays, format } from 'date-fns'
+import { Period } from '../types'
+import { differenceInDays, format } from 'date-fns'
 import { parseDay } from '../utils/date'
 import { max, stats } from '../utils/math'
 import CycleBar from '../components/CycleBar'
@@ -33,7 +33,7 @@ const pairwise = <T,>(array: T[]): [T, T][] => {
 }
 
 const calculatePercentageUntilNextPeriod = (
-  periodStats: IPeriod[],
+  periodStats: Period[],
   cycleLengths: number[],
 ): [number, number] => {
   if (periodStats.length === 0) {
@@ -59,7 +59,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   )
 
   const periodStats = Object.values(
-    useSelector<RootState, IPeriod[]>((state) => state.days.periodStats),
+    useSelector<RootState, Period[]>((state) => state.days.periodStats),
   )
 
   const daysError = useSelector<RootState, string | undefined>(
@@ -73,7 +73,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   }, [dispatch])
 
   const cycleLengths = pairwise(periodStats).reduceRight<
-    [number, IPeriod, IPeriod][]
+    [number, Period, Period][]
   >((accumulator, [period1, period2]) => {
     accumulator.push([
       Math.abs(
@@ -121,10 +121,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           ))}
         </ScrollView>
         <CalendarStrip
-          periodDays={days.filter(
-            (day) =>
-              day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE,
-          )}
+          periodDays={days.filter((day) => day.bleeding)}
           onDateSelected={(_: string) => {}}
           onDaySelected={(day: Day) => {
             navigation.navigate('Detail', {

@@ -1,5 +1,5 @@
-import { IPeriod } from '../../generated/protobuf'
-import { Bleeding, Day } from '../../generated'
+import { Period } from '../types'
+import { Day } from '../types'
 import { formatDay, parseDay } from './date'
 import {
   add,
@@ -11,7 +11,7 @@ import {
 } from 'date-fns'
 
 const findIndex = (
-  periods: IPeriod[],
+  periods: Period[],
   day: Day,
   includeCloseProximity: boolean = false,
 ) => {
@@ -36,7 +36,7 @@ const findIndex = (
   return { index, exists: false }
 }
 
-const unionPeriods = (periods: IPeriod[]) => {
+const unionPeriods = (periods: Period[]) => {
   if (periods.length < 2) {
     return periods
   }
@@ -71,8 +71,8 @@ const unionPeriods = (periods: IPeriod[]) => {
   return newPeriods
 }
 
-export const markPeriod = (periods: IPeriod[], day: Day) => {
-  if (!day.bleeding || day.bleeding.strength === Bleeding.strength.NONE) {
+export const markPeriod = (periods: Period[], day: Day) => {
+  if (!day.bleeding) {
     return unmarkPeriod(periods, day)
   }
 
@@ -95,8 +95,8 @@ export const markPeriod = (periods: IPeriod[], day: Day) => {
   return unionPeriods(newPeriods)
 }
 
-const unmarkPeriod = (periods: IPeriod[], day: Day) => {
-  if (day.bleeding && day.bleeding.strength !== Bleeding.strength.NONE) {
+const unmarkPeriod = (periods: Period[], day: Day) => {
+  if (day.bleeding) {
     return periods
   }
 

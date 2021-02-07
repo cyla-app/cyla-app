@@ -61,4 +61,7 @@ buck-out/
 # CocoaPods
 /ios/Pods/
 
-generated
+#generated/*
+#!generated/__tests__
+
+

@@ -1,4 +1,4 @@
-import { Day } from '../../../generated'
+import { Day } from '../../types'
 
 import React from 'react'
 import { Text } from 'react-native-svg'

@@ -6,7 +6,7 @@ import {
 import { NavigatorScreenParams } from '@react-navigation/native'
 import TabBarNavigation, { TabsParamList } from './TabBarNavigation'
 import SignUpScreen from '../screens/SignUpScreen'
-import { Day } from '../../generated'
+import { Day } from '../types'
 import DetailScreen from '../screens/DetailScreen'
 import { checkSignIn } from '../sessionSlice'
 import { useDispatch, useSelector } from 'react-redux'
