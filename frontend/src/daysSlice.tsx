@@ -17,6 +17,7 @@ import { combineEpics, Epic } from 'redux-observable'
 import {
   catchError,
   concatMap,
+  delay,
   filter,
   map,
   mergeMap,
@@ -135,7 +136,7 @@ const fetchRangeEpic: MyEpic = (action$, state$) =>
       if (!range || action.payload.refresh) {
         return true
       }
-      // TODO: Do not fetch the whole data is part of it is already in the state
+      // TODO: Optimisation: Do not fetch the whole data is part of it is already in the state
       return !isWithin(
         { from, to },
         { from: parseDay(range.from), to: parseDay(range.from) },
@@ -206,26 +207,17 @@ const saveMockDaysEpic: MyEpic = (action$) =>
     filter(saveMockDays.match),
     concatMap((action) => {
       const daysToSave: Day[] = action.payload
-
-      return fromPromise(CylaModule.fetchPeriodStats()).pipe(
-        map((stats) => ({
-          stats: stats.periodStats.periods,
-          prevHashValue: stats.prevHashValue,
-          daysToSave,
-        })),
-        catchError((e) => {
-          // FIXME: We think that an error means that there are no stats, but there could be other reasons
-          console.error(e)
-          return of({ stats: [], prevHashValue: null, daysToSave })
-        }),
-        switchMap(({ stats: previousStats, prevHashValue, daysToSave }) => {
-          return from(daysToSave).pipe(
-            concatMap((day) => {
-              const stats = markPeriod(previousStats, day)
-              previousStats = stats
+      return from(daysToSave).pipe(
+        concatMap((day) => {
+          return fromPromise(CylaModule.fetchPeriodStats()).pipe(
+            delay(100),
+            concatMap((fetchedStats) => {
+              const { periodStats, prevHashValue } = fetchedStats
+              const stats = markPeriod(periodStats.periods, day)
               return fromPromise(
                 CylaModule.saveDay(day, stats, prevHashValue),
               ).pipe(
+                delay(100),
                 catchError((e) => {
                   return of(
                     days.actions.rejected(
@@ -233,6 +225,13 @@ const saveMockDaysEpic: MyEpic = (action$) =>
                     ),
                   )
                 }),
+              )
+            }),
+            catchError((e) => {
+              return of(
+                days.actions.rejected(
+                  `Unable to fetch period stats: ${e.message}.`,
+                ),
               )
             }),
           )
@@ -247,41 +246,24 @@ const saveMockDaysEpic: MyEpic = (action$) =>
 const saveDayEpic: MyEpic = (action$, $state) =>
   action$.pipe(
     filter(saveDay.match),
-    concatMap((action) => {
+    switchMap((action) => {
       const day: Day = action.payload
-
       return fromPromise(CylaModule.fetchPeriodStats()).pipe(
-        map((stats) => ({
-          stats: stats.periodStats.periods,
-          prevHashValue: stats.prevHashValue,
-          day,
-        })),
-        catchError((e) => {
-          // FIXME: We think that an error means that there are no stats, but there could be other reasons
-          console.error(e)
-          return of({ stats: [], prevHashValue: null, day })
-        }),
-        switchMap(({ stats: previousStats, prevHashValue, day }) => {
+        switchMap((fetchedStats) => {
+          const { periodStats, prevHashValue } = fetchedStats
           if (!$state.value.connectivity.online) {
             return of(
               days.actions.rejected('Unable to save day while offline.'),
             )
           }
 
-          const stats = markPeriod(previousStats, day)
+          const stats = markPeriod(periodStats.periods, day)
           return fromPromise(
             CylaModule.saveDay(day, stats, prevHashValue),
           ).pipe(
-            catchError((e) => {
-              return of(
-                days.actions.rejected(
-                  `Unable to save day because of ${e.message}.`,
-                ),
-              )
-            }),
             mergeMap(() => {
               return of(
-                // FIXME: reloading the day is probably not the most efficient way
+                // FIXME: Optimisation: reloading the day is probably not the most efficient way
                 fetchRange({
                   from: day.date,
                   to: day.date,
@@ -293,6 +275,20 @@ const saveDayEpic: MyEpic = (action$, $state) =>
                 }) as AnyAction,
               )
             }),
+            catchError((e) => {
+              return of(
+                days.actions.rejected(
+                  `Unable to save day because of ${e.message}.`,
+                ),
+              )
+            }),
+          )
+        }),
+        catchError((e) => {
+          return of(
+            days.actions.rejected(
+              `Unable to fetch period stats: ${e.message}.`,
+            ),
           )
         }),
       )
@@ -309,12 +305,11 @@ const fetchPeriodStatsEpic: MyEpic = (action$) => {
             periodStats: stats.periodStats.periods,
           }),
         ),
-        catchError(() => {
-          // FIXME: We think that an error means that there are no stats, but there could be other reasons
+        catchError((e) => {
           return of(
-            days.actions.periodStatsFulfilled({
-              periodStats: [],
-            }),
+            days.actions.rejected(
+              `Unable to fetch period stats: ${e.message}.`,
+            ),
           )
         }),
       )

@@ -24,7 +24,7 @@ type CylaModuleType = {
     periods: string,
     prevHashValue: string | null,
   ) => Promise<void>
-  fetchPeriodStats: () => Promise<[string, string]>
+  fetchPeriodStats: () => Promise<[string, string] | null>
   fetchDaysByRange: (
     iso8601dateFrom: string,
     iso8601dateTo: string,
@@ -67,11 +67,17 @@ class CylaModule {
     )
   }
 
-  async fetchPeriodStats() {
-    const [
-      periodStatsBinary,
-      prevHashValue,
-    ] = await CylaNativeModule.fetchPeriodStats()
+  async fetchPeriodStats(): Promise<{
+    periodStats: PeriodStats
+    prevHashValue: string | null
+  }> {
+    const fetchedPeriodStats = await CylaNativeModule.fetchPeriodStats()
+
+    if (!fetchedPeriodStats) {
+      return { periodStats: { periods: [] }, prevHashValue: null }
+    }
+
+    const [periodStatsBinary, prevHashValue] = fetchedPeriodStats
     const periodStats = PeriodStats.decode(base64Decode(periodStatsBinary))
     return { periodStats, prevHashValue }
   }

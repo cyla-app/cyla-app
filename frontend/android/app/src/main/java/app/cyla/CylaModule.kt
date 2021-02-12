@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture
 
 import app.cyla.api.StatsApi
 import app.cyla.api.model.*
+import app.cyla.invoker.ApiException
 import java.net.URL
 
 class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
@@ -136,6 +137,12 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         updateAuthInfo(userSetupInfo.jwtString)
     }
 
+    private fun updateAuthInfo(jwtString: String?) {
+        //HttpBearer ignores the header if it is null
+        val jwtAuth = apiClient.value.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
+        jwtAuth.bearerToken = jwtString
+    }
+
     @ReactMethod
     fun getUserId(promise: Promise) {
         val userId = getAppStorage().getUserId()
@@ -236,11 +243,20 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 result.pushString(ThemisOperations.base64Encode(decryptedStats))
                 result.pushString(periodStats.hashValue)
                 promise.resolve(result)
-            } else {
-                promise.resolve(null)
+            } else if (periodStats != null) {
+                // FIXME: stats exist but encryptedStats is null? why does this case exist?
+                val result = Arguments.createArray()
+                result.pushString(ThemisOperations.base64Encode(ByteArray(0)))
+                result.pushString(periodStats.hashValue)
+                promise.resolve(result)
             }
         }.exceptionally { throwable ->
-            promise.reject(throwable)
+            val cause = throwable.cause
+            if (cause is ApiException && cause.code == 404) {
+                promise.resolve(null)
+            } else {
+                promise.reject(throwable)
+            }
         }
     }
 
@@ -302,10 +318,12 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 }
             }
             val url = URL(apiClient.value.basePath)
+            val host = url.host
+            val protocol = if (url.protocol === "https") "wss" else "ws" 
             apiClient.value.httpClient.newWebSocket(
                 Request.Builder()
                     .cacheControl(CacheControl.Builder().noCache().build())
-                    .url("wss://${url.host}/login/$username") // FIXME use wss
+                    .url("$protocol://$host/login/$username") // FIXME use wss
                     .build(),
                 wsListener
             )
@@ -313,11 +331,5 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             Log.e("Login", e.message, e)
             promise.reject(e)
         }
-    }
-
-    private fun updateAuthInfo(jwtString: String?) {
-        //HttpBearer ignores the header if it is null
-        val jwtAuth = apiClient.value.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
-        jwtAuth.bearerToken = jwtString
     }
 }
