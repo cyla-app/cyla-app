@@ -28,10 +28,11 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     companion object {
         private const val APP_PREFERENCES_NAME = "app_storage"
         private const val ENCRYPTION_PREFERENCES_NAME = "encryption_storage"
+
         // Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
         private const val JWT_AUTH_SCHEMA_NAME = "bearerJWTAuth"
     }
-    
+
     data class UserSetupInfo(
         val userId: String,
         val username: String,
@@ -41,21 +42,23 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     private lateinit var userKey: SymmetricKey
     private lateinit var username: String
-    
+
     private val apiClient = lazy {
         ApiClientBuilder(
             true,
-            reactApplicationContext, 
+            reactApplicationContext,
             getAppStorage().getString("apiBasePath", null)
         ).build()
     }
 
     private val userApi = lazy {
-        UserApi(ApiClientBuilder(
-            false,
-            reactApplicationContext,
-            getAppStorage().getString("apiBasePath", null)
-        ).build())
+        UserApi(
+            ApiClientBuilder(
+                false,
+                reactApplicationContext,
+                getAppStorage().getString("apiBasePath", null)
+            ).build()
+        )
     }
 
     private val dayApi = lazy {
@@ -176,30 +179,33 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
-    fun saveDay(iso8601date: String, dayBase64: String, periods: String, prevHashValue: String?, promise: Promise) {
+    fun saveDay(iso8601date: String, dayBase64: String, periodStats: String, prevHashValue: String?, promise: Promise) {
         CompletableFuture.supplyAsync {
-            val charArray = periods.toCharArray()
-            val byteArray = ByteArray(charArray.size) {
-                charArray[it].toByte()
-            }
- 
+            val (encryptedDayInfo, encryptedDayKey) = ThemisOperations.encryptDayInfo(
+                userKey,
+                ThemisOperations.base64Decode(dayBase64),
+                iso8601date
+            )
+            
             val day = Day()
             day.date = LocalDate.parse(iso8601date)
-            day.version = 0
-
-            val (encryptedDayInfo, encryptedDayKey) = ThemisOperations.encryptDayInfo(userKey, ThemisOperations.base64Decode(dayBase64), iso8601date)
+            day.version = 1
             day.dayInfo = encryptedDayInfo
             day.dayKey = encryptedDayKey
 
-            val statistics = Statistic()
-
-            statistics.prevHashValue = prevHashValue
             // FIXME: Return better value to not give information
-            statistics.value = if (byteArray.isEmpty()) ByteArray(0) else ThemisOperations.encryptData(userKey, byteArray)
+            val decodedPeriodStats = ThemisOperations.base64Decode(periodStats)
+            val encryptedPeriodStats = 
+                if (decodedPeriodStats.isEmpty()) ByteArray(0) else ThemisOperations.encryptData(userKey, decodedPeriodStats)
+            
+            
+            val statistics = Statistic()
+            statistics.prevHashValue = prevHashValue
+            statistics.value = encryptedPeriodStats
 
             val stats = UserStats()
             stats.periodStats = statistics
-            
+
             val statsUpdate = DayStatsUpdate()
             statsUpdate.day = day
             statsUpdate.userStats = stats
@@ -218,22 +224,17 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     fun fetchPeriodStats(promise: Promise) {
         CompletableFuture.supplyAsync {
             val userStats = statsApi.value.getStats(
-                    getAppStorage().getUserId()!!
+                getAppStorage().getUserId()!!
             )
             val periodStats = userStats.periodStats
             val encryptedStats = periodStats?.value
-            
+
             if (periodStats != null && encryptedStats != null) {
                 val decryptedStats = ThemisOperations.decryptData(userKey, encryptedStats)
                 
-                val newCharArray = IntArray(decryptedStats.size) {
-                    decryptedStats[it].toInt().and(0xFF)
-                }
-                val newString = String(newCharArray, 0, newCharArray.size)
-
-                val result = Arguments.createMap()
-                result.putString("periodStats", newString)
-                result.putString("prevHashValue", periodStats.hashValue)
+                val result = Arguments.createArray()
+                result.pushString(ThemisOperations.base64Encode(decryptedStats))
+                result.pushString(periodStats.hashValue)
                 promise.resolve(result)
             } else {
                 promise.resolve(null)
@@ -254,7 +255,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 LocalDate.parse(iso8601dateTo)
             )
 
-            val base64Days = WritableNativeArray()
+            val base64Days = Arguments.createArray()
             for (day in days) {
                 val plaintextDay = ThemisOperations.decryptDayInfo(userKey, day)
                 base64Days.pushString(ThemisOperations.base64Encode(plaintextDay))
@@ -275,7 +276,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             promise.resolve(null)
         }
     }
-    
+
     @ReactMethod
     fun login(username: String, passphrase: String, promise: Promise) {
         try {

@@ -24,10 +24,7 @@ type CylaModuleType = {
     periods: string,
     prevHashValue: string | null,
   ) => Promise<void>
-  fetchPeriodStats: () => Promise<{
-    periodStats: string
-    prevHashValue: string
-  }>
+  fetchPeriodStats: () => Promise<[string, string]>
   fetchDaysByRange: (
     iso8601dateFrom: string,
     iso8601dateTo: string,
@@ -36,15 +33,15 @@ type CylaModuleType = {
 
 const CylaNativeModule: CylaModuleType = NativeModules.CylaModule
 
-const bin2String = (array: Uint8Array) =>
-  String.fromCharCode.apply(String, Array.from(array))
+const base64Decode = (base64: string): Uint8Array => {
+  const length = minimal.util.base64.length(base64)
+  const buffer = new Uint8Array(length)
+  minimal.util.base64.decode(base64, buffer, 0)
+  return buffer
+}
 
-const string2Bin = (str: string) => {
-  const result = new Uint8Array(str.length)
-  for (let i = 0; i < str.length; i++) {
-    result[i] = str.charCodeAt(i)
-  }
-  return result
+const base64Encode = (buffer: Uint8Array) => {
+  return minimal.util.base64.encode(buffer, 0, buffer.length)
 }
 
 class CylaModule {
@@ -55,13 +52,7 @@ class CylaModule {
     )
 
     return days.map((base64) => {
-      //base64 = base64.replace('\n', '')
-      console.log(base64)
-      const number = Math.round(minimal.util.base64.length(base64))
-      console.log(minimal.util.base64.length(base64))
-      const buffer = new Uint8Array(number)
-      minimal.util.base64.decode(base64, buffer, 0)
-      return Day.decode(buffer)
+      return Day.decode(base64Decode(base64))
     })
   }
 
@@ -70,19 +61,18 @@ class CylaModule {
     const dayBuffer = Day.encode(day).finish()
     await CylaNativeModule.saveDay(
       day.date,
-      minimal.util.base64.encode(dayBuffer, 0, dayBuffer.length),
-      bin2String(periodBuffer),
+      base64Encode(dayBuffer),
+      base64Encode(periodBuffer),
       prevHashValue,
     )
   }
 
   async fetchPeriodStats() {
-    const {
-      periodStats: periodStatsBinary,
+    const [
+      periodStatsBinary,
       prevHashValue,
-    } = await CylaNativeModule.fetchPeriodStats()
-    const binary = string2Bin(periodStatsBinary)
-    const periodStats = PeriodStats.decode(binary)
+    ] = await CylaNativeModule.fetchPeriodStats()
+    const periodStats = PeriodStats.decode(base64Decode(periodStatsBinary))
     return { periodStats, prevHashValue }
   }
 
