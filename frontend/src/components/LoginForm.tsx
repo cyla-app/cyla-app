@@ -27,6 +27,11 @@ export default ({
   const passphraseInputRef = useRef<RNTextInput | null>(null)
   const checkPassphraseInputRef = useRef<RNTextInput | null>(null)
 
+  const dataNotValid =
+    !isPasswordValid(passphrase) ||
+    !isUsernameValid(username) ||
+    (repeatPassphrase && checkPassphrase !== passphrase)
+
   return (
     <>
       <TextInput
@@ -46,7 +51,9 @@ export default ({
         onSubmitEditing={() =>
           repeatPassphrase
             ? checkPassphraseInputRef.current?.focus()
-            : onSave(username, passphrase)
+            : !dataNotValid
+            ? onSave(username, passphrase)
+            : null
         }
       />
       {repeatPassphrase ? (
@@ -57,16 +64,16 @@ export default ({
           value={checkPassphrase}
           mode="outlined"
           onChangeText={(newPassword) => setCheckPassphrase(newPassword)}
-          onSubmitEditing={() => onSave(username, passphrase)}
+          onSubmitEditing={() => {
+            if (!dataNotValid) {
+              onSave(username, passphrase)
+            }
+          }}
         />
       ) : null}
       <Button
         loading={loading}
-        disabled={
-          !isPasswordValid(passphrase) ||
-          !isUsernameValid(username) ||
-          (repeatPassphrase && checkPassphrase !== passphrase)
-        }
+        disabled={dataNotValid}
         icon="login"
         style={{
           margin: 20,
