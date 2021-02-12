@@ -2,7 +2,6 @@ package app.cyla
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Base64
 import android.util.Log
 import app.cyla.api.DayApi
 import app.cyla.api.UserApi
@@ -12,44 +11,27 @@ import app.cyla.decryption.AndroidEnclave.Companion.encryptPassphrase
 import app.cyla.decryption.ThemisOperations.Companion.getAuthKey
 import app.cyla.decryption.ThemisOperations.Companion.createUserKey
 import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
-import app.cyla.invoker.ApiClient
 import app.cyla.invoker.auth.HttpBearerAuth
 import com.cossacklabs.themis.SecureCompare
 import com.cossacklabs.themis.SymmetricKey
 import com.facebook.react.bridge.*
-import okhttp3.Cache
 import okhttp3.CacheControl
-import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.File
-import java.io.IOException
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 
-import android.net.ConnectivityManager
 import app.cyla.api.StatsApi
 import app.cyla.api.model.*
 import java.net.URL
 
-
-// Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
-private const val JWT_AUTH_SCHEMA_NAME = "bearerJWTAuth"
-
 class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
     companion object {
-        private const val MEGABYTE = 1000000
         private const val APP_PREFERENCES_NAME = "app_storage"
         private const val ENCRYPTION_PREFERENCES_NAME = "encryption_storage"
-
+        // Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
+        private const val JWT_AUTH_SCHEMA_NAME = "bearerJWTAuth"
     }
-
-    private fun isNetworkAvailable(): Boolean {
-        val cm = reactApplicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork = cm.activeNetworkInfo
-        return activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting
-    }
-
+    
     data class UserSetupInfo(
         val userId: String,
         val username: String,
@@ -61,42 +43,23 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     private lateinit var username: String
     
     private val apiClient = lazy {
-        val httpCacheDirectory = File(reactApplicationContext.cacheDir, "responses")
+        ApiClientBuilder(
+            true,
+            reactApplicationContext, 
+            getAppStorage().getString("apiBasePath", null)
+        ).build()
+    }
 
-        var cache: Cache? = null
-        try {
-            cache = Cache(httpCacheDirectory, 10L * MEGABYTE)
-        } catch (e: IOException) {
-            Log.e("OKHttp", "Could not create http cache", e)
-        }
-
-        val builder = OkHttpClient.Builder()
-            .cache(cache)
-            .addInterceptor {
-                var request = it.request();
-                request = if (isNetworkAvailable()) {
-                    request.newBuilder()
-                        .header("Cache-Control", "public, max-age=0").build();
-                } else {
-                    request.newBuilder()
-                        .header("Cache-Control", "public, only-if-cached, max-stale=" + 60 * 60 * 24 * 7).build();
-                }
-                it.proceed(request)
-            }
-
-        val apiClient = ApiClient(builder.build())
-        apiClient.basePath = getAppStorage().getString("apiBasePath", apiClient.basePath)
-        apiClient
+    private val userApi = lazy {
+        UserApi(ApiClientBuilder(
+            false,
+            reactApplicationContext,
+            getAppStorage().getString("apiBasePath", null)
+        ).build())
     }
 
     private val dayApi = lazy {
         DayApi(apiClient.value)
-    }
-
-    private val userApi = lazy {
-        val apiClient = ApiClient(OkHttpClient.Builder().build())
-        apiClient.basePath = getAppStorage().getString("apiBasePath", apiClient.basePath)
-        UserApi(apiClient)
     }
 
     private val statsApi = lazy {
@@ -224,7 +187,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             day.date = LocalDate.parse(iso8601date)
             day.version = 0
 
-            val (encryptedDayInfo, encryptedDayKey) = ThemisOperations.encryptDayInfo(userKey, Base64.decode(dayBase64, Base64.DEFAULT), iso8601date)
+            val (encryptedDayInfo, encryptedDayKey) = ThemisOperations.encryptDayInfo(userKey, ThemisOperations.base64Decode(dayBase64), iso8601date)
             day.dayInfo = encryptedDayInfo
             day.dayKey = encryptedDayKey
 
@@ -291,12 +254,12 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 LocalDate.parse(iso8601dateTo)
             )
 
-            val writableNativeArray = WritableNativeArray()
+            val base64Days = WritableNativeArray()
             for (day in days) {
                 val plaintextDay = ThemisOperations.decryptDayInfo(userKey, day)
-                writableNativeArray.pushString(Base64.encodeToString(plaintextDay, Base64.NO_WRAP))
+                base64Days.pushString(ThemisOperations.base64Encode(plaintextDay))
             }
-            promise.resolve(writableNativeArray)
+            promise.resolve(base64Days)
         }.exceptionally { throwable ->
             promise.reject(throwable)
         }
@@ -321,7 +284,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             val comparator = SecureCompare()
             val wsListener = LoginWebSocketListener(authKey, comparator, promise) {
                 try {
-                    val encryptedUserKey = Base64.decode(it.userKey, Base64.DEFAULT)
+                    val encryptedUserKey = ThemisOperations.base64Decode(it.userKey)
                     val userKey = decryptUserKey(encryptedUserKey, passphrase)
                     val passphraseInfo = encryptPassphrase(reactApplicationContext, passphrase)
                     getEncryptionStorage().edit()

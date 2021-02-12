@@ -21,7 +21,7 @@ data class SuccAuthInfo(
 class LoginWebSocketListener(private val hashedKey: ByteArray,
                              private var comparator: SecureCompare,
                              private val promise: Promise,
-                             val onSuccAuth: (SuccAuthInfo) -> Unit) : WebSocketListener() {
+                             val onSuccessAuth: (SuccAuthInfo) -> Unit) : WebSocketListener() {
 
     override fun onOpen(ws: WebSocket, response: Response) {
         comparator = SecureCompare(hashedKey)
@@ -43,8 +43,8 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
             SecureCompare.CompareResult.MATCH -> {
                 Log.v("Login", "Comparison successful")
                 ws.close(1000, "Comparison ended successfully")
-                val succData = decodeSuccMsg(bytes)
-                onSuccAuth(succData)
+                val successData = decodeSuccessMessage(bytes)
+                onSuccessAuth(successData)
             }
             else -> {
                 Log.v("Login", "Comparison unsuccessful")
@@ -67,11 +67,9 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
         promise.reject(t)
     }
 
-    private fun decodeSuccMsg(bytes: ByteString) : SuccAuthInfo {
+    private fun decodeSuccessMessage(bytes: ByteString) : SuccAuthInfo {
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
         val adapter : JsonAdapter<SuccAuthInfo>  = moshi.adapter(SuccAuthInfo::class.java)
         return adapter.fromJson(bytes.utf8())!!
     }
-
-
 }

@@ -1,10 +1,10 @@
 package app.cyla.decryption
 
+import android.util.Base64
 import app.cyla.api.model.Day
 import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SymmetricKey
 import java.nio.charset.Charset
-import java.time.LocalDate
 
 class ThemisOperations {
     companion object {
@@ -25,24 +25,24 @@ class ThemisOperations {
         }
 
         fun decryptUserKey(
-                encryptedUserKey: ByteArray,
-                passphrase: String
+            encryptedUserKey: ByteArray,
+            passphrase: String
         ): SymmetricKey {
             val userKeyCell = SecureCell.SealWithPassphrase(passphrase)
             return SymmetricKey(userKeyCell.decrypt(encryptedUserKey))
         }
 
         fun decryptString(
-                key: SymmetricKey,
-                data: ByteArray
+            key: SymmetricKey,
+            data: ByteArray
         ): String {
             return decryptData(key, data).toString(Charset.forName("UTF-8"))
         }
 
         fun decryptString(
-                key: SymmetricKey,
-                data: ByteArray,
-                context: ByteArray
+            key: SymmetricKey,
+            data: ByteArray,
+            context: ByteArray
         ): String {
             return decryptData(key, data, context).toString(Charset.forName("UTF-8"))
         }
@@ -53,7 +53,7 @@ class ThemisOperations {
             context: ByteArray?
         ): ByteArray {
             val dataCell = SecureCell.SealWithKey(key)
-            return if(context == null || context.isEmpty()) {
+            return if (context == null || context.isEmpty()) {
                 dataCell.decrypt(data)
             } else {
                 dataCell.decrypt(data, context)
@@ -61,15 +61,15 @@ class ThemisOperations {
         }
 
         fun decryptData(
-                key: SymmetricKey,
-                data: ByteArray
+            key: SymmetricKey,
+            data: ByteArray
         ): ByteArray {
             return decryptData(key, data, null)
         }
 
         fun decryptDayInfo(
-                userKey: SymmetricKey,
-                day: Day
+            userKey: SymmetricKey,
+            day: Day
         ): ByteArray {
             val dayKey = SymmetricKey(decryptData(userKey, day.dayKey))
             return decryptData(dayKey, day.dayInfo, day.date.toString().toByteArray())
@@ -78,7 +78,7 @@ class ThemisOperations {
         private fun encryptData(
             key: SymmetricKey,
             data: ByteArray,
-            context : ByteArray?
+            context: ByteArray?
         ): ByteArray {
             val dataCell = SecureCell.SealWithKey(key)
             return if (context == null || context.isEmpty()) {
@@ -89,9 +89,9 @@ class ThemisOperations {
         }
 
         fun encryptData(
-                key: SymmetricKey,
-                data: ByteArray
-        ) : ByteArray {
+            key: SymmetricKey,
+            data: ByteArray
+        ): ByteArray {
             return encryptData(key, data, null)
         }
 
@@ -100,14 +100,23 @@ class ThemisOperations {
          * Additionally, the date is used as encryption context for the dayInfo.
          */
         fun encryptDayInfo(
-                userKey: SymmetricKey,
-                dayInfo: ByteArray,
-                dateContext: String
+            userKey: SymmetricKey,
+            dayInfo: ByteArray,
+            dateContext: String
         ): Pair<ByteArray, ByteArray> {
             val dayKey = SymmetricKey();
             return Pair(
-                    encryptData(dayKey, dayInfo, dateContext.toByteArray()),
-                    encryptData(userKey, dayKey.toByteArray()))
+                encryptData(dayKey, dayInfo, dateContext.toByteArray()),
+                encryptData(userKey, dayKey.toByteArray())
+            )
+        }
+
+        fun base64Decode(string: String): ByteArray {
+            return Base64.decode(string, Base64.NO_WRAP)
+        }
+
+        fun base64Encode(buffer: ByteArray): String {
+            return Base64.encodeToString(buffer, Base64.NO_WRAP)
         }
     }
 }

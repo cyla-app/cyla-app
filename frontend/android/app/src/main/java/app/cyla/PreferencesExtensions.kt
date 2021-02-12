@@ -1,7 +1,7 @@
-package app.cyla.decryption
+package app.cyla
 
 import android.content.SharedPreferences
-import android.util.Base64
+import app.cyla.decryption.ThemisOperations
 
 private const val PREFERENCE_KEY_PASSPHRASE_IV = "passphraseIV"
 private const val PREFERENCE_KEY_ENCRYPTED_USER_KEY = "encryptedUserKey"
@@ -32,11 +32,11 @@ fun SharedPreferences.Editor.putUserName(userName: String): SharedPreferences.Ed
 fun SharedPreferences.getBase64(key: String): ByteArray? {
     val value = this.getString(key, null) ?: return null
 
-    return Base64.decode(value, Base64.DEFAULT)
+    return ThemisOperations.base64Decode(value)
 }
 
 fun SharedPreferences.Editor.putBase64(key: String, value: ByteArray): SharedPreferences.Editor {
-    this.putString(key, Base64.encodeToString(value, Base64.DEFAULT))
+    this.putString(key, ThemisOperations.base64Encode(value))
     return this
 }
 

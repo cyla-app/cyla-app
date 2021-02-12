@@ -2,20 +2,12 @@ package app.cyla;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Base64;
-import android.util.Log;
-import com.cossacklabs.themis.InvalidArgumentException;
-import com.cossacklabs.themis.NullArgumentException;
-import com.cossacklabs.themis.SecureCell;
-import com.cossacklabs.themis.SecureCellException;
 import com.facebook.react.*;
 import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.soloader.SoLoader;
 import com.swmansion.reanimated.ReanimatedJSIModulePackage;
 
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class MainApplication extends Application implements ReactApplication {
@@ -58,29 +50,6 @@ public class MainApplication extends Application implements ReactApplication {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
         initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
-        try {
-            encryptDataForStoring();
-        } catch (SecureCellException e) {
-            e.printStackTrace();
-        }
-    }
-
-    void encryptDataForStoring() throws SecureCellException, NullArgumentException, InvalidArgumentException {
-        Charset charset = StandardCharsets.UTF_8;
-        String pass = "pass";
-        String message = "hello message";
-
-        SecureCell.Seal sc = SecureCell.SealWithPassphrase(pass, charset);
-
-        byte[] protectedData = sc.encrypt(message.getBytes(charset));
-        String encodedString = Base64.encodeToString(protectedData, Base64.NO_WRAP);
-        Log.d("SMC", "encrypted string = " + encodedString);
-
-        byte[] decodedString = Base64.decode(encodedString, Base64.NO_WRAP);
-
-        byte[] unprotected = sc.decrypt(decodedString);
-        String decryptedData = new String(unprotected, charset);
-        Log.d("SMC", "decrypted data = " + decryptedData);
     }
 
     /**
