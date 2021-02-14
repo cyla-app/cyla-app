@@ -8,11 +8,13 @@ import TabBarNavigation, { TabsParamList } from './TabBarNavigation'
 import SignUpScreen from '../screens/SignUpScreen'
 import { Day } from '../types'
 import DetailScreen from '../screens/DetailScreen'
-import { checkSignIn } from '../sessionSlice'
+import { checkSignIn, SessionStatus } from '../sessionSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import SignInScreen from '../screens/SignInScreen'
 import StatusBanner from '../components/StatusBanner'
+import { ActivityIndicator, useTheme } from 'react-native-paper'
+import { View } from 'react-native'
 
 export type MainStackParamList = {
   SignUp: undefined
@@ -25,14 +27,13 @@ export type MainStackParamList = {
 const Stack = createStackNavigator<MainStackParamList>()
 
 export default () => {
-  const isSignedInApp = useSelector<RootState>(
-    (state) => state.session.signedIn,
-  )
+  const { colors } = useTheme()
+  const sessionStatus = useSelector<RootState>((state) => state.session.status)
   const isOnline = useSelector<RootState, boolean>(
     (state) => state.connectivity.online,
   )
 
-  const profileError = useSelector<RootState, string | undefined>(
+  const sessionError = useSelector<RootState, string | undefined>(
     (state) => state.session.error,
   )
 
@@ -42,11 +43,24 @@ export default () => {
     dispatch(checkSignIn())
   }, [dispatch])
 
+  if (sessionStatus === SessionStatus.UNKNOWN) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          backgroundColor: colors.background,
+        }}>
+        <ActivityIndicator size={100} />
+      </View>
+    )
+  }
+
   return (
     <>
-      <StatusBanner isOnline={isOnline} profileError={profileError} />
+      <StatusBanner isOnline={isOnline} sessionError={sessionError} />
       <Stack.Navigator screenOptions={{ headerShown: false }} mode="modal">
-        {!isSignedInApp ? (
+        {sessionStatus === SessionStatus.SIGNED_OUT ? (
           <>
             <Stack.Screen name="SignUp" component={SignUpScreen} />
             <Stack.Screen name="SignIn" component={SignInScreen} />

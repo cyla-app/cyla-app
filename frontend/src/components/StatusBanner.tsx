@@ -2,28 +2,28 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { Banner } from 'react-native-paper'
 import React, { useState } from 'react'
 
-type PropsType = { isOnline: boolean; profileError: string | undefined }
+type PropsType = { isOnline: boolean; sessionError: string | undefined }
 
-export default ({ isOnline, profileError }: PropsType) => {
+export default ({ isOnline, sessionError }: PropsType) => {
   const [showError, setShowError] = useState<boolean>(true)
   const [showConnectivity, setShowConnectivity] = useState<boolean>(true)
 
   return (
     <Banner
-      visible={(showConnectivity && !isOnline) || (showError && !!profileError)}
+      visible={(showConnectivity && !isOnline) || (showError && !!sessionError)}
       actions={[
         {
           label: 'Dismiss',
           onPress: () => {
-            profileError ? setShowError(false) : setShowConnectivity(false)
+            sessionError ? setShowError(false) : setShowConnectivity(false)
           },
         },
       ]}
       icon={({ size }) => (
         <MaterialCommunityIcons size={size} name={'alert-circle'} />
       )}>
-      {profileError
-        ? profileError ?? 'Unknown Error'
+      {sessionError
+        ? sessionError ?? 'Unknown Error'
         : !isOnline
         ? 'You are currently offline. Some functionality may not work.'
         : ''}

@@ -66,15 +66,21 @@ export const logout = createAsyncThunk<void, void, { state: RootState }>(
   },
 )
 
+export enum SessionStatus {
+  UNKNOWN = 1,
+  SIGNED_IN = 2,
+  SIGNED_OUT = 3,
+}
+
 type SessionStateType = {
   loading: boolean
-  signedIn: boolean
+  status: SessionStatus
   error?: string
 }
 
 const initialState: SessionStateType = {
   loading: false,
-  signedIn: false,
+  status: SessionStatus.UNKNOWN,
 }
 
 const session = createSlice({
@@ -95,7 +101,9 @@ const session = createSlice({
       return {
         ...state,
         loading: false,
-        signedIn: action.payload.signedIn,
+        status: action.payload.signedIn
+          ? SessionStatus.SIGNED_IN
+          : SessionStatus.SIGNED_OUT,
         error: undefined,
       }
     }
@@ -111,7 +119,7 @@ const session = createSlice({
       return {
         ...state,
         loading: false,
-        signedIn: false,
+        status: SessionStatus.UNKNOWN,
         error: action.error.message,
       }
     }
