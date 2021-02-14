@@ -40,13 +40,13 @@ class MainActivity : ReactActivity() {
             }
         }
 
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Biometric Authentication")
             .setDescription("User needs to be authenticated before using the app")
             .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
             .build()
 
         biometricPrompt = BiometricPrompt(this, executor, callback)
-        biometricPrompt.authenticate(promptInfo)
+        //biometricPrompt.authenticate(promptInfo)
     }
 }

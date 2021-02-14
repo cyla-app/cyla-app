@@ -1,8 +1,6 @@
 package app.cyla.auth
 
-import android.util.Log
 import com.cossacklabs.themis.SecureCompare
-import com.facebook.react.bridge.Promise
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -10,24 +8,24 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
-import java.lang.Exception
 
-data class SuccAuthInfo(
-        val jwt: String,
-        val uuid: String,
-        val userKey: String
+data class SuccessAuthInfo(
+    val jwt: String,
+    val uuid: String,
+    val userKey: String
 )
 
-class LoginWebSocketListener(private val hashedKey: ByteArray,
-                             private var comparator: SecureCompare,
-                             private val promise: Promise,
-                             val onSuccessAuth: (SuccAuthInfo) -> Unit) : WebSocketListener() {
+class LoginWebSocketListener(
+    private val authKey: ByteArray,
+    private var comparator: SecureCompare,
+    private val onFailure: (String) -> Unit,
+    private val onSuccess: (SuccessAuthInfo) -> Unit
+) : WebSocketListener() {
 
     override fun onOpen(ws: WebSocket, response: Response) {
-        comparator = SecureCompare(hashedKey)
-        Log.v("Login", "Starting auth")
+        comparator = SecureCompare(authKey)
         val initMessage = comparator.begin()
-        ws.send(ByteString.of(initMessage,0, initMessage.size))
+        ws.send(ByteString.of(initMessage, 0, initMessage.size))
     }
 
     override fun onMessage(ws: WebSocket, bytes: ByteString) {
@@ -41,35 +39,30 @@ class LoginWebSocketListener(private val hashedKey: ByteArray,
                 }
             }
             SecureCompare.CompareResult.MATCH -> {
-                Log.v("Login", "Comparison successful")
                 ws.close(1000, "Comparison ended successfully")
                 val successData = decodeSuccessMessage(bytes)
-                onSuccessAuth(successData)
+                onSuccess(successData)
             }
             else -> {
-                Log.v("Login", "Comparison unsuccessful")
                 ws.close(1000, "Comparison finished")
-                promise.reject(Exception("Comparison was unsuccessful"))
+                onFailure("Comparison was unsuccessful")
             }
         }
     }
 
     override fun onClosing(ws: WebSocket, code: Int, reason: String) {
-        Log.v("Login", "Closing websocket")
-        Log.v("Login", "Reason: $reason")
         ws.close(code, reason)
-        promise.reject(Exception("Unexpected closing due to $reason"))
+        onFailure("Unexpected closing due to $reason")
     }
 
     override fun onFailure(ws: WebSocket, t: Throwable, response: Response?) {
-        Log.v("Login", "Failure on websocket listener", t)
         ws.close(1001, "Client Error")
-        promise.reject(t)
+        onFailure(t.message ?: "Unknown error")
     }
 
-    private fun decodeSuccessMessage(bytes: ByteString) : SuccAuthInfo {
+    private fun decodeSuccessMessage(bytes: ByteString): SuccessAuthInfo {
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-        val adapter : JsonAdapter<SuccAuthInfo>  = moshi.adapter(SuccAuthInfo::class.java)
+        val adapter: JsonAdapter<SuccessAuthInfo> = moshi.adapter(SuccessAuthInfo::class.java)
         return adapter.fromJson(bytes.utf8())!!
     }
 }

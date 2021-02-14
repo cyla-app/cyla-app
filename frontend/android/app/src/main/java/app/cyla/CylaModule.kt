@@ -3,13 +3,12 @@ package app.cyla
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import androidx.fragment.app.FragmentActivity
 import app.cyla.api.DayApi
 import app.cyla.api.UserApi
 import app.cyla.util.*
 import app.cyla.auth.AndroidEnclave.Companion.decryptPassphrase
 import app.cyla.auth.AndroidEnclave.Companion.encryptPassphrase
-import app.cyla.util.Themis.Companion.getAuthKey
+import app.cyla.util.Themis.Companion.generateAuthKey
 import app.cyla.util.Themis.Companion.createUserKey
 import app.cyla.util.Themis.Companion.decryptUserKey
 import app.cyla.invoker.auth.HttpBearerAuth
@@ -24,7 +23,9 @@ import java.util.concurrent.CompletableFuture
 import app.cyla.api.StatsApi
 import app.cyla.api.model.*
 import app.cyla.auth.LoginWebSocketListener
+import app.cyla.auth.UserInfo
 import app.cyla.invoker.ApiException
+import okhttp3.OkHttpClient
 import java.net.URL
 
 class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
@@ -36,41 +37,21 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         private const val JWT_AUTH_SCHEMA_NAME = "bearerJWTAuth"
     }
 
-    data class UserSetupInfo(
-        val userId: String,
-        val username: String,
-        val jwtString: String?,
-        val userKey: SymmetricKey
-    )
+    private lateinit var userInfo: UserInfo
 
-    private lateinit var userKey: SymmetricKey
-    private lateinit var username: String
-
-    private val apiClient = lazy {
-        ApiClientBuilder(
-            true,
-            reactApplicationContext,
-            getAppStorage().getString("apiBasePath", null)
-        ).build()
-    }
-
-    private val userApi = lazy {
-        UserApi(
-            ApiClientBuilder(
-                false,
-                reactApplicationContext,
-                getAppStorage().getString("apiBasePath", null)
-            ).build()
-        )
-    }
-
-    private val dayApi = lazy {
-        DayApi(apiClient.value)
-    }
-
-    private val statsApi = lazy {
-        StatsApi(apiClient.value)
-    }
+    private val dataApiClient = ApiClientBuilder(
+        true,
+        reactApplicationContext,
+        getAppStorage().getString("apiBasePath", null)
+    ).build()
+    private val authApiClient = ApiClientBuilder(
+        false,
+        reactApplicationContext,
+        getAppStorage().getString("apiBasePath", null)
+    ).build()
+    private val userApi = UserApi(authApiClient)
+    private val dayApi = DayApi(dataApiClient)
+    private val statsApi = StatsApi(dataApiClient)
 
     override fun getName(): String {
         return "CylaModule"
@@ -92,64 +73,83 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         getAppStorage().edit().clear().apply()
     }
 
-    private fun loadStoredUserInfo(): Pair<UserSetupInfo, String> {
-        val (passphraseCipherText, passphraseIV) = getEncryptionStorage().getPassphrase()!!
+    private fun loadStoredUserInfo(): Triple<UserInfo, ByteArray, String> {
+        val passphraseTuple = getEncryptionStorage().getPassphrase()
+        val encryptedUserKey = getEncryptionStorage().getEncryptedUserKey()
+        val userId = getAppStorage().getUserId()
+        val username = getAppStorage().getUserName()
+
+        if (passphraseTuple === null || encryptedUserKey === null || userId === null || username === null) {
+            throw Exception("There is no data stored. Please login or create a new user!")
+        }
+        
+        val (passphraseCipherText, passphraseIV) = passphraseTuple
         val passphrase = decryptPassphrase(passphraseCipherText, passphraseIV)
-        val encryptedUserKey = getEncryptionStorage().getEncryptedUserKey()!!
+
         val userKey = decryptUserKey(encryptedUserKey, passphrase)
 
-        return Pair(
-            UserSetupInfo(
-                userId = getAppStorage().getUserId() ?: throw Exception("userId not in app storage"),
-                username = getAppStorage().getUserName() ?: throw Exception("username not in app storage"),
+        return Triple(
+            UserInfo(
+                userId = userId,
+                username = username,
                 userKey = userKey,
-                jwtString = null
-            ), passphrase
+                jwtToken = null
+            ),
+            encryptedUserKey,
+            passphrase
         )
     }
 
-    private fun createNewUserKey(username: String, passphrase: String): UserSetupInfo {
-        val passphraseInfo = encryptPassphrase(reactApplicationContext.currentActivity as FragmentActivity, passphrase)
+    private fun createNewUserKey(username: String, passphrase: String): Triple<UserInfo, ByteArray, String> {
         val (userKey, encryptedUserKey) = createUserKey(passphrase)
-        val authKey = getAuthKey(username, passphrase)
+        val authKey = generateAuthKey(username, passphrase)
 
         val user = User()
         user.id = null
         user.userKeyBackup = encryptedUserKey
         user.username = username
         user.authKey = authKey
-        val userCreatedResponse = userApi.value.createUser(user)
-        val userId = userCreatedResponse.userId!!
-        val jwtString = userCreatedResponse.jwt!!
+
+        val userCreatedResponse = userApi.createUser(user)
+
+        return Triple(
+            UserInfo(
+                userCreatedResponse.userId!!,
+                username,
+                userCreatedResponse.jwt,
+                userKey,
+            ),
+            encryptedUserKey,
+            passphrase
+        )
+    }
+
+    private fun setupUserInfo(userInfo: UserInfo, encryptedUserKey: ByteArray, passphrase: String) {
+        val (encryptedPassphrase, iv) = encryptPassphrase(reactApplicationContext, passphrase)
 
         getEncryptionStorage().edit()
-            .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo)
+            .putEncryptedUserKey(encryptedUserKey)
             .apply()
 
         getAppStorage().edit()
-            .putUserAppInfo(userId, username)
+            .putUserId(userInfo.userId)
+            .putUserName(userInfo.username)
             .apply()
 
-        return UserSetupInfo(userId, username, jwtString, userKey)
-    }
+        getEncryptionStorage().edit()
+            .putPassphrase(encryptedPassphrase, iv)
+            .apply()
 
-    private fun setupCylaModuleUserInfo(userSetupInfo: UserSetupInfo) {
-        this.userKey = userSetupInfo.userKey
-        this.username = userSetupInfo.username
-        updateAuthInfo(userSetupInfo.jwtString)
-    }
-
-    private fun updateAuthInfo(jwtString: String?) {
-        //HttpBearer ignores the header if it is null
-        val jwtAuth = apiClient.value.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
-        jwtAuth.bearerToken = jwtString
+        this.userInfo = userInfo
+        val jwtAuth = dataApiClient.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
+        jwtAuth.bearerToken = userInfo.jwtToken
     }
 
     @ReactMethod
     fun getUserId(promise: Promise) {
         val userId = getAppStorage().getUserId()
         if (userId == null) {
-            promise.reject("CYLA-1", "User id is null")
+            promise.reject(Exception("User id is null"))
             return
         }
         promise.resolve(userId)
@@ -157,26 +157,24 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     @ReactMethod
     fun loadUser(promise: Promise) {
-        val setupInfo = loadStoredUserInfo().first
-        setupCylaModuleUserInfo(setupInfo)
-        promise.resolve(setupInfo.userId)
-
+        val (userInfo, encryptedUserKey, passphrase) = loadStoredUserInfo()
+        setupUserInfo(userInfo, encryptedUserKey, passphrase)
+        promise.resolve(userInfo.userId)
     }
 
     @ReactMethod
     fun setupUserAndSession(promise: Promise) {
-        val (setupInfo, passphrase) = loadStoredUserInfo()
-        login(setupInfo.username, passphrase, promise)
+        val (userInfo, _, passphrase) = loadStoredUserInfo()
+        login(userInfo.username, passphrase, promise)
     }
 
     @ReactMethod
     fun setupUserNew(username: String, passphrase: String, promise: Promise) {
         try {
-            val userSetupInfo = createNewUserKey(username, passphrase)
-            setupCylaModuleUserInfo(userSetupInfo)
-            promise.resolve(userSetupInfo.userId)
+            val (userInfo, encryptedUserKey, passphrase) = createNewUserKey(username, passphrase)
+            setupUserInfo(userInfo, encryptedUserKey, passphrase)
+            promise.resolve(userInfo.userId)
         } catch (e: Exception) {
-            Log.e("DecryptionModule", e.message, e)
             resetEncryptionStorage()
             promise.reject(e)
         }
@@ -191,11 +189,11 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     fun saveDay(iso8601date: String, dayBase64: String, periodStats: String, prevHashValue: String?, promise: Promise) {
         CompletableFuture.supplyAsync {
             val (encryptedDayInfo, encryptedDayKey) = Themis.encryptDayInfo(
-                userKey,
+                userInfo.userKey,
                 Base64.base64Decode(dayBase64),
                 iso8601date
             )
-            
+
             val day = Day()
             day.date = LocalDate.parse(iso8601date)
             day.version = 1
@@ -204,10 +202,13 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
             // FIXME: Return better value to not give information
             val decodedPeriodStats = Base64.base64Decode(periodStats)
-            val encryptedPeriodStats = 
-                if (decodedPeriodStats.isEmpty()) ByteArray(0) else Themis.encryptData(userKey, decodedPeriodStats)
-            
-            
+            val encryptedPeriodStats =
+                if (decodedPeriodStats.isEmpty()) ByteArray(0) else Themis.encryptData(
+                    userInfo.userKey,
+                    decodedPeriodStats
+                )
+
+
             val statistics = Statistic()
             statistics.prevHashValue = prevHashValue
             statistics.value = encryptedPeriodStats
@@ -219,7 +220,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             statsUpdate.day = day
             statsUpdate.userStats = stats
 
-            dayApi.value.modifyDayEntryWithStats(
+            dayApi.modifyDayEntryWithStats(
                 getAppStorage().getUserId()!!,
                 statsUpdate
             )
@@ -232,15 +233,15 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     @ReactMethod
     fun fetchPeriodStats(promise: Promise) {
         CompletableFuture.supplyAsync {
-            val userStats = statsApi.value.getStats(
+            val userStats = statsApi.getStats(
                 getAppStorage().getUserId()!!
             )
             val periodStats = userStats.periodStats
             val encryptedStats = periodStats?.value
 
             if (periodStats != null && encryptedStats != null) {
-                val decryptedStats = Themis.decryptData(userKey, encryptedStats)
-                
+                val decryptedStats = Themis.decryptData(userInfo.userKey, encryptedStats)
+
                 val result = Arguments.createArray()
                 result.pushString(Base64.base64Encode(decryptedStats))
                 result.pushString(periodStats.hashValue)
@@ -267,7 +268,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         val userId = getAppStorage().getUserId()
 
         CompletableFuture.supplyAsync {
-            val days = dayApi.value.getDayByUserAndRange(
+            val days = dayApi.getDayByUserAndRange(
                 userId!!,
                 LocalDate.parse(iso8601dateFrom),
                 LocalDate.parse(iso8601dateTo)
@@ -275,7 +276,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
             val base64Days = Arguments.createArray()
             for (day in days) {
-                val plaintextDay = Themis.decryptDayInfo(userKey, day)
+                val plaintextDay = Themis.decryptDayInfo(userInfo.userKey, day)
                 base64Days.pushString(Base64.base64Encode(plaintextDay))
             }
             promise.resolve(base64Days)
@@ -298,31 +299,31 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     @ReactMethod
     fun login(username: String, passphrase: String, promise: Promise) {
         try {
-            Log.v("Login", "attempting login")
-            val authKey = getAuthKey(username, passphrase)
+            val authKey = generateAuthKey(username, passphrase)
             val comparator = SecureCompare()
-            val wsListener = LoginWebSocketListener(authKey, comparator, promise) {
+            val wsListener = LoginWebSocketListener(authKey, comparator,
+                { message: String -> promise.reject(Exception(message)) }) {
                 try {
                     val encryptedUserKey = Base64.base64Decode(it.userKey)
                     val userKey = decryptUserKey(encryptedUserKey, passphrase)
-                    val passphraseInfo = encryptPassphrase(reactApplicationContext.currentActivity!! as FragmentActivity, passphrase)
-                    getEncryptionStorage().edit()
-                        .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo)
-                        .apply()
-                    getAppStorage().edit()
-                        .putUserAppInfo(it.uuid, username)
-                        .apply()
-                    //TODO: Move out setupCylaModuleUserInfo
-                    setupCylaModuleUserInfo(UserSetupInfo(it.uuid, username, it.jwt, userKey))
+                    setupUserInfo(
+                        UserInfo(
+                            it.uuid,
+                            username,
+                            it.jwt,
+                            userKey,
+                        ), encryptedUserKey,
+                        passphrase
+                    )
                     promise.resolve(it.uuid)
                 } catch (e: Exception) {
                     promise.reject(e)
                 }
             }
-            val url = URL(apiClient.value.basePath)
+            val url = URL(authApiClient.basePath)
             val host = url.host
-            val protocol = if (url.protocol === "https") "wss" else "ws" 
-            apiClient.value.httpClient.newWebSocket(
+            val protocol = if (url.protocol === "https") "wss" else "ws"
+            OkHttpClient.Builder().build().newWebSocket(
                 Request.Builder()
                     .cacheControl(CacheControl.Builder().noCache().build())
                     .url("$protocol://$host/login/$username") // FIXME use wss

@@ -16,8 +16,8 @@ class Themis {
             return Pair(userKey, encryptedUserKey)
         }
 
-        fun getAuthKey(username: String, passphrase: String): ByteArray {
-            //ContextImprint needs a key and a context. We simply take use the passphrase and username.
+        fun generateAuthKey(username: String, passphrase: String): ByteArray {
+            // ContextImprint needs a key and a context. We simply take use the passphrase and username.
             val key = SymmetricKey(passphrase.toByteArray())
             val context = username.toByteArray()
             return SecureCell.ContextImprintWithKey(key).encrypt(username.toByteArray(), context)

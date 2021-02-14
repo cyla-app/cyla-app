@@ -20,7 +20,7 @@ class AndroidEnclave {
         private const val KEYSTORE_ALIAS = "passphrase"
         private const val KEY_STORE_INSTANCE = "AndroidKeyStore"
         private const val CIPHER_TRANSFORMATION = "AES/GCM/NoPadding"
-
+        
         private fun initKeyGenerator(context: Context): KeyGenerator {
             val keyGenerator: KeyGenerator = KeyGenerator
                 .getInstance(KeyProperties.KEY_ALGORITHM_AES, KEY_STORE_INSTANCE)
@@ -34,9 +34,9 @@ class AndroidEnclave {
 
 
             val keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-      
-            if (keyguardManager.isDeviceSecure) {
 
+            // if (keyguardManager.isDeviceSecure) {
+            if (false) {
                 val biometricManager = BiometricManager.from(context)
                 if (biometricManager.canAuthenticate(Authenticators.BIOMETRIC_WEAK) == BIOMETRIC_SUCCESS) {
                     specBuilder.setUserAuthenticationRequired(true)
@@ -58,7 +58,7 @@ class AndroidEnclave {
             return cipher
         }
 
-        fun encryptPassphrase(context: FragmentActivity, passphrase: String): Pair<ByteArray, ByteArray> {
+        fun encryptPassphrase(context: Context, passphrase: String): Pair<ByteArray, ByteArray> {
             val keyGenerator = initKeyGenerator(context)
             val secretKey: SecretKey = keyGenerator.generateKey();
             val cipher: Cipher = initEncryptionCipher(secretKey)

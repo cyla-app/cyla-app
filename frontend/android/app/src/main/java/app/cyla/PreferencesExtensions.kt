@@ -1,11 +1,10 @@
 package app.cyla
 
 import android.content.SharedPreferences
-import app.cyla.util.Themis
+import app.cyla.util.Base64
 
 private const val PREFERENCE_KEY_PASSPHRASE_IV = "passphraseIV"
 private const val PREFERENCE_KEY_ENCRYPTED_USER_KEY = "encryptedUserKey"
-private const val PREFERENCE_KEY_USER_AUTH_KEY = "authKey"
 private const val PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT = "passphraseCipherText"
 private const val PREFERENCE_KEY_USER_ID = "userId"
 private const val PREFERENCE_KEY_USER_NAME = "userName"
@@ -32,11 +31,11 @@ fun SharedPreferences.Editor.putUserName(userName: String): SharedPreferences.Ed
 fun SharedPreferences.getBase64(key: String): ByteArray? {
     val value = this.getString(key, null) ?: return null
 
-    return Themis.base64Decode(value)
+    return Base64.base64Decode(value)
 }
 
 fun SharedPreferences.Editor.putBase64(key: String, value: ByteArray): SharedPreferences.Editor {
-    this.putString(key, Themis.base64Encode(value))
+    this.putString(key, Base64.base64Encode(value))
     return this
 }
 
@@ -46,15 +45,6 @@ fun SharedPreferences.getEncryptedUserKey(): ByteArray? {
 
 fun SharedPreferences.Editor.putEncryptedUserKey(encryptedUserKey: ByteArray): SharedPreferences.Editor {
     this.putBase64(PREFERENCE_KEY_ENCRYPTED_USER_KEY, encryptedUserKey)
-    return this
-}
-
-fun SharedPreferences.getUserAuthKey(): ByteArray? {
-    return this.getBase64(PREFERENCE_KEY_USER_AUTH_KEY)
-}
-
-fun SharedPreferences.Editor.putUserAuthKey(userKeyCell: ByteArray): SharedPreferences.Editor {
-    this.putBase64(PREFERENCE_KEY_USER_AUTH_KEY, userKeyCell)
     return this
 }
 
@@ -80,18 +70,3 @@ fun SharedPreferences.doRequiredAttributesExist(): Boolean {
             this.contains(PREFERENCE_KEY_PASSPHRASE_CIPHER_TEXT) &&
             this.contains(PREFERENCE_KEY_ENCRYPTED_USER_KEY)
 }
-
-fun SharedPreferences.Editor.putUserAppInfo(uuid : String, username : String): SharedPreferences.Editor {
-    this.putUserId(uuid).putUserName(username)
-    return this
-}
-
-fun SharedPreferences.Editor.putUserEncryptedInfo(encryptedUserKey : ByteArray,
-                                                  authKey : ByteArray,
-                                                  passphraseInfo : Pair<ByteArray, ByteArray>) : SharedPreferences.Editor {
-    this.putEncryptedUserKey(encryptedUserKey)
-            .putUserAuthKey(authKey)
-            .putPassphrase(passphraseInfo.first, passphraseInfo.second)
-    return this
-}
-
