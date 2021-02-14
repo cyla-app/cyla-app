@@ -45,14 +45,17 @@ export default () => {
 
   if (sessionStatus === SessionStatus.UNKNOWN) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          backgroundColor: colors.background,
-        }}>
-        <ActivityIndicator size={100} />
-      </View>
+      <>
+        <StatusBanner isOnline={isOnline} sessionError={sessionError} />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            backgroundColor: colors.background,
+          }}>
+          <ActivityIndicator size={100} />
+        </View>
+      </>
     )
   }
 

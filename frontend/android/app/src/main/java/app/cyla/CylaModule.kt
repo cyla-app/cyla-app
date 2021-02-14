@@ -335,8 +335,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     fun login(username: String, passphrase: String, promise: Promise) {
         try {
             val authKey = generateAuthKey(username, passphrase)
-            val comparator = SecureCompare()
-            val wsListener = LoginWebSocketListener(authKey, comparator,
+            val wsListener = LoginWebSocketListener(authKey,
                 { message: String -> promise.reject(Exception(message)) }) {
                 try {
                     val encryptedUserKey = Base64.base64Decode(it.userKey)

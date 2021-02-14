@@ -17,13 +17,13 @@ data class SuccessAuthInfo(
 
 class LoginWebSocketListener(
     private val authKey: ByteArray,
-    private var comparator: SecureCompare,
     private val onFailure: (String) -> Unit,
     private val onSuccess: (SuccessAuthInfo) -> Unit
 ) : WebSocketListener() {
 
+    private val comparator = SecureCompare(authKey)
+
     override fun onOpen(ws: WebSocket, response: Response) {
-        comparator = SecureCompare(authKey)
         val initMessage = comparator.begin()
         ws.send(ByteString.of(initMessage, 0, initMessage.size))
     }
