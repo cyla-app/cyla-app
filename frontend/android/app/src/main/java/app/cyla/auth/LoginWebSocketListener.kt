@@ -52,7 +52,7 @@ class LoginWebSocketListener(
 
     override fun onClosing(ws: WebSocket, code: Int, reason: String) {
         ws.close(code, reason)
-        onFailure("Unexpected closing due to $reason")
+        //onFailure("Unexpected closing due to $code: $reason") FIXME: this also happens during success?
     }
 
     override fun onFailure(ws: WebSocket, t: Throwable, response: Response?) {

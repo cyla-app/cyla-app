@@ -20,7 +20,7 @@ class Themis {
             // ContextImprint needs a key and a context. We simply take use the passphrase and username.
             val key = SymmetricKey(passphrase.toByteArray())
             val context = username.toByteArray()
-            return SecureCell.ContextImprintWithKey(key).encrypt(username.toByteArray(), context)
+            return SecureCell.ContextImprintWithKey(key).encrypt(username.toByteArray(), context) // FIXME: Use SHA instead?
         }
 
         fun decryptUserKey(

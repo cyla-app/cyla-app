@@ -6,8 +6,6 @@ import android.util.Log
 import app.cyla.api.DayApi
 import app.cyla.api.UserApi
 import app.cyla.util.*
-import app.cyla.auth.AndroidEnclave.Companion.decryptPassphrase
-import app.cyla.auth.AndroidEnclave.Companion.encryptPassphrase
 import app.cyla.util.Themis.Companion.generateAuthKey
 import app.cyla.util.Themis.Companion.createUserKey
 import app.cyla.util.Themis.Companion.decryptUserKey
@@ -22,6 +20,7 @@ import java.util.concurrent.CompletableFuture
 
 import app.cyla.api.StatsApi
 import app.cyla.api.model.*
+import app.cyla.auth.AndroidEnclave
 import app.cyla.auth.LoginWebSocketListener
 import app.cyla.auth.UserInfo
 import app.cyla.invoker.ApiException
@@ -38,6 +37,10 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     private lateinit var userInfo: UserInfo
+
+    private val androidEnclave by lazy {
+        AndroidEnclave(reactContext?.currentActivity as MainActivity)
+    }
 
     private val dataApiClient = ApiClientBuilder(
         true,
@@ -73,7 +76,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         getAppStorage().edit().clear().apply()
     }
 
-    private fun loadStoredUserInfo(): Triple<UserInfo, ByteArray, String> {
+    private fun loadStoredUserInfo(callback: (Triple<UserInfo, ByteArray, String>?, String?) -> Unit) {
         val passphraseTuple = getEncryptionStorage().getPassphrase()
         val encryptedUserKey = getEncryptionStorage().getEncryptedUserKey()
         val userId = getAppStorage().getUserId()
@@ -82,22 +85,29 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         if (passphraseTuple === null || encryptedUserKey === null || userId === null || username === null) {
             throw Exception("There is no data stored. Please login or create a new user!")
         }
-        
+
         val (passphraseCipherText, passphraseIV) = passphraseTuple
-        val passphrase = decryptPassphrase(passphraseCipherText, passphraseIV)
+        androidEnclave.decryptPassphrase(passphraseCipherText, passphraseIV) { passphrase, error ->
+            if (passphrase === null) {
+                callback(null, error)
+            } else {
+                val userKey = decryptUserKey(encryptedUserKey, passphrase)
 
-        val userKey = decryptUserKey(encryptedUserKey, passphrase)
-
-        return Triple(
-            UserInfo(
-                userId = userId,
-                username = username,
-                userKey = userKey,
-                jwtToken = null
-            ),
-            encryptedUserKey,
-            passphrase
-        )
+                callback(
+                    Triple(
+                        UserInfo(
+                            userId = userId,
+                            username = username,
+                            userKey = userKey,
+                            jwtToken = null
+                        ),
+                        encryptedUserKey,
+                        passphrase
+                    ),
+                    null
+                )
+            }
+        }
     }
 
     private fun createNewUserKey(username: String, passphrase: String): Triple<UserInfo, ByteArray, String> {
@@ -124,25 +134,36 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         )
     }
 
-    private fun setupUserInfo(userInfo: UserInfo, encryptedUserKey: ByteArray, passphrase: String) {
-        val (encryptedPassphrase, iv) = encryptPassphrase(reactApplicationContext, passphrase)
+    private fun setupUserInfo(
+        userInfo: UserInfo,
+        encryptedUserKey: ByteArray,
+        passphrase: String,
+        callback: (String?) -> Unit
+    ) {
+        androidEnclave.encryptPassphrase(passphrase) { passphraseTuple, error ->
+            if (passphraseTuple === null) {
+                callback(error)
+            } else {
+                val (encryptedPassphrase, iv) = passphraseTuple
+                getEncryptionStorage().edit()
+                    .putEncryptedUserKey(encryptedUserKey)
+                    .apply()
 
-        getEncryptionStorage().edit()
-            .putEncryptedUserKey(encryptedUserKey)
-            .apply()
+                getAppStorage().edit()
+                    .putUserId(userInfo.userId)
+                    .putUserName(userInfo.username)
+                    .apply()
 
-        getAppStorage().edit()
-            .putUserId(userInfo.userId)
-            .putUserName(userInfo.username)
-            .apply()
+                getEncryptionStorage().edit()
+                    .putPassphrase(encryptedPassphrase, iv)
+                    .apply()
 
-        getEncryptionStorage().edit()
-            .putPassphrase(encryptedPassphrase, iv)
-            .apply()
-
-        this.userInfo = userInfo
-        val jwtAuth = dataApiClient.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
-        jwtAuth.bearerToken = userInfo.jwtToken
+                this.userInfo = userInfo
+                val jwtAuth = dataApiClient.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
+                jwtAuth.bearerToken = userInfo.jwtToken
+                callback(null)
+            }
+        }
     }
 
     @ReactMethod
@@ -157,23 +178,37 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     @ReactMethod
     fun loadUser(promise: Promise) {
-        val (userInfo, encryptedUserKey, passphrase) = loadStoredUserInfo()
-        setupUserInfo(userInfo, encryptedUserKey, passphrase)
-        promise.resolve(userInfo.userId)
+        loadStoredUserInfo { extendedUserInfo, error ->
+            if (extendedUserInfo == null) {
+                promise.reject(Exception(error))
+            } else {
+                val (userInfo, encryptedUserKey, passphrase) = extendedUserInfo
+                setupUserInfo(userInfo, encryptedUserKey, passphrase) {
+                    promise.resolve(userInfo.userId)
+                }
+            }
+        }
     }
 
     @ReactMethod
     fun setupUserAndSession(promise: Promise) {
-        val (userInfo, _, passphrase) = loadStoredUserInfo()
-        login(userInfo.username, passphrase, promise)
+        loadStoredUserInfo() { extendedUserInfo, error ->
+            if (extendedUserInfo == null) {
+                promise.reject(Exception(error))
+            } else {
+                val (userInfo, _, passphrase) = extendedUserInfo
+                login(userInfo.username, passphrase, promise)
+            }
+        }
     }
 
     @ReactMethod
     fun setupUserNew(username: String, passphrase: String, promise: Promise) {
         try {
-            val (userInfo, encryptedUserKey, passphrase) = createNewUserKey(username, passphrase)
-            setupUserInfo(userInfo, encryptedUserKey, passphrase)
-            promise.resolve(userInfo.userId)
+            val (userInfo, encryptedUserKey, _) = createNewUserKey(username, passphrase)
+            setupUserInfo(userInfo, encryptedUserKey, passphrase) {
+                promise.resolve(userInfo.userId)
+            }
         } catch (e: Exception) {
             resetEncryptionStorage()
             promise.reject(e)
@@ -314,8 +349,13 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                             userKey,
                         ), encryptedUserKey,
                         passphrase
-                    )
-                    promise.resolve(it.uuid)
+                    ) { error ->
+                        if (error == null) {
+                            promise.resolve(it.uuid)
+                        } else {
+                            promise.reject(Exception(error))
+                        }
+                    }
                 } catch (e: Exception) {
                     promise.reject(e)
                 }
@@ -326,7 +366,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             OkHttpClient.Builder().build().newWebSocket(
                 Request.Builder()
                     .cacheControl(CacheControl.Builder().noCache().build())
-                    .url("$protocol://$host/login/$username") // FIXME use wss
+                    .url("$protocol://$host/login/$username")
                     .build(),
                 wsListener
             )
