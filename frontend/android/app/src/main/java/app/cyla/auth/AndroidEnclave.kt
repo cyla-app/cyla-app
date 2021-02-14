@@ -63,11 +63,9 @@ class AndroidEnclave(private val context: MainActivity) {
                 specBuilder.setUserAuthenticationRequired(true)
                 specBuilder.setUserAuthenticationValidityDurationSeconds(10)
             } else {
-                Toast.makeText(context, "BIOMETRIC_STRONG not available", Toast.LENGTH_LONG).show()
                 specBuilder.setUserAuthenticationRequired(false)
             }
         } else {
-            Toast.makeText(context, "isDeviceSecure == false", Toast.LENGTH_LONG).show()
             specBuilder.setUserAuthenticationRequired(false)
         }
 
