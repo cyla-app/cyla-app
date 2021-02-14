@@ -1,13 +1,11 @@
-package app.cyla
+package app.cyla.util
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.util.Log
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.File
-import java.io.IOException
 
 class OfflineInterceptor(private val context: Context) : Interceptor {
     companion object {

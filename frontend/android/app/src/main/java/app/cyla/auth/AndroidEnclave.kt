@@ -1,12 +1,13 @@
-package app.cyla.decryption
+package app.cyla.auth
 
 import android.app.KeyguardManager
 import android.content.Context
-import android.hardware.biometrics.BiometricManager
-import android.hardware.biometrics.BiometricManager.BIOMETRIC_SUCCESS
-import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators
+import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
+import androidx.fragment.app.FragmentActivity
 import java.nio.charset.Charset
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -30,22 +31,21 @@ class AndroidEnclave {
             )
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setUserAuthenticationRequired(false) // FIXME: Enable biomentric in the future
 
-//            val keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-//            
-//            if (keyguardManager.isDeviceSecure) {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                    val biometricManager = context.getSystemService(Context.BIOMETRIC_SERVICE) as BiometricManager
-//                    if (biometricManager.canAuthenticate() == BIOMETRIC_SUCCESS) {
-//                        specBuilder.setUserAuthenticationRequired(true)
-//                        specBuilder.setUserAuthenticationValidityDurationSeconds(0)
-//                    }
-//                } else {
-//                    specBuilder.setUserAuthenticationRequired(true)
-//                    specBuilder.setUserAuthenticationValidityDurationSeconds(60)
-//                }
-//            }
+
+            val keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+      
+            if (keyguardManager.isDeviceSecure) {
+
+                val biometricManager = BiometricManager.from(context)
+                if (biometricManager.canAuthenticate(Authenticators.BIOMETRIC_WEAK) == BIOMETRIC_SUCCESS) {
+                    specBuilder.setUserAuthenticationRequired(true)
+                } else if (biometricManager.canAuthenticate(Authenticators.DEVICE_CREDENTIAL) == BIOMETRIC_SUCCESS) {
+                    specBuilder.setUserAuthenticationRequired(true)
+                }
+            } else {
+                specBuilder.setUserAuthenticationRequired(false)
+            }
 
 
             keyGenerator.init(specBuilder.build());
@@ -58,7 +58,7 @@ class AndroidEnclave {
             return cipher
         }
 
-        fun encryptPassphrase(context: Context, passphrase: String): Pair<ByteArray, ByteArray> {
+        fun encryptPassphrase(context: FragmentActivity, passphrase: String): Pair<ByteArray, ByteArray> {
             val keyGenerator = initKeyGenerator(context)
             val secretKey: SecretKey = keyGenerator.generateKey();
             val cipher: Cipher = initEncryptionCipher(secretKey)

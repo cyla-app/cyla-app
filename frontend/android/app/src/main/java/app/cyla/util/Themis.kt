@@ -1,12 +1,11 @@
-package app.cyla.decryption
+package app.cyla.util
 
-import android.util.Base64
 import app.cyla.api.model.Day
 import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SymmetricKey
 import java.nio.charset.Charset
 
-class ThemisOperations {
+class Themis {
     companion object {
         fun createUserKey(passphrase: String): Pair<SymmetricKey, ByteArray> {
             val userKey = SymmetricKey()
@@ -109,14 +108,6 @@ class ThemisOperations {
                 encryptData(dayKey, dayInfo, dateContext.toByteArray()),
                 encryptData(userKey, dayKey.toByteArray())
             )
-        }
-
-        fun base64Decode(string: String): ByteArray {
-            return Base64.decode(string, Base64.NO_WRAP)
-        }
-
-        fun base64Encode(buffer: ByteArray): String {
-            return Base64.encodeToString(buffer, Base64.NO_WRAP)
         }
     }
 }

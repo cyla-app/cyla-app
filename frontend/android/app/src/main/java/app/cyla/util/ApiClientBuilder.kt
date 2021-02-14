@@ -1,13 +1,8 @@
-package app.cyla
+package app.cyla.util
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.util.Log
 import app.cyla.invoker.ApiClient
-import okhttp3.Cache
 import okhttp3.OkHttpClient
-import java.io.File
-import java.io.IOException
 
 class ApiClientBuilder(private val offlineCache: Boolean,private val context: Context, private val basePath: String?) {
 

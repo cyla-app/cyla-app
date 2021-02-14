@@ -3,14 +3,15 @@ package app.cyla
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.fragment.app.FragmentActivity
 import app.cyla.api.DayApi
 import app.cyla.api.UserApi
-import app.cyla.decryption.*
-import app.cyla.decryption.AndroidEnclave.Companion.decryptPassphrase
-import app.cyla.decryption.AndroidEnclave.Companion.encryptPassphrase
-import app.cyla.decryption.ThemisOperations.Companion.getAuthKey
-import app.cyla.decryption.ThemisOperations.Companion.createUserKey
-import app.cyla.decryption.ThemisOperations.Companion.decryptUserKey
+import app.cyla.util.*
+import app.cyla.auth.AndroidEnclave.Companion.decryptPassphrase
+import app.cyla.auth.AndroidEnclave.Companion.encryptPassphrase
+import app.cyla.util.Themis.Companion.getAuthKey
+import app.cyla.util.Themis.Companion.createUserKey
+import app.cyla.util.Themis.Companion.decryptUserKey
 import app.cyla.invoker.auth.HttpBearerAuth
 import com.cossacklabs.themis.SecureCompare
 import com.cossacklabs.themis.SymmetricKey
@@ -22,6 +23,7 @@ import java.util.concurrent.CompletableFuture
 
 import app.cyla.api.StatsApi
 import app.cyla.api.model.*
+import app.cyla.auth.LoginWebSocketListener
 import app.cyla.invoker.ApiException
 import java.net.URL
 
@@ -107,7 +109,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     private fun createNewUserKey(username: String, passphrase: String): UserSetupInfo {
-        val passphraseInfo = encryptPassphrase(reactApplicationContext, passphrase)
+        val passphraseInfo = encryptPassphrase(reactApplicationContext.currentActivity as FragmentActivity, passphrase)
         val (userKey, encryptedUserKey) = createUserKey(passphrase)
         val authKey = getAuthKey(username, passphrase)
 
@@ -188,9 +190,9 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     @ReactMethod
     fun saveDay(iso8601date: String, dayBase64: String, periodStats: String, prevHashValue: String?, promise: Promise) {
         CompletableFuture.supplyAsync {
-            val (encryptedDayInfo, encryptedDayKey) = ThemisOperations.encryptDayInfo(
+            val (encryptedDayInfo, encryptedDayKey) = Themis.encryptDayInfo(
                 userKey,
-                ThemisOperations.base64Decode(dayBase64),
+                Base64.base64Decode(dayBase64),
                 iso8601date
             )
             
@@ -201,9 +203,9 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             day.dayKey = encryptedDayKey
 
             // FIXME: Return better value to not give information
-            val decodedPeriodStats = ThemisOperations.base64Decode(periodStats)
+            val decodedPeriodStats = Base64.base64Decode(periodStats)
             val encryptedPeriodStats = 
-                if (decodedPeriodStats.isEmpty()) ByteArray(0) else ThemisOperations.encryptData(userKey, decodedPeriodStats)
+                if (decodedPeriodStats.isEmpty()) ByteArray(0) else Themis.encryptData(userKey, decodedPeriodStats)
             
             
             val statistics = Statistic()
@@ -237,16 +239,16 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             val encryptedStats = periodStats?.value
 
             if (periodStats != null && encryptedStats != null) {
-                val decryptedStats = ThemisOperations.decryptData(userKey, encryptedStats)
+                val decryptedStats = Themis.decryptData(userKey, encryptedStats)
                 
                 val result = Arguments.createArray()
-                result.pushString(ThemisOperations.base64Encode(decryptedStats))
+                result.pushString(Base64.base64Encode(decryptedStats))
                 result.pushString(periodStats.hashValue)
                 promise.resolve(result)
             } else if (periodStats != null) {
                 // FIXME: stats exist but encryptedStats is null? why does this case exist?
                 val result = Arguments.createArray()
-                result.pushString(ThemisOperations.base64Encode(ByteArray(0)))
+                result.pushString(Base64.base64Encode(ByteArray(0)))
                 result.pushString(periodStats.hashValue)
                 promise.resolve(result)
             }
@@ -273,8 +275,8 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
             val base64Days = Arguments.createArray()
             for (day in days) {
-                val plaintextDay = ThemisOperations.decryptDayInfo(userKey, day)
-                base64Days.pushString(ThemisOperations.base64Encode(plaintextDay))
+                val plaintextDay = Themis.decryptDayInfo(userKey, day)
+                base64Days.pushString(Base64.base64Encode(plaintextDay))
             }
             promise.resolve(base64Days)
         }.exceptionally { throwable ->
@@ -301,9 +303,9 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             val comparator = SecureCompare()
             val wsListener = LoginWebSocketListener(authKey, comparator, promise) {
                 try {
-                    val encryptedUserKey = ThemisOperations.base64Decode(it.userKey)
+                    val encryptedUserKey = Base64.base64Decode(it.userKey)
                     val userKey = decryptUserKey(encryptedUserKey, passphrase)
-                    val passphraseInfo = encryptPassphrase(reactApplicationContext, passphrase)
+                    val passphraseInfo = encryptPassphrase(reactApplicationContext.currentActivity!! as FragmentActivity, passphrase)
                     getEncryptionStorage().edit()
                         .putUserEncryptedInfo(encryptedUserKey, authKey, passphraseInfo)
                         .apply()

@@ -1,4 +1,4 @@
-package app.cyla
+package app.cyla.auth
 
 import android.util.Log
 import com.cossacklabs.themis.SecureCompare
