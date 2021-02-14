@@ -106,7 +106,7 @@ class AndroidEnclave(private val context: MainActivity) {
                 }
 
                 override fun onAuthenticationFailed() {
-                    callback(null, "Authentication failed")
+                    //callback(null, "Authentication failed")
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -138,7 +138,7 @@ class AndroidEnclave(private val context: MainActivity) {
                 }
 
                 override fun onAuthenticationFailed() {
-                    callback(null, "Authentication failed")
+                    //callback(null, "Authentication failed")
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
