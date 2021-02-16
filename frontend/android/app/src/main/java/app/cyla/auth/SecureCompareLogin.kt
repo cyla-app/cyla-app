@@ -24,6 +24,12 @@ class SecureCompareLogin {
         private val cont: Continuation<SuccessAuthInfo>
     ) : WebSocketListener() {
 
+        companion object {
+            const val CLOSE_NORMAL = 1000
+            const val CLOSE_PROTOCOL_ERROR = 1002
+            const val CLOSE_GOING_AWAY = 1001
+        }
+
         private val comparator = SecureCompare(authKey)
 
         override fun onOpen(ws: WebSocket, response: Response) {
@@ -42,25 +48,24 @@ class SecureCompareLogin {
                     }
                 }
                 SecureCompare.CompareResult.MATCH -> {
-                    ws.close(1000, "Comparison ended successfully")
+                    ws.close(CLOSE_NORMAL, "Comparison ended successfully")
                     val successData = decodeSuccessMessage(bytes)
                     cont.resume(successData)
                 }
                 else -> {
-                    ws.close(1000, "Comparison finished")
-                    cont.resumeWithException(Exception("Comparison was unsuccessful"))
+                    ws.close(CLOSE_PROTOCOL_ERROR, "Comparison finished")
                 }
             }
         }
 
         override fun onClosing(ws: WebSocket, code: Int, reason: String) {
-            ws.close(code, reason)
-            //onFailure("Unexpected closing due to $code: $reason") FIXME: this also happens during success?
+            if (code != CLOSE_NORMAL) {
+                cont.resumeWithException(Exception("Comparison was unsuccessful"))
+            }
         }
 
         override fun onFailure(ws: WebSocket, t: Throwable, response: Response?) {
-            ws.close(1001, "Client Error")
-            cont.resumeWithException(t)
+            ws.close(CLOSE_GOING_AWAY, "Client Error")
         }
 
         private fun decodeSuccessMessage(bytes: ByteString): SuccessAuthInfo {
@@ -74,7 +79,7 @@ class SecureCompareLogin {
         val host = url.host
         val protocol = if (url.protocol == "https") "wss" else "ws"
         val port = if (url.port == -1) (if (url.protocol == "https") 443 else 80) else url.port
-        
+
         return suspendCoroutine { cont: Continuation<SuccessAuthInfo> ->
             val wsListener = LoginWebSocketListener(authKey, cont)
             OkHttpClient.Builder().build().newWebSocket(

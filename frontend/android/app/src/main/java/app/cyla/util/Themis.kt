@@ -4,6 +4,7 @@ import app.cyla.api.model.Day
 import com.cossacklabs.themis.SecureCell
 import com.cossacklabs.themis.SymmetricKey
 import java.nio.charset.Charset
+import java.security.MessageDigest
 
 class Themis {
     companion object {
@@ -16,11 +17,10 @@ class Themis {
             return Pair(userKey, encryptedUserKey)
         }
 
-        fun generateAuthKey(username: String, passphrase: String): ByteArray {
-            // ContextImprint needs a key and a context. We simply take use the passphrase and username.
-            val key = SymmetricKey(passphrase.toByteArray())
-            val context = username.toByteArray()
-            return SecureCell.ContextImprintWithKey(key).encrypt(username.toByteArray(), context) // FIXME: Use SHA instead?
+        fun generateAuthKey(passphrase: String): ByteArray {
+            val instance = MessageDigest.getInstance("SHA-512")
+            instance.update(passphrase.encodeToByteArray())
+            return instance.digest()
         }
 
         fun decryptUserKey(

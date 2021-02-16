@@ -101,7 +101,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     private fun createNewUserKey(username: String, passphrase: String): Triple<UserInfo, ByteArray, String> {
         val (userKey, encryptedUserKey) = createUserKey(passphrase)
-        val authKey = generateAuthKey(username, passphrase)
+        val authKey = generateAuthKey(passphrase)
 
         val user = User()
         user.id = null
@@ -317,7 +317,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     @ReactMethod
     fun login(username: String, passphrase: String, promise: Promise) {
-        val authKey = generateAuthKey(username, passphrase)
+        val authKey = generateAuthKey(passphrase)
         val url = URL(authApiClient.basePath)
 
         GlobalScope.launch(Dispatchers.Main.immediate) {
