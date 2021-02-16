@@ -27,6 +27,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     companion object {
         private const val APP_PREFERENCES_NAME = "app_storage"
         private const val ENCRYPTION_PREFERENCES_NAME = "encryption_storage"
+        private const val DAY_VERSION = 1
 
         // Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
         private const val JWT_AUTH_SCHEMA_NAME = "bearerJWTAuth"
@@ -224,7 +225,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
             val day = Day()
             day.date = LocalDate.parse(iso8601date)
-            day.version = 1
+            day.version = DAY_VERSION
             day.dayInfo = encryptedDayInfo
             day.dayKey = encryptedDayKey
 
@@ -303,6 +304,10 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
             val base64Days = Arguments.createArray()
             for (day in days) {
+                if (day.version != DAY_VERSION) {
+                    throw Exception("Version ${day.version} of day is not supported")
+                }
+
                 val plaintextDay = Themis.decryptDayInfo(userInfo.userKey, day)
                 base64Days.pushString(Base64.base64Encode(plaintextDay))
             }
