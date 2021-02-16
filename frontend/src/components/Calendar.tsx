@@ -63,8 +63,8 @@ export default ({
       return [
         formatDay(date),
         {
-          startingDay: singleDay ? undefined : position === DayPosition.START,
-          endingDay: singleDay ? undefined : position === DayPosition.END,
+          startingDay: singleDay ? true : position === DayPosition.START,
+          endingDay: singleDay ? true : position === DayPosition.END,
           color: colors.periodRed,
         },
       ]

@@ -43,10 +43,9 @@ export default () => {
     dispatch(checkSignIn())
   }, [dispatch])
 
-  if (sessionStatus === SessionStatus.UNKNOWN) {
+  if (sessionStatus === SessionStatus.UNKNOWN && !sessionError) {
     return (
       <>
-        <StatusBanner isOnline={isOnline} sessionError={sessionError} />
         <View
           style={{
             flex: 1,

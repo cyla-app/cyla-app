@@ -32,25 +32,24 @@ const pairwise = <T,>(array: T[]): [T, T][] => {
   return output
 }
 
-const calculatePercentageUntilNextPeriod = (
-  periodStats: Period[],
-  cycleLengths: number[],
-): [number, number] => {
+const dayOfCurrentCycle = (periodStats: Period[]) => {
   if (periodStats.length === 0) {
-    return [0, 0]
+    return null
   }
   const lastPeriod = periodStats[periodStats.length - 1]
+
+  return Math.max(differenceInDays(new Date(), parseDay(lastPeriod.from)), 0)
+}
+
+const percentageUntilNextPeriod = (
+  cycleDay: number,
+  cycleLengths: number[],
+): number => {
+  if (cycleLengths.length === 0) {
+    return 0
+  }
   const cycleStats = stats(cycleLengths)
-
-  const daysSinceLastPeriod = Math.max(
-    differenceInDays(new Date(), parseDay(lastPeriod.from)),
-    0,
-  )
-
-  return [
-    daysSinceLastPeriod,
-    Math.min(daysSinceLastPeriod / cycleStats.mean, 1),
-  ]
+  return Math.min(cycleDay / cycleStats.mean, 1)
 }
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
@@ -82,14 +81,12 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
     ])
     return accumulator
   }, [])
-
   const plainCycleLengths = cycleLengths.map(([cycleLength]) => cycleLength)
-  const maxCycleLength = cycleLengths.length > 0 ? max(plainCycleLengths) : 0
 
-  const [cycleDay, percentage] = calculatePercentageUntilNextPeriod(
-    periodStats,
-    plainCycleLengths,
-  )
+  const maxCycleLength = cycleLengths.length > 0 ? max(plainCycleLengths) : 0
+  const cycleDay = dayOfCurrentCycle(periodStats)
+  const percentage = percentageUntilNextPeriod(cycleDay ?? 0, plainCycleLengths)
+
   return (
     <>
       <ScrollView
@@ -99,7 +96,7 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           marginBottom: 20,
         }}>
         <CycleStats cycleLengths={plainCycleLengths} />
-        <CycleCircle cycleDay={cycleDay} percentage={percentage} />
+        <CycleCircle cycleDay={cycleDay ?? -1} percentage={percentage} />
 
         {cycleLengths.map(([cycleLength, period1], i) => (
           <CycleBar

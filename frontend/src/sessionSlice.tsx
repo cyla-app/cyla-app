@@ -122,7 +122,7 @@ const session = createSlice({
       return {
         ...state,
         loading: false,
-        status: SessionStatus.UNKNOWN,
+        status: SessionStatus.SIGNED_OUT,
         error: action.error.message,
       }
     }
