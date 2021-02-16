@@ -5,8 +5,20 @@ import { useDispatch, useSelector } from 'react-redux'
 import LoginForm from '../components/LoginForm'
 import { RootState } from '../App'
 import { signIn } from '../sessionSlice'
+import ServerSelectionButton from '../components/ServerSelectionButton'
+import { StackNavigationProp } from '@react-navigation/stack'
+import { MainStackParamList } from '../navigation/MainStackNavigation'
 
-export default () => {
+type SignInScreenNavigationProp = StackNavigationProp<
+  MainStackParamList,
+  'SignIn'
+>
+
+type PropType = {
+  navigation: SignInScreenNavigationProp
+}
+
+export default ({ navigation }: PropType) => {
   const isSessionLoading = useSelector<RootState, boolean>(
     (state) => state.session.loading,
   )
@@ -28,6 +40,9 @@ export default () => {
         onSave={(username: string, passphrase: string) => {
           dispatch(signIn({ username, passphrase }))
         }}
+      />
+      <ServerSelectionButton
+        onPress={() => navigation.navigate('ServerChange')}
       />
     </View>
   )

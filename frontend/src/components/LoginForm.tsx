@@ -59,7 +59,7 @@ export default ({
       {repeatPassphrase ? (
         <TextInput
           ref={checkPassphraseInputRef}
-          label="Reenter Password"
+          label="Repeat Password"
           secureTextEntry
           value={checkPassphrase}
           mode="outlined"
@@ -74,6 +74,7 @@ export default ({
       <Button
         loading={loading}
         disabled={dataNotValid}
+        mode="contained"
         icon="login"
         style={{
           margin: 20,

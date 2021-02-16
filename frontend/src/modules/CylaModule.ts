@@ -5,6 +5,7 @@ import minimal from 'protobufjs/minimal'
 
 // This type is determined by app.cyla.decryption.CylaModule
 type CylaModuleType = {
+  setApiBaseUrl: (apiBaseUrl: string) => Promise<void>
   setupUserNew: (username: string, passphrase: string) => Promise<void>
   setupUserAndSession: () => Promise<void>
   loadUser: () => Promise<void>
@@ -45,6 +46,10 @@ const base64Encode = (buffer: Uint8Array) => {
 }
 
 class CylaModule {
+  async setApiBaseUrl(apiBaseUrl: string): Promise<void> {
+    await CylaNativeModule.setApiBaseUrl(apiBaseUrl)
+  }
+
   async fetchDaysByRange(from: Date, to: Date): Promise<Day[]> {
     const days = await CylaNativeModule.fetchDaysByRange(
       formatDay(from),

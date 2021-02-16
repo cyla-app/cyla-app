@@ -149,6 +149,14 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     @ReactMethod
+    fun setApiBaseUrl(apiBaseUrl: String, promise: Promise) {
+        authApiClient.basePath = apiBaseUrl
+        dataApiClient.basePath = apiBaseUrl
+        getAppStorage().edit().putString("apiBasePath", apiBaseUrl).apply()
+        promise.resolve(null)
+    }
+    
+    @ReactMethod
     fun getUserId(promise: Promise) {
         val userId = getAppStorage().getUserId()
         if (userId == null) {

@@ -15,10 +15,12 @@ import SignInScreen from '../screens/SignInScreen'
 import StatusBanner from '../components/StatusBanner'
 import { ActivityIndicator, useTheme } from 'react-native-paper'
 import { View } from 'react-native'
+import ServerChangeScreen from '../screens/ServerChangeScreen'
 
 export type MainStackParamList = {
   SignUp: undefined
   SignIn: undefined
+  ServerChange: undefined
   Tabs: NavigatorScreenParams<TabsParamList>
   Profile: undefined
   Detail: { day: Day }
@@ -66,6 +68,7 @@ export default () => {
           <>
             <Stack.Screen name="SignUp" component={SignUpScreen} />
             <Stack.Screen name="SignIn" component={SignInScreen} />
+            <Stack.Screen name="ServerChange" component={ServerChangeScreen} />
           </>
         ) : (
           // User is signed in
