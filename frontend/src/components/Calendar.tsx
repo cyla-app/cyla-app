@@ -2,8 +2,7 @@ import React, { useMemo } from 'react'
 import { CalendarList, CalendarTheme } from 'react-native-calendars'
 import { useTheme } from 'react-native-paper'
 import { Day, DayPosition, Period, PeriodStats } from '../types'
-import { isSameDay } from 'date-fns'
-import { formatDay, parseDay } from '../utils/date'
+import { formatDay } from '../utils/date'
 
 type PropsType = {
   days: Day[]
@@ -60,14 +59,16 @@ export default ({
   )
 
   const markedDates = PeriodStats.mapToDates({ periods: periodStats }).map(
-    ({ date, position }) => [
-      formatDay(date),
-      {
-        startingDay: position === DayPosition.START,
-        endingDay: position === DayPosition.END,
-        color: colors.periodRed,
-      },
-    ],
+    ({ date, position, singleDay }) => {
+      return [
+        formatDay(date),
+        {
+          startingDay: singleDay ? undefined : position === DayPosition.START,
+          endingDay: singleDay ? undefined : position === DayPosition.END,
+          color: colors.periodRed,
+        },
+      ]
+    },
   )
 
   return (

@@ -41,7 +41,7 @@ export const PeriodStats = {
   ...PeriodStats_,
   mapToDates(
     periodStats: PeriodStats_,
-  ): { date: Date; position: DayPosition }[] {
+  ): { date: Date; position: DayPosition; singleDay: boolean }[] {
     return periodStats.periods
       .map((period) => {
         const from = parseDay(period.from)
@@ -55,6 +55,7 @@ export const PeriodStats = {
         ).map((date) => {
           return {
             date,
+            singleDay: isSameDay(from, to),
             position: isSameDay(date, from)
               ? DayPosition.START
               : isSameDay(date, to)
