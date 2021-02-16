@@ -339,12 +339,12 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                                 ), encryptedUserKey,
                                 passphrase
                             )
+                            promise.resolve(it.uuid)
                         } catch (e: Throwable) {
                             promise.reject(e)
                         }
                     }
 
-                    promise.resolve(it.uuid)
                 } catch (e: Throwable) {
                     promise.reject(e)
                 }
