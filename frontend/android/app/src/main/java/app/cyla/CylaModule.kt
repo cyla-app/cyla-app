@@ -11,19 +11,16 @@ import app.cyla.util.Themis.Companion.decryptUserKey
 import app.cyla.invoker.auth.HttpBearerAuth
 import com.facebook.react.bridge.*
 import kotlinx.coroutines.*
-import okhttp3.CacheControl
-import okhttp3.Request
 import java.time.LocalDate
 import java.util.concurrent.CompletableFuture
 
 import app.cyla.api.StatsApi
 import app.cyla.api.model.*
 import app.cyla.auth.AndroidEnclave
-import app.cyla.auth.LoginWebSocketListener
+import app.cyla.auth.SecureCompareLogin
 import app.cyla.auth.UserInfo
 import app.cyla.invoker.ApiException
 import kotlinx.coroutines.Dispatchers
-import okhttp3.OkHttpClient
 import java.net.URL
 
 class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
@@ -190,7 +187,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     fun setupUserNew(username: String, passphrase: String, promise: Promise) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val (userInfo, encryptedUserKey, _) =   createNewUserKey(username, passphrase)
+                val (userInfo, encryptedUserKey, _) = createNewUserKey(username, passphrase)
                 withContext(Dispatchers.Main.immediate) {
                     setupUserInfo(userInfo, encryptedUserKey, passphrase)
                     promise.resolve(userInfo.userId)
@@ -320,47 +317,30 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     @ReactMethod
     fun login(username: String, passphrase: String, promise: Promise) {
-        try {
-            val authKey = generateAuthKey(username, passphrase)
-            val wsListener = LoginWebSocketListener(authKey,
-                { message: String -> promise.reject(Exception(message)) }) {
-                try {
-                    val encryptedUserKey = Base64.base64Decode(it.userKey)
-                    val userKey = decryptUserKey(encryptedUserKey, passphrase)
+        val authKey = generateAuthKey(username, passphrase)
+        val url = URL(authApiClient.basePath)
 
-                    GlobalScope.launch(Dispatchers.Main.immediate) {
-                        try {
-                            setupUserInfo(
-                                UserInfo(
-                                    it.uuid,
-                                    username,
-                                    it.jwt,
-                                    userKey,
-                                ), encryptedUserKey,
-                                passphrase
-                            )
-                            promise.resolve(it.uuid)
-                        } catch (e: Throwable) {
-                            promise.reject(e)
-                        }
-                    }
-
-                } catch (e: Throwable) {
-                    promise.reject(e)
+        GlobalScope.launch(Dispatchers.Main.immediate) {
+            try {
+                val successAuthInfo = withContext(Dispatchers.IO) {
+                    SecureCompareLogin().login(username, authKey, url)
                 }
+                val encryptedUserKey = Base64.base64Decode(successAuthInfo.userKey)
+                val userKey = decryptUserKey(encryptedUserKey, passphrase)
+
+                setupUserInfo(
+                    UserInfo(
+                        successAuthInfo.uuid,
+                        username,
+                        successAuthInfo.jwt,
+                        userKey,
+                    ), encryptedUserKey,
+                    passphrase
+                )
+                promise.resolve(successAuthInfo.uuid)
+            } catch (e: Throwable) {
+                promise.reject(e)
             }
-            val url = URL(authApiClient.basePath)
-            val host = url.host
-            val protocol = if (url.protocol === "https") "wss" else "ws"
-            OkHttpClient.Builder().build().newWebSocket(
-                Request.Builder()
-                    .cacheControl(CacheControl.Builder().noCache().build())
-                    .url("$protocol://$host/login/$username")
-                    .build(),
-                wsListener
-            )
-        } catch (e: Throwable) {
-            promise.reject(e)
         }
     }
 }
