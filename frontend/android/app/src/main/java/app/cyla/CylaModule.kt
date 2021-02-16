@@ -176,7 +176,8 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         GlobalScope.launch(Dispatchers.Main.immediate) {
             try {
                 val (userInfo, _, passphrase) = loadStoredUserInfo()
-                login(userInfo.username, passphrase, promise)
+                val successAuthInfo = login(userInfo.username, passphrase)
+                promise.resolve(successAuthInfo.uuid)
             } catch (e: Throwable) {
                 promise.reject(e)
             }
@@ -226,7 +227,6 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                     userInfo.userKey,
                     decodedPeriodStats
                 )
-
 
             val statistics = Statistic()
             statistics.prevHashValue = prevHashValue
@@ -315,28 +315,33 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         }
     }
 
-    @ReactMethod
-    fun login(username: String, passphrase: String, promise: Promise) {
+    private suspend fun login(username: String, passphrase: String): SecureCompareLogin.SuccessAuthInfo {
         val authKey = generateAuthKey(passphrase)
         val url = URL(authApiClient.basePath)
 
+        val successAuthInfo = withContext(Dispatchers.IO) {
+            SecureCompareLogin().login(username, authKey, url)
+        }
+        val encryptedUserKey = Base64.base64Decode(successAuthInfo.userKey)
+        val userKey = decryptUserKey(encryptedUserKey, passphrase)
+
+        setupUserInfo(
+            UserInfo(
+                successAuthInfo.uuid,
+                username,
+                successAuthInfo.jwt,
+                userKey,
+            ), encryptedUserKey,
+            passphrase
+        )
+        return successAuthInfo
+    }
+
+    @ReactMethod
+    fun login(username: String, passphrase: String, promise: Promise) {
         GlobalScope.launch(Dispatchers.Main.immediate) {
             try {
-                val successAuthInfo = withContext(Dispatchers.IO) {
-                    SecureCompareLogin().login(username, authKey, url)
-                }
-                val encryptedUserKey = Base64.base64Decode(successAuthInfo.userKey)
-                val userKey = decryptUserKey(encryptedUserKey, passphrase)
-
-                setupUserInfo(
-                    UserInfo(
-                        successAuthInfo.uuid,
-                        username,
-                        successAuthInfo.jwt,
-                        userKey,
-                    ), encryptedUserKey,
-                    passphrase
-                )
+                val successAuthInfo = login(username, passphrase)
                 promise.resolve(successAuthInfo.uuid)
             } catch (e: Throwable) {
                 promise.reject(e)
