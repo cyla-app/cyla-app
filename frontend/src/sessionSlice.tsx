@@ -60,7 +60,7 @@ export const logout = createAsyncThunk<void, void, { state: RootState }>(
   'session/logout',
   async (_, thunkAPI) => {
     thunkAPI.dispatch(resetDays())
-    thunkAPI.dispatch(resetSession())
+    thunkAPI.dispatch(logoutSession())
     await CylaModule.logout()
     return
   },
@@ -87,7 +87,10 @@ const session = createSlice({
   name: 'session',
   initialState: initialState,
   reducers: {
-    reset: () => initialState,
+    logout: () => ({
+      loading: false,
+      status: SessionStatus.SIGNED_OUT,
+    }),
   },
   extraReducers: (builder) => {
     const fulfilledReducer: CaseReducer<
@@ -149,6 +152,6 @@ const session = createSlice({
   },
 })
 
-export const resetSession = session.actions.reset
+export const logoutSession = session.actions.logout
 
 export const reducer = session.reducer
