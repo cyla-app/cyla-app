@@ -72,8 +72,8 @@ class SecureCompareLogin {
 
     suspend fun login(username: String, authKey: ByteArray, url: URL): SuccessAuthInfo {
         val host = url.host
-        val protocol = if (url.protocol === "https") "wss" else "ws"
-        val port = if (url.port == -1) ( if (url.protocol === "https") 443 else 80) else url.port
+        val protocol = if (url.protocol == "https") "wss" else "ws"
+        val port = if (url.port == -1) (if (url.protocol == "https") 443 else 80) else url.port
         
         return suspendCoroutine { cont: Continuation<SuccessAuthInfo> ->
             val wsListener = LoginWebSocketListener(authKey, cont)
