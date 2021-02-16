@@ -5,11 +5,12 @@ import { addWeeks } from 'date-fns'
 import moment, { Moment } from 'moment'
 import { Day, Period, PeriodStats } from '../types'
 import { formatDay } from '../utils/date'
+import { DayIndex } from '../daysSlice'
 
 type PropTypes = {
   onDaySelected: (day: Day) => void
   onDateSelected: (date: string) => void
-  days: Day[]
+  days: DayIndex
   periodStats: Period[]
 }
 
@@ -35,8 +36,9 @@ export default ({
   )
 
   const selectDay = (date: Moment) => {
-    onDateSelected(formatDay(date.toDate()))
-    const found = days.find((day) => moment(day.date).isSame(date, 'day'))
+    const formatted = formatDay(date.toDate())
+    onDateSelected(formatted)
+    const found = days[formatted]
 
     if (found) {
       onDaySelected(found)

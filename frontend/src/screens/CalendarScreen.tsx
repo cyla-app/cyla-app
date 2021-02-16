@@ -29,9 +29,8 @@ export default ({
     (state) => state.days.periodStats,
   )
 
-  const days = Object.values(
-    useSelector<RootState, DayIndex>((state) => state.days.byDay),
-  )
+  const days = useSelector<RootState, DayIndex>((state) => state.days.byDay)
+
   const daysError = useSelector<RootState, string | undefined>(
     (state) => state.days.error,
   )

@@ -3,9 +3,10 @@ import { CalendarList, CalendarTheme } from 'react-native-calendars'
 import { useTheme } from 'react-native-paper'
 import { Day, DayPosition, Period, PeriodStats } from '../types'
 import { formatDay } from '../utils/date'
+import { DayIndex } from '../daysSlice'
 
 type PropsType = {
-  days: Day[]
+  days: DayIndex
   periodStats: Period[]
   onDaySelected: (day: Day) => void
   onVisibleMonthsChange: (monthYear: { month: number; year: number }[]) => void
@@ -84,7 +85,7 @@ export default ({
       maxDate={undefined}
       // Handler which gets executed on day press. Default = undefined
       onDayPress={(calendarDay) => {
-        const found = days.find((day) => day.date === calendarDay.dateString)
+        const found = days[calendarDay.dateString]
 
         if (found) {
           onDaySelected(found)

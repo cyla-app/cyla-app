@@ -2,14 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { RefreshControl, ScrollView, Text, View } from 'react-native'
 import CylaModule from '../modules/CylaModule'
 import { useDispatch, useSelector } from 'react-redux'
-import { DayIndex } from '../daysSlice'
 import { RootState } from '../App'
-import {
-  ActivityIndicator,
-  Button,
-  Headline,
-  IconButton,
-} from 'react-native-paper'
+import { ActivityIndicator, Button, Headline } from 'react-native-paper'
 import useRefresh from '../hooks/useRefresh'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { logout } from '../sessionSlice'
