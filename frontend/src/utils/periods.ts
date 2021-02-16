@@ -83,6 +83,8 @@ export const markPeriod = (periods: Period[], day: Day) => {
     // merge into existing period
     const period = periods[index]
     const dayDate = parseDay(day.date)
+    console.log(isBefore(dayDate, new Date(period.from)))
+    console.log(isAfter(dayDate, new Date(period.from)))
     newPeriods[index] = {
       from: isBefore(dayDate, new Date(period.from)) ? day.date : period.from,
       to: isAfter(dayDate, new Date(period.to)) ? day.date : period.to,
@@ -96,10 +98,6 @@ export const markPeriod = (periods: Period[], day: Day) => {
 }
 
 const unmarkPeriod = (periods: Period[], day: Day) => {
-  if (Day.isBleeding(day)) {
-    return periods
-  }
-
   const newPeriods = [...periods]
   const { index, exists } = findIndex(periods, day, false)
 
@@ -110,7 +108,12 @@ const unmarkPeriod = (periods: Period[], day: Day) => {
   const dayDate = parseDay(day.date)
   const period = periods[index]
 
-  if (isSameDay(dayDate, parseDay(period.from))) {
+  if (
+    isSameDay(dayDate, parseDay(period.from)) &&
+    isSameDay(parseDay(period.to), parseDay(period.from))
+  ) {
+    newPeriods.splice(index, 1)
+  } else if (isSameDay(dayDate, parseDay(period.from))) {
     newPeriods[index] = {
       from: formatDay(add(dayDate, { days: 1 })),
       to: period.to,

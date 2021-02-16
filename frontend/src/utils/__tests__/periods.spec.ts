@@ -194,12 +194,25 @@ describe('periods', () => {
     periods = markPeriod(periods, bleeingDay('2021-01-28'))
     periods = markPeriod(periods, bleeingDay('2021-01-28'))
 
-    periods = markPeriod(periods, noBleeingDay('2021-01-28'))
     expect(periods).toEqual([
       {
         from: '2021-01-28',
         to: '2021-01-28',
       },
     ])
+  })
+
+  it('should allow to remove a single day', () => {
+    let periods: Period[] = []
+
+    periods = markPeriod(periods, bleeingDay('2021-01-28'))
+    periods = markPeriod(periods, noBleeingDay('2021-01-28'))
+    expect(periods).toEqual([])
+  })
+
+  it('should allow to remove days which do not exist', () => {
+    let periods: Period[] = []
+    periods = markPeriod(periods, noBleeingDay('2021-01-28'))
+    expect(periods).toEqual([])
   })
 })
