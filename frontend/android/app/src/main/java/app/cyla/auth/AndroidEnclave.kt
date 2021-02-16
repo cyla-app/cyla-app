@@ -19,6 +19,10 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class AndroidEnclave(private val context: MainActivity) {
     companion object {
@@ -41,7 +45,7 @@ class AndroidEnclave(private val context: MainActivity) {
         val transformation = "$ENCRYPTION_ALGORITHM/$ENCRYPTION_BLOCK_MODE/$ENCRYPTION_PADDING"
         return Cipher.getInstance(transformation)
     }
-    
+
     private fun initKeyGenerator(): KeyGenerator {
         val keyGenerator: KeyGenerator = KeyGenerator
             .getInstance(ENCRYPTION_ALGORITHM, ANDROID_KEYSTORE)
@@ -79,44 +83,40 @@ class AndroidEnclave(private val context: MainActivity) {
 
         val biometricPrompt = BiometricPrompt(context, executor, callback)
 
-        context.runOnUiThread {
-            if (cipher != null) {
-                biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
-            } else {
-                biometricPrompt.authenticate(promptInfo)
+
+        if (cipher != null) {
+            biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
+        } else {
+            biometricPrompt.authenticate(promptInfo)
+        }
+    }
+
+
+    suspend fun encryptPassphrase(passphrase: String): Pair<ByteArray, ByteArray> {
+        val keyGenerator = initKeyGenerator()
+        val secretKey: SecretKey = keyGenerator.generateKey();
+        val cipher: Cipher = getCipher();
+
+        return suspendCoroutine { cont: Continuation<Pair<ByteArray, ByteArray>> ->
+            try {
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+                cont.resume(Pair(cipher.doFinal(passphrase.encodeToByteArray()), cipher.iv))
+            } catch (e: UserNotAuthenticatedException) {
+                authenticate(null, object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        cont.resumeWithException(Exception("Authentication error $errorCode :: $errString"))
+                    }
+
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+                        cont.resume(Pair(cipher.doFinal(passphrase.encodeToByteArray()), cipher.iv))
+                    }
+                })
             }
         }
     }
 
-
-    fun encryptPassphrase(passphrase: String, callback: (Pair<ByteArray, ByteArray>?, String?) -> Unit) {
-        val keyGenerator = initKeyGenerator()
-        val secretKey: SecretKey = keyGenerator.generateKey();
-        val cipher: Cipher = getCipher();
-        
-        try {
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            callback(Pair(cipher.doFinal(passphrase.encodeToByteArray()), cipher.iv), null)
-        } catch (e: UserNotAuthenticatedException) {
-            authenticate(null, object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    callback(null, "Authentication error $errorCode :: $errString")
-                }
-
-                override fun onAuthenticationFailed() {
-                    //callback(null, "Authentication failed")
-                }
-
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    //val cipher = result.cryptoObject?.cipher!!
-                    cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                    callback(Pair(cipher.doFinal(passphrase.encodeToByteArray()), cipher.iv), null)
-                }
-            })
-        }
-    }
-
-    fun decryptPassphrase(cipherText: ByteArray, iv: ByteArray, callback: (String?, String?) -> Unit) {
+    suspend fun decryptPassphrase(cipherText: ByteArray, iv: ByteArray): String {
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE);
         keyStore.load(null);
 
@@ -125,26 +125,24 @@ class AndroidEnclave(private val context: MainActivity) {
 
         val cipher: Cipher = getCipher();
 
-        try {
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
-            val plainText = cipher.doFinal(cipherText)
-            callback(plainText.toString(Charset.forName("UTF-8")), null)
-        } catch (e: UserNotAuthenticatedException) {
-            authenticate(null, object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    callback(null, "Authentication error $errorCode :: $errString")
-                }
+        return suspendCoroutine { cont: Continuation<String> ->
+            try {
+                cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
+                val plainText = cipher.doFinal(cipherText)
+                cont.resume(plainText.toString(Charset.forName("UTF-8")))
+            } catch (e: UserNotAuthenticatedException) {
+                authenticate(null, object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        cont.resumeWithException(Exception("Authentication error $errorCode :: $errString"))
+                    }
 
-                override fun onAuthenticationFailed() {
-                    //callback(null, "Authentication failed")
-                }
-
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
-                    val plainText = cipher.doFinal(cipherText)
-                    callback(plainText.toString(Charset.forName("UTF-8")), null)
-                }
-            })
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
+                        val plainText = cipher.doFinal(cipherText)
+                        cont.resume(plainText.toString(Charset.forName("UTF-8")))
+                    }
+                })
+            }
         }
     }
 }
