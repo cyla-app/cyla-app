@@ -35,8 +35,8 @@ export default function <
     title: string
   }>
 }) {
-  const changeValue: (value: string) => void = (newValue) => {
-    onValueChange((parseInt(newValue, 10) as ValueType) ?? defaultValue)
+  const changeValue = (newValue: string) => {
+    onValueChange(parseInt(newValue ?? defaultValue, 10) as ValueType)
   }
   return (
     <ToggleButton.Group onValueChange={changeValue} value={value.toString()}>
