@@ -229,10 +229,8 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             day.dayInfo = encryptedDayInfo
             day.dayKey = encryptedDayKey
 
-            // FIXME: Return better value to not give information
             val decodedPeriodStats = Base64.base64Decode(periodStats)
-            val encryptedPeriodStats =
-                if (decodedPeriodStats.isEmpty()) ByteArray(0) else Themis.encryptData(
+            val encryptedPeriodStats = Themis.encryptData(
                     userInfo.userKey,
                     decodedPeriodStats
                 )
@@ -261,26 +259,17 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     @ReactMethod
     fun fetchPeriodStats(promise: Promise) {
         CompletableFuture.supplyAsync {
-            val userStats = statsApi.getStats(
+            val periodStats = statsApi.getPeriodStats(
                 getAppStorage().getUserId()!!
             )
-            val periodStats = userStats.periodStats
-            val encryptedStats = periodStats?.value
+            val encryptedStats = periodStats.value
 
-            if (periodStats != null && encryptedStats != null) {
-                val decryptedStats = Themis.decryptData(userInfo.userKey, encryptedStats)
+            val decryptedStats = Themis.decryptData(userInfo.userKey, encryptedStats)
 
-                val result = Arguments.createArray()
-                result.pushString(Base64.base64Encode(decryptedStats))
-                result.pushString(periodStats.hashValue)
-                promise.resolve(result)
-            } else if (periodStats != null && encryptedStats == null) {
-                // FIXME: stats exist but encryptedStats is null? why does this case exist?
-                val result = Arguments.createArray()
-                result.pushString(Base64.base64Encode(ByteArray(0)))
-                result.pushString(periodStats.hashValue)
-                promise.resolve(result)
-            }
+            val result = Arguments.createArray()
+            result.pushString(Base64.base64Encode(decryptedStats))
+            result.pushString(periodStats.hashValue)
+            promise.resolve(result)
         }.exceptionally { throwable ->
             val cause = throwable.cause
             if (cause is ApiException && cause.code == 404) {

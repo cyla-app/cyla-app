@@ -2,6 +2,7 @@ import { NativeModules } from 'react-native'
 import { Day, Period, PeriodStats } from '../types'
 import { formatDay } from '../utils/date'
 import minimal from 'protobufjs/minimal'
+import { PeriodStatsDTO } from '../../generated/period-stats'
 
 // This type is determined by app.cyla.decryption.CylaModule
 type CylaModuleType = {
@@ -62,7 +63,11 @@ class CylaModule {
   }
 
   async saveDay(day: Day, periods: Period[], prevHashValue: string | null) {
-    const periodBuffer = PeriodStats.encode({ periods }).finish()
+    // Use padding other than day date?
+    const periodBuffer = PeriodStatsDTO.encode({
+      periodStats: { periods },
+      padding: day.date,
+    }).finish()
     const dayBuffer = Day.encode(day).finish()
     await CylaNativeModule.saveDay(
       day.date,
@@ -83,7 +88,11 @@ class CylaModule {
     }
 
     const [periodStatsBinary, prevHashValue] = fetchedPeriodStats
-    const periodStats = PeriodStats.decode(base64Decode(periodStatsBinary))
+    const periodStats = PeriodStatsDTO.decode(base64Decode(periodStatsBinary))
+      .periodStats
+    if (!periodStats) {
+      return { periodStats: { periods: [] }, prevHashValue }
+    }
     return { periodStats, prevHashValue }
   }
 

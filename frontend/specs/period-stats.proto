@@ -8,3 +8,8 @@ message Period {
 message PeriodStats {
   repeated Period periods = 1;
 }
+
+message PeriodStatsDTO {
+  PeriodStats periodStats = 1;
+  string padding = 2;
+}

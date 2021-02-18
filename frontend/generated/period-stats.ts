@@ -12,6 +12,11 @@ export interface PeriodStats {
   periods: Period[]
 }
 
+export interface PeriodStatsDTO {
+  periodStats?: PeriodStats
+  padding: string
+}
+
 const basePeriod: object = { from: '', to: '' }
 
 export const Period = {
@@ -146,6 +151,85 @@ export const PeriodStats = {
     } else {
       obj.periods = []
     }
+    return obj
+  },
+}
+
+const basePeriodStatsDTO: object = { padding: '' }
+
+export const PeriodStatsDTO = {
+  encode(
+    message: PeriodStatsDTO,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (
+      message.periodStats !== undefined &&
+      message.periodStats !== undefined
+    ) {
+      PeriodStats.encode(message.periodStats, writer.uint32(10).fork()).ldelim()
+    }
+    writer.uint32(18).string(message.padding)
+    return writer
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): PeriodStatsDTO {
+    const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input
+    let end = length === undefined ? reader.len : reader.pos + length
+    const message = { ...basePeriodStatsDTO } as PeriodStatsDTO
+    while (reader.pos < end) {
+      const tag = reader.uint32()
+      switch (tag >>> 3) {
+        case 1:
+          message.periodStats = PeriodStats.decode(reader, reader.uint32())
+          break
+        case 2:
+          message.padding = reader.string()
+          break
+        default:
+          reader.skipType(tag & 7)
+          break
+      }
+    }
+    return message
+  },
+
+  fromJSON(object: any): PeriodStatsDTO {
+    const message = { ...basePeriodStatsDTO } as PeriodStatsDTO
+    if (object.periodStats !== undefined && object.periodStats !== null) {
+      message.periodStats = PeriodStats.fromJSON(object.periodStats)
+    } else {
+      message.periodStats = undefined
+    }
+    if (object.padding !== undefined && object.padding !== null) {
+      message.padding = String(object.padding)
+    } else {
+      message.padding = ''
+    }
+    return message
+  },
+
+  fromPartial(object: DeepPartial<PeriodStatsDTO>): PeriodStatsDTO {
+    const message = { ...basePeriodStatsDTO } as PeriodStatsDTO
+    if (object.periodStats !== undefined && object.periodStats !== null) {
+      message.periodStats = PeriodStats.fromPartial(object.periodStats)
+    } else {
+      message.periodStats = undefined
+    }
+    if (object.padding !== undefined && object.padding !== null) {
+      message.padding = object.padding
+    } else {
+      message.padding = ''
+    }
+    return message
+  },
+
+  toJSON(message: PeriodStatsDTO): unknown {
+    const obj: any = {}
+    message.periodStats !== undefined &&
+      (obj.periodStats = message.periodStats
+        ? PeriodStats.toJSON(message.periodStats)
+        : undefined)
+    message.padding !== undefined && (obj.padding = message.padding)
     return obj
   },
 }
