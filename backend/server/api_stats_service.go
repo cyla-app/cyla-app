@@ -24,6 +24,16 @@ func NewStatsApiService() StatsApiServicer {
 	return &StatsApiService{}
 }
 
+// GetPeriodStats -
+func (s *StatsApiService) GetPeriodStats(ctx context.Context, userId string) (response ImplResponse, err error) {
+	ret, err := DBConnection.GetPeriodStats(ctx, userId)
+	response, err = httpResponseWithBody(ret, err)
+	if response.Code == 200 {
+		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age=86400"}}
+	}
+	return
+}
+
 // GetStats -
 func (s *StatsApiService) GetStats(ctx context.Context, userId string) (response ImplResponse, err error) {
 	ret, err := DBConnection.GetStats(ctx, userId)

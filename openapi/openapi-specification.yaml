@@ -193,17 +193,32 @@ paths:
     get:
       tags:
         - stats
-      description: Get the all stats for an user
+      description: Get all stats for an user
       operationId: getStats
       parameters:
         - $ref: "#/components/parameters/userId"
       responses:
         "200":
-          $ref: "#/components/responses/StatsFound"
+          $ref: "#/components/responses/UserStatsFound"
         "404":
           description: Stats entry not found
         "500":
           description: Error when retrieving stats
+  /stats/{userId}/periodStats:
+    get:
+      tags:
+        - stats
+      description: Get the periodStats for an user
+      operationId: getPeriodStats
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          $ref: "#/components/responses/StatFound"
+        "404":
+          description: Period stat entry not found
+        "500":
+          description: Error when retrieving stat
 components:
   parameters:
     userId:
@@ -234,7 +249,7 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Day"
-    StatsFound:
+    UserStatsFound:
       description: Stats for user found
       headers:
         Cache-Control:
@@ -245,6 +260,17 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/UserStats"
+    StatFound:
+      description: (Single) stat for user found
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            default: max-age=86400
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Statistic"
     UserNotFound:
       description: Error about missing user
       content:
@@ -347,6 +373,8 @@ components:
         hashValue:
           type: string
           description: fnv32-HashSum for the value property
+      required:
+        - value
   securitySchemes:
     bearerJWTAuth:
       type: http

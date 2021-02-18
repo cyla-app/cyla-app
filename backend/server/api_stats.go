@@ -30,12 +30,33 @@ func NewStatsApiController(s StatsApiServicer) Router {
 func (c *StatsApiController) Routes() Routes {
 	return Routes{
 		{
+			"GetPeriodStats",
+			strings.ToUpper("Get"),
+			"/stats/{userId}/periodStats",
+			Authorize(c.GetPeriodStats),
+		},
+		{
 			"GetStats",
 			strings.ToUpper("Get"),
 			"/stats/{userId}",
 			Authorize(c.GetStats),
 		},
 	}
+}
+
+// GetPeriodStats -
+func (c *StatsApiController) GetPeriodStats(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	userId := params["userId"]
+	result, err := c.service.GetPeriodStats(r.Context(), userId)
+	//If an error occured, encode the error with the status code
+	if err != nil {
+		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
+		return
+	}
+	//If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+
 }
 
 // GetStats -

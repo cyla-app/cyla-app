@@ -344,3 +344,24 @@ func (s *CylaRedisClient) GetStats(ctx context.Context, userId string) (userStat
 	}
 	return
 }
+
+func (s *CylaRedisClient) GetPeriodStats(ctx context.Context, userId string) (ret Statistic, err error) {
+	return s.getSingleStat(ctx, userId, GetUserStatsPeriodStatsName())
+}
+
+func (s* CylaRedisClient) getSingleStat(ctx context.Context, userId string, statName string) (ret Statistic, err error) {
+	redisRet := s.HGetAll(ctx,
+		fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, statsPrefixKey, statName))
+
+	if redisRet.Err() != nil {
+		return ret, newHTTPErrorWithCauseError(500,
+			fmt.Sprintf("redis error when retrieving %v", statName), err)
+	}
+
+	err = mapstructure.WeakDecode(redisRet.Val(), &ret)
+	if err != nil {
+		return ret, newHTTPErrorWithCauseError(500, fmt.Sprintf("error when unmarshalling %v", statName), err)
+	}
+	return ret, nil
+}
+

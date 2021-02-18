@@ -30,6 +30,7 @@ type DayApiRouter interface {
 // The StatsApiRouter implementation should parse necessary information from the http request,
 // pass the data to a StatsApiServicer to perform the required actions, then write the service results to the http response.
 type StatsApiRouter interface {
+	GetPeriodStats(http.ResponseWriter, *http.Request)
 	GetStats(http.ResponseWriter, *http.Request)
 }
 
@@ -63,6 +64,7 @@ type DayApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type StatsApiServicer interface {
+	GetPeriodStats(context.Context, string) (ImplResponse, error)
 	GetStats(context.Context, string) (ImplResponse, error)
 }
 

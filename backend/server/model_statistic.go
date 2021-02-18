@@ -11,7 +11,7 @@ package server
 
 // Statistic - Encrypted data structure for a single stat.
 type Statistic struct {
-	Value EncryptedAttribute `json:"value,omitempty" mapstructure:"Value"`
+	Value EncryptedAttribute `json:"value" mapstructure:"Value"`
 
 	// Hash value for the previous version for this user's stat. For conflict detection.
 	PrevHashValue string `json:"prevHashValue,omitempty" mapstructure:"PrevHashValue"`

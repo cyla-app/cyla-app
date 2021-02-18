@@ -19,6 +19,7 @@ type DayPersistence interface {
 	ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) error
 }
 type StatsPersistence interface {
+	GetPeriodStats(ctx context.Context, userId string) (ret Statistic, err error)
 	GetStats(ctx context.Context, userId string) (ret UserStats, err error)
 }
 type UserPersistence interface {
