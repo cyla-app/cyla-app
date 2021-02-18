@@ -346,14 +346,16 @@ export const Bleeding = {
     message: Bleeding,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(8).int32(message.strength);
+    if (message.strength !== 0) {
+      writer.uint32(8).int32(message.strength);
+    }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Bleeding {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseBleeding } as Bleeding;
+    const message = globalThis.Object.create(baseBleeding) as Bleeding;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -369,7 +371,7 @@ export const Bleeding = {
   },
 
   fromJSON(object: any): Bleeding {
-    const message = { ...baseBleeding } as Bleeding;
+    const message = globalThis.Object.create(baseBleeding) as Bleeding;
     if (object.strength !== undefined && object.strength !== null) {
       message.strength = bleeding_StrengthFromJSON(object.strength);
     } else {
@@ -408,17 +410,25 @@ export const Temperature = {
     message: Temperature,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(13).float(message.value);
-    writer.uint32(18).string(message.timestamp);
-    writer.uint32(26).string(message.note);
-    writer.uint32(32).int32(message.excludeReason);
+    if (message.value !== 0) {
+      writer.uint32(13).float(message.value);
+    }
+    if (message.timestamp !== "") {
+      writer.uint32(18).string(message.timestamp);
+    }
+    if (message.note !== "") {
+      writer.uint32(26).string(message.note);
+    }
+    if (message.excludeReason !== 0) {
+      writer.uint32(32).int32(message.excludeReason);
+    }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Temperature {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseTemperature } as Temperature;
+    const message = globalThis.Object.create(baseTemperature) as Temperature;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -443,7 +453,7 @@ export const Temperature = {
   },
 
   fromJSON(object: any): Temperature {
-    const message = { ...baseTemperature } as Temperature;
+    const message = globalThis.Object.create(baseTemperature) as Temperature;
     if (object.value !== undefined && object.value !== null) {
       message.value = Number(object.value);
     } else {
@@ -511,15 +521,19 @@ const baseMucus: object = { feeling: 0, texture: 0 };
 
 export const Mucus = {
   encode(message: Mucus, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    writer.uint32(8).int32(message.feeling);
-    writer.uint32(16).int32(message.texture);
+    if (message.feeling !== 0) {
+      writer.uint32(8).int32(message.feeling);
+    }
+    if (message.texture !== 0) {
+      writer.uint32(16).int32(message.texture);
+    }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Mucus {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseMucus } as Mucus;
+    const message = globalThis.Object.create(baseMucus) as Mucus;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -538,7 +552,7 @@ export const Mucus = {
   },
 
   fromJSON(object: any): Mucus {
-    const message = { ...baseMucus } as Mucus;
+    const message = globalThis.Object.create(baseMucus) as Mucus;
     if (object.feeling !== undefined && object.feeling !== null) {
       message.feeling = mucus_FeelingFromJSON(object.feeling);
     } else {
@@ -584,16 +598,22 @@ export const Cervix = {
     message: Cervix,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(8).int32(message.opening);
-    writer.uint32(16).int32(message.firmness);
-    writer.uint32(24).int32(message.position);
+    if (message.opening !== 0) {
+      writer.uint32(8).int32(message.opening);
+    }
+    if (message.firmness !== 0) {
+      writer.uint32(16).int32(message.firmness);
+    }
+    if (message.position !== 0) {
+      writer.uint32(24).int32(message.position);
+    }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Cervix {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseCervix } as Cervix;
+    const message = globalThis.Object.create(baseCervix) as Cervix;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -615,7 +635,7 @@ export const Cervix = {
   },
 
   fromJSON(object: any): Cervix {
-    const message = { ...baseCervix } as Cervix;
+    const message = globalThis.Object.create(baseCervix) as Cervix;
     if (object.opening !== undefined && object.opening !== null) {
       message.opening = cervix_OpeningFromJSON(object.opening);
     } else {
@@ -670,23 +690,22 @@ const baseDay: object = { date: "" };
 
 export const Day = {
   encode(message: Day, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    writer.uint32(10).string(message.date);
-    if (
-      message.temperature !== undefined &&
-      message.temperature !== undefined
-    ) {
+    if (message.date !== "") {
+      writer.uint32(10).string(message.date);
+    }
+    if (message.temperature !== undefined) {
       Temperature.encode(
         message.temperature,
         writer.uint32(82).fork()
       ).ldelim();
     }
-    if (message.bleeding !== undefined && message.bleeding !== undefined) {
+    if (message.bleeding !== undefined) {
       Bleeding.encode(message.bleeding, writer.uint32(90).fork()).ldelim();
     }
-    if (message.mucus !== undefined && message.mucus !== undefined) {
+    if (message.mucus !== undefined) {
       Mucus.encode(message.mucus, writer.uint32(98).fork()).ldelim();
     }
-    if (message.cervix !== undefined && message.cervix !== undefined) {
+    if (message.cervix !== undefined) {
       Cervix.encode(message.cervix, writer.uint32(106).fork()).ldelim();
     }
     return writer;
@@ -695,7 +714,7 @@ export const Day = {
   decode(input: _m0.Reader | Uint8Array, length?: number): Day {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseDay } as Day;
+    const message = globalThis.Object.create(baseDay) as Day;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -723,7 +742,7 @@ export const Day = {
   },
 
   fromJSON(object: any): Day {
-    const message = { ...baseDay } as Day;
+    const message = globalThis.Object.create(baseDay) as Day;
     if (object.date !== undefined && object.date !== null) {
       message.date = String(object.date);
     } else {
@@ -800,6 +819,16 @@ export const Day = {
     return obj;
   },
 };
+
+declare var self: any | undefined;
+declare var window: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== "undefined") return globalThis;
+  if (typeof self !== "undefined") return self;
+  if (typeof window !== "undefined") return window;
+  if (typeof global !== "undefined") return global;
+  throw "Unable to locate global object";
+})();
 
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin

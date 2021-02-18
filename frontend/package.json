@@ -14,7 +14,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "generate:clean": "rimraf ./generated/*.ts",
     "postinstall": "patch-package",
-    "generate:protobuf": "cd specs && protoc --plugin=../node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_opt=useOptionals=true --ts_proto_out=../generated/ ./period-stats.proto ./day.proto"
+    "generate:protobuf": "cd ../specs && protoc --plugin=../frontend/node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_opt=useOptionals=true --ts_proto_out=../frontend/generated/ ./period-stats.proto ./day.proto"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.4",
@@ -26,10 +26,7 @@
     "@react-navigation/native": "^5.8.10",
     "@react-navigation/stack": "^5.12.8",
     "@reduxjs/toolkit": "^1.5.0",
-    "@types/react-native-calendars": "^1.20.12",
-    "@types/react-native-vector-icons": "^6.4.6",
     "date-fns": "^2.16.1",
-    "mkdirp": "^1.0.4",
     "protobufjs": "^6.10.2",
     "react": "16.13.1",
     "react-native": "0.63.3",
@@ -67,7 +64,10 @@
     "react-test-renderer": "16.13.1",
     "rimraf": "^3.0.2",
     "ts-proto": "^1.54.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "mkdirp": "^1.0.4",
+    "@types/react-native-calendars": "^1.20.12",
+    "@types/react-native-vector-icons": "^6.4.6"
   },
   "jest": {
     "preset": "react-native",

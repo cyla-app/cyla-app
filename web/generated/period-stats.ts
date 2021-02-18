@@ -24,15 +24,19 @@ export const Period = {
     message: Period,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    writer.uint32(10).string(message.from);
-    writer.uint32(18).string(message.to);
+    if (message.from !== "") {
+      writer.uint32(10).string(message.from);
+    }
+    if (message.to !== "") {
+      writer.uint32(18).string(message.to);
+    }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): Period {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePeriod } as Period;
+    const message = globalThis.Object.create(basePeriod) as Period;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -51,7 +55,7 @@ export const Period = {
   },
 
   fromJSON(object: any): Period {
-    const message = { ...basePeriod } as Period;
+    const message = globalThis.Object.create(basePeriod) as Period;
     if (object.from !== undefined && object.from !== null) {
       message.from = String(object.from);
     } else {
@@ -104,7 +108,7 @@ export const PeriodStats = {
   decode(input: _m0.Reader | Uint8Array, length?: number): PeriodStats {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePeriodStats } as PeriodStats;
+    const message = globalThis.Object.create(basePeriodStats) as PeriodStats;
     message.periods = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
@@ -121,7 +125,7 @@ export const PeriodStats = {
   },
 
   fromJSON(object: any): PeriodStats {
-    const message = { ...basePeriodStats } as PeriodStats;
+    const message = globalThis.Object.create(basePeriodStats) as PeriodStats;
     message.periods = [];
     if (object.periods !== undefined && object.periods !== null) {
       for (const e of object.periods) {
@@ -162,23 +166,24 @@ export const PeriodStatsDTO = {
     message: PeriodStatsDTO,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (
-      message.periodStats !== undefined &&
-      message.periodStats !== undefined
-    ) {
+    if (message.periodStats !== undefined) {
       PeriodStats.encode(
         message.periodStats,
         writer.uint32(10).fork()
       ).ldelim();
     }
-    writer.uint32(18).string(message.padding);
+    if (message.padding !== "") {
+      writer.uint32(18).string(message.padding);
+    }
     return writer;
   },
 
   decode(input: _m0.Reader | Uint8Array, length?: number): PeriodStatsDTO {
     const reader = input instanceof Uint8Array ? new _m0.Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePeriodStatsDTO } as PeriodStatsDTO;
+    const message = globalThis.Object.create(
+      basePeriodStatsDTO
+    ) as PeriodStatsDTO;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -197,7 +202,9 @@ export const PeriodStatsDTO = {
   },
 
   fromJSON(object: any): PeriodStatsDTO {
-    const message = { ...basePeriodStatsDTO } as PeriodStatsDTO;
+    const message = globalThis.Object.create(
+      basePeriodStatsDTO
+    ) as PeriodStatsDTO;
     if (object.periodStats !== undefined && object.periodStats !== null) {
       message.periodStats = PeriodStats.fromJSON(object.periodStats);
     } else {
@@ -236,6 +243,16 @@ export const PeriodStatsDTO = {
     return obj;
   },
 };
+
+declare var self: any | undefined;
+declare var window: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== "undefined") return globalThis;
+  if (typeof self !== "undefined") return self;
+  if (typeof window !== "undefined") return window;
+  if (typeof global !== "undefined") return global;
+  throw "Unable to locate global object";
+})();
 
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin
