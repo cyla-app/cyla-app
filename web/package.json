@@ -10,6 +10,8 @@
     "protobufjs": "^6.10.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "text-encoding": "^0.7.0",
+    "wasm-themis": "^0.13.1",
     "web-vitals": "^1.0.1"
   },
   "devDependencies": {
@@ -26,8 +28,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "generate:protobuf": "cd ../specs && protoc --plugin=../web/node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_opt=useOptionals=true --ts_proto_out=../web/generated/ ./period-stats.proto ./day.proto",
-    "generate:openapi": "rimraf ./generated/openapi && openapi --input ../openapi/openapi-specification.yaml --output ./generated/openapi --exportCore true --exportServices true"
+    "generate:protobuf": "cd ../specs && protoc --plugin=../web/node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_opt=useOptionals=true --ts_proto_out=../web/src/generated/ ./period-stats.proto ./day.proto",
+    "generate:openapi": "rimraf ./src/generated/openapi && openapi --input ../openapi/openapi-specification.yaml --output ./src/generated/openapi --exportCore true --exportServices true"
   },
   "eslintConfig": {
     "extends": [
