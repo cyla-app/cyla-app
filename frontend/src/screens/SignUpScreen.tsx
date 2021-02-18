@@ -19,6 +19,8 @@ type PropType = {
   navigation: SignUpScreenNavigationProp
 }
 
+// <SignUnScreen navigation={blabla} />
+
 export default ({ navigation }: PropType) => {
   const isSessionLoading = useSelector<RootState, boolean>(
     (state) => state.session.loading,

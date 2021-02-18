@@ -19,6 +19,7 @@ export default ({
   onVisibleMonthsChange,
 }: PropsType) => {
   const { colors } = useTheme()
+
   //const [ready, setReady] = useState<boolean>(false)
   const theme = useMemo(
     () => ({

@@ -11,7 +11,6 @@ import { saveDay } from '../daysSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { formatDay } from '../utils/date'
-import useRefresh from '../hooks/useRefresh'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
 import { Headline } from 'react-native-paper'
 
@@ -21,7 +20,6 @@ type AddScreenNavigationProp = CompositeNavigationProp<
 >
 
 export default ({}: { navigation: AddScreenNavigationProp }) => {
-  const [loading, refresh] = useRefresh()
   const daysError = useSelector<RootState, string | undefined>(
     (state) => state.days.error,
   )
@@ -38,11 +36,7 @@ export default ({}: { navigation: AddScreenNavigationProp }) => {
           marginBottom: 30,
         }}>
         <Headline>Editing {selectedDate}</Headline>
-        <ScrollView
-          contentContainerStyle={{}}
-          refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={refresh} />
-          }>
+        <ScrollView contentContainerStyle={{}}>
           <EntryDay
             selectedDate={selectedDate}
             onSave={(day: Day) => {

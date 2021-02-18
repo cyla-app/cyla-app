@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { View, ScrollView } from 'react-native'
+import { View, ScrollView, RefreshControl } from 'react-native'
 import CalendarStrip from '../components/CalendarStrip'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
@@ -18,6 +18,7 @@ import { max, stats } from '../utils/math'
 import CycleBar from '../components/CycleBar'
 import CycleStats from '../components/CycleStats'
 import CycleCircle from '../components/CycleCircle'
+import useRefresh from '../hooks/useRefresh'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -53,9 +54,7 @@ const percentageUntilNextPeriod = (
 }
 
 export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
-  const days = Object.values(
-    useSelector<RootState, DayIndex>((state) => state.days.byDay), // FIXME dynamically load from state
-  )
+  const days = useSelector<RootState, DayIndex>((state) => state.days.byDay) // FIXME dynamically load from state
 
   const periodStats = useSelector<RootState, Period[]>(
     (state) => state.days.periodStats,
@@ -66,6 +65,8 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
   )
 
   const dispatch = useDispatch()
+
+  const [loading, refresh] = useRefresh()
 
   useEffect(() => {
     dispatch(fetchPeriodStats())
@@ -94,7 +95,10 @@ export default ({ navigation }: { navigation: DailyScreenNavigationProp }) => {
           justifyContent: 'flex-start',
           alignItems: 'center',
           marginBottom: 20,
-        }}>
+        }}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={refresh} />
+        }>
         <CycleStats cycleLengths={plainCycleLengths} />
         <CycleCircle cycleDay={cycleDay ?? -1} percentage={percentage} />
 

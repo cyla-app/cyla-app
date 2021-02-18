@@ -40,15 +40,14 @@ const RenderItem = ({
   )
 }
 
-export default ({
-  weekIndex,
-  dayIndex,
-  loadMore,
-}: {
+type PropsType = {
   weekIndex: WeekIndex
   dayIndex: DayIndex
+  loading: boolean
   loadMore: () => void
-}) => {
+}
+
+export default ({ weekIndex, dayIndex, loadMore, loading }: PropsType) => {
   const data: WeekIndexData[] = Array.from(Object.values(weekIndex)).sort(
     (a, b) => {
       if (a.year === b.year) {
@@ -78,6 +77,7 @@ export default ({
         flex: 1,
         margin: 10,
         justifyContent: 'center',
+        display: loading ? 'flex' : 'none',
       }}
       ListFooterComponent={LoadMoreSpinner}
       renderItem={({ item }: { item: WeekIndexData }) => {

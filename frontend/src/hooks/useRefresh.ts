@@ -1,7 +1,12 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { useCallback } from 'react'
-import { fetchRange, Range } from '../daysSlice'
+import {
+  fetchDuration,
+  fetchPeriodStats,
+  fetchRange,
+  Range,
+} from '../daysSlice'
 
 const useRefresh = (): [boolean, () => void] => {
   const dispatch = useDispatch()
@@ -20,7 +25,10 @@ const useRefresh = (): [boolean, () => void] => {
             to: range.to,
           }),
         )
+      } else {
+        dispatch(fetchDuration())
       }
+      dispatch(fetchPeriodStats())
     }, [dispatch, range]),
   ]
 }

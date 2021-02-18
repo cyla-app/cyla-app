@@ -21,6 +21,7 @@ import {
   filter,
   map,
   mergeMap,
+  startWith,
   switchMap,
 } from 'rxjs/operators'
 import { EMPTY, from, from as fromPromise, of } from 'rxjs'
@@ -162,6 +163,7 @@ const fetchRangeEpic: MyEpic = (action$, state$) =>
         map((result: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
           days.actions.fulfilled(result),
         ),
+        startWith(days.actions.pending()),
         catchError((err: Error) => of(days.actions.rejected(err.message))),
       )
     }),
@@ -170,12 +172,12 @@ const fetchRangeEpic: MyEpic = (action$, state$) =>
 const fetchDurationEpic: MyEpic = (action$, state$) =>
   action$.pipe(
     filter(fetchDuration.match),
-    map(() => days.actions.pending()),
     switchMap((action) => {
       const range = state$.value.days.range
       const now = new Date()
       const to = range ? parseDay(range.from) : now
       const from = sub(to, action.payload ?? { months: 1 })
+      console.log(action)
 
       return fromPromise(CylaModule.fetchDaysByRange(from, to)).pipe(
         map((fetchedDays: Day[]) => {
@@ -197,6 +199,7 @@ const fetchDurationEpic: MyEpic = (action$, state$) =>
         map((result: { byWeek: WeekIndex; byDay: DayIndex; range: Range }) =>
           days.actions.fulfilled(result),
         ),
+        startWith(days.actions.pending()),
         catchError((err: Error) => of(days.actions.rejected(err.message))),
       )
     }),
