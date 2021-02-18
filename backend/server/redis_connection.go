@@ -358,7 +358,13 @@ func (s* CylaRedisClient) getSingleStat(ctx context.Context, userId string, stat
 			fmt.Sprintf("redis error when retrieving %v", statName), err)
 	}
 
-	err = mapstructure.WeakDecode(redisRet.Val(), &ret)
+	redisMap := redisRet.Val()
+
+	if len(redisMap) == 0 {
+		return ret, newHTTPError(404, fmt.Sprintf("could not find stat with name %v", statName))
+	}
+
+	err = mapstructure.WeakDecode(redisMap, &ret)
 	if err != nil {
 		return ret, newHTTPErrorWithCauseError(500, fmt.Sprintf("error when unmarshalling %v", statName), err)
 	}
