@@ -27,6 +27,9 @@ func main() {
 	ShareApiService := server.NewShareApiService()
 	ShareApiController := server.NewShareApiController(ShareApiService)
 
+	ShareDayApiService := server.NewShareDayApiService()
+	ShareDayApiController := server.NewShareDayApiController(ShareDayApiService)
+
 	StatsApiService := server.NewStatsApiService()
 	StatsApiController := server.NewStatsApiController(StatsApiService)
 
@@ -36,7 +39,7 @@ func main() {
     LoginApiService := server.NewLoginApiService()
     LoginApiController := server.NewLoginApiController(LoginApiService)
 
-	router := server.NewRouter(LoginApiController,DayApiController, ShareApiController, StatsApiController, UserApiController)
+	router := server.NewRouter(LoginApiController,DayApiController, ShareApiController, ShareDayApiController, StatsApiController, UserApiController)
 
 	log.Fatal(http.ListenAndServe(":5000", router))
 }

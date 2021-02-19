@@ -308,12 +308,21 @@ func saveStats(ctx context.Context, pipeline redis.Pipeliner, userStats UserStat
 }
 
 func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []DayDate) (days []Day, err error) {
+	return s.getDaysByDate(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId),dates)
+}
+
+func (s *CylaRedisClient) ShareGetDaysByUserIdAndDate(
+	ctx context.Context, shareId string, userId string, dates []string) (ret []Day, err error) {
+	return s.getDaysByDate(ctx, fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, shareId, userPrefixKey, userId), dates)
+}
+
+func (s *CylaRedisClient) getDaysByDate(ctx context.Context, keyPrefix string, dates []DayDate) (days []Day, err error) {
 	//Pipeline to reduce communication with the redis server. This requires two for loops, as cmdStringList vals is empty
 	// until the pipeline is executed
 	pipeline := s.TxPipeline()
 	var cmdStringList []*redis.StringStringMapCmd
 	for _, date := range dates {
-		cmdStringList = append(cmdStringList, pipeline.HGetAll(ctx, fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, dayPrefixKey, date)))
+		cmdStringList = append(cmdStringList, pipeline.HGetAll(ctx, fmt.Sprintf("%v:%v:%v", keyPrefix, dayPrefixKey, date)))
 	}
 	_, err = pipeline.Exec(ctx)
 	if err != nil {
@@ -337,13 +346,23 @@ func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId str
 }
 
 func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId string, startDate DayDate, endDate DayDate) ([]Day, error) {
+	return s.getDayByRange(ctx, fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey), startDate, endDate)
+}
+
+func (s *CylaRedisClient) ShareGetDayByUserAndRange(
+	ctx context.Context, shareId string, userId string, startDate string, endDate string) (ret []Day, err error) {
+	return s.getDayByRange(ctx,
+		fmt.Sprintf("%v:%v:%v:%v:%v", sharedPrefixKey, shareId, userPrefixKey, userId, dayPrefixKey), startDate, endDate)
+}
+
+func (s *CylaRedisClient) getDayByRange(ctx context.Context, daySetKey string, startDate string, endDate string) (ret []Day, err error) {
 	if endDate == "" {
 		endDate = startDate
 	}
 	days := make([]Day, 0)
 	opResult, err := getDayByRange.Run(ctx, s,
 		[]string{
-			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),
+			daySetKey,
 		}, []string{startDate, endDate}).Result()
 	if err != nil {
 		return nil, newHTTPErrorWithCauseError(500, "error during execution of pipeline", err)

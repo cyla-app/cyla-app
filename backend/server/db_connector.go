@@ -8,6 +8,7 @@ import (
 type DBConnector interface {
 	DayPersistence
 	SharePersistence
+	ShareDayPersistence
 	StatsPersistence
 	UserPersistence
 	LoginPersistence
@@ -22,6 +23,10 @@ type DayPersistence interface {
 type SharePersistence interface {
 	GetShares(ctx context.Context, userId string) (ret []Share, err error)
 	ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (ret string, err error)
+}
+type ShareDayPersistence interface {
+	ShareGetDayByUserAndRange(ctx context.Context, shareId string, userId string, startDate string, endDate string) (ret []Day, err error)
+	ShareGetDaysByUserIdAndDate(ctx context.Context, shareId string, userId string, dates []string) (ret []Day, err error)
 }
 type StatsPersistence interface {
 	GetPeriodStats(ctx context.Context, userId string) (ret Statistic, err error)

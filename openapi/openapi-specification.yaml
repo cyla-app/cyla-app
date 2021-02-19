@@ -189,6 +189,59 @@ paths:
           $ref: "#/components/responses/DaysFound"
         "500":
           description: Error when retrieving days
+  /share/{shareId}/day/{userId}/byDate:
+    get:
+      security: [ ]
+      tags:
+        - shareDay
+      description: Get the shared days from user at date
+      operationId: shareGetDaysByUserIdAndDate
+      parameters:
+        - $ref: "#/components/parameters/shareId"
+        - $ref: "#/components/parameters/userId"
+        - name: date
+          in: query
+          description: date(s) of the entries to get
+          explode: true
+          style: form
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DayDate"
+      responses:
+        "200":
+          $ref: "#/components/responses/DaysFound"
+        "404":
+          description: Day entry with date not found
+        "500":
+          description: Error when retrieving days
+  /share/{shareId}/day/{userId}/byRange:
+    get:
+      security: [ ]
+      tags:
+        - shareDay
+      description: Get a range of shared dates from user. If not provided, end defaults to start. Both dates are inclusive.
+      operationId: shareGetDayByUserAndRange
+      parameters:
+        - $ref: "#/components/parameters/shareId"
+        - $ref: "#/components/parameters/userId"
+        - name: startDate
+          in: query
+          description: start date
+          required: true
+          schema:
+            $ref: "#/components/schemas/DayDate"
+        - name: endDate
+          in: query
+          description: end date
+          required: false
+          schema:
+            $ref: "#/components/schemas/DayDate"
+      responses:
+        "200":
+          $ref: "#/components/responses/DaysFound"
+        "500":
+          description: Error when retrieving days
   /stats/{userId}:
     get:
       tags:
@@ -271,6 +324,13 @@ components:
       description: Path parameter for id of user to return
       in: path
       name: userId
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+    shareId:
+      description: Path parameter for the id of a share
+      in: path
+      name: shareId
       required: true
       schema:
         $ref: "#/components/schemas/Id"
