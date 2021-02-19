@@ -244,7 +244,8 @@ paths:
             text/plain:
               schema:
                 type: string
-                example: "https://share.app.cyla/AxQe21S"
+                description: Share id
+                example: "AxQe21S"
         "404":
           $ref: "#/components/responses/UserNotFound"
         "400":
