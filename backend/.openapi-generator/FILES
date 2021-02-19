@@ -16,6 +16,8 @@ server/logger.go
 server/model_custom_types.go
 server/model_day.go
 server/model_day_stats_update.go
+server/model_share.go
+server/model_share_info_upload.go
 server/model_statistic.go
 server/model_user.go
 server/model_user_created_response.go

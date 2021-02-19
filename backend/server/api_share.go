@@ -31,25 +31,46 @@ func NewShareApiController(s ShareApiServicer) Router {
 func (c *ShareApiController) Routes() Routes {
 	return Routes{
 		{
+			"GetShares",
+			strings.ToUpper("Get"),
+			"/share/{userId}",
+			Authorize(c.GetShares),
+		},
+		{
 			"ShareDays",
 			strings.ToUpper("Post"),
 			"/share/{userId}",
-			c.ShareDays,
+			Authorize(c.ShareDays),
 		},
 	}
+}
+
+// GetShares -
+func (c *ShareApiController) GetShares(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	userId := params["userId"]
+	result, err := c.service.GetShares(r.Context(), userId)
+	//If an error occured, encode the error with the status code
+	if err != nil {
+		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
+		return
+	}
+	//If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+
 }
 
 // ShareDays -
 func (c *ShareApiController) ShareDays(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userId := params["userId"]
-	day := &[]Day{}
-	if err := json.NewDecoder(r.Body).Decode(&day); err != nil {
+	shareInfoUpload := &ShareInfoUpload{}
+	if err := json.NewDecoder(r.Body).Decode(&shareInfoUpload); err != nil {
 		w.WriteHeader(500)
 		return
 	}
 
-	result, err := c.service.ShareDays(r.Context(), userId, *day)
+	result, err := c.service.ShareDays(r.Context(), userId, *shareInfoUpload)
 	//If an error occured, encode the error with the status code
 	if err != nil {
 		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)

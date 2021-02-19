@@ -233,10 +233,7 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              title: sharedDays
-              items:
-                $ref : "#/components/schemas/Day"
+              $ref: "#/components/schemas/ShareInfoUpload"
       responses:
         "200":
           description: Successfully published data
@@ -252,6 +249,22 @@ paths:
           description: One or more days don't exist
         "500":
           description: Server error
+    get:
+      tags:
+        - share
+      description: Get all existing shares for the user
+      operationId: getShares
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: Shares for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Share"
 components:
   parameters:
     userId:
@@ -410,6 +423,34 @@ components:
           type: string
       required:
         - value
+    ShareInfoUpload:
+      title: Share Info upload
+      type: object
+      description: Information needed to publish/share a set of days
+      properties:
+        days:
+          type: array
+          title: sharedDays
+          items:
+            $ref: "#/components/schemas/Day"
+        shared_key_backup:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    Share:
+      title: Share Info
+      type: object
+      description: Info summarizing a set of shared days and statistics
+      properties:
+        owner:
+          $ref: "#/components/schemas/Id"
+        expirationDate:
+          title: date
+          description: ISO-8601-formatted date for an day entry. Only the date, no time is given.
+          type: string
+          format: date
+        shared_key_backup:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        shareId:
+          $ref: "#/components/schemas/Id"
   securitySchemes:
     bearerJWTAuth:
       type: http

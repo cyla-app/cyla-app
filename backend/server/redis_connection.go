@@ -30,6 +30,7 @@ var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua"
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
 var getHashUserKeyForLogin = loadLuaScript("resources/get_hash_user_key_for_login.lua")
 var shareDayScript = loadLuaScript("resources/share_day_script.lua")
+var getSharesForUser = loadLuaScript("resources/get_shares_for_user_script.lua")
 
 const userPrefixKey = "user"
 const userNamePrefixKey = "name"
@@ -59,7 +60,8 @@ func NewRedisClient() (*CylaRedisClient, error) {
 		updateHResourceScript.Load(context.Background(), cylaClient)
 		getDayByRange.Load(context.Background(), cylaClient)
 		getHashUserKeyForLogin.Load(context.Background(), cylaClient)
-		shareDayScript.Load(context.Background(), cylaClient).Err()
+		shareDayScript.Load(context.Background(), cylaClient)
+		getSharesForUser.Load(context.Background(), cylaClient)
 		return &cylaClient, nil
 	}
 
@@ -193,7 +195,7 @@ func (s *CylaRedisClient) ModifyDayEntry(ctx context.Context, userId string, day
 
 }
 
-func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, days []Day) (ret string, err error) {
+func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (ret string, err error) {
 	shareId, err := uuid.NewRandom()
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "could not create random", err)
@@ -205,7 +207,7 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, days []D
 	}
 
 	pipeline := s.TxPipeline()
-	for _, day := range days {
+	for _, day := range shareInfoUpload.Days {
 		valList, err := flatStructToSlice(day)
 		if err != nil {
 			return "", newHTTPErrorWithCauseError(500, "could not marshall day", err)
@@ -213,14 +215,29 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, days []D
 
 		shareDayScript.Run(ctx, pipeline,
 			[]string{
-				fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),                                   //sorted set for user's days
-				fmt.Sprintf("%v:%v:%v:%v:%v", userPrefixKey, userId, sharedPrefixKey, ret, dayPrefixKey),               //sorted set for shared days
-				fmt.Sprintf("%v:%v:%v:%v:%v:%v", userPrefixKey, userId, sharedPrefixKey, ret, dayPrefixKey, day.Date)}, //days resource
+				fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),                                           //sorted set for user's days
+				fmt.Sprintf("%v:%v:%v:%v:%v", sharedPrefixKey, ret, userPrefixKey, userId, dayPrefixKey),               //sorted set for shared days
+				fmt.Sprintf("%v:%v:%v:%v:%v:%v", sharedPrefixKey, ret, userPrefixKey, userId, dayPrefixKey, day.Date)}, //days resource
 			append([]interface{}{day.Date}, valList...))
 	}
+
+	share := Share{
+		Owner:           userId,
+		ExpirationDate:  "testExpDate", //TODO: Use proper exp date
+		SharedKeyBackup: shareInfoUpload.SharedKeyBackup,
+		ShareId:         ret,
+	}
+	var redisShare map[string]interface{}
+	err = mapstructure.Decode(share, &redisShare)
+	if err != nil {
+		return "", newHTTPErrorWithCauseError(500, "could not unmarshall share", err)
+	}
+	pipeline.HSet(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, ret), redisShare)
+
 	pipeline.SAdd(ctx,
 		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, sharedPrefixKey),
 		ret)
+
 	_, err = pipeline.Exec(ctx)
 	if err != nil {
 		// TODO: Clean database of incomplete share entries. Maybe use expiration dates for that?
@@ -409,4 +426,31 @@ func (s *CylaRedisClient) getSingleStat(ctx context.Context, userId string, stat
 		return ret, newHTTPErrorWithCauseError(500, fmt.Sprintf("error when unmarshalling %v", statName), err)
 	}
 	return ret, nil
+}
+
+func (s *CylaRedisClient) GetShares(ctx context.Context, userId string) (ret []Share, err error) {
+	opResult, err := getSharesForUser.Run(ctx, s,
+		[]string{
+			fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, sharedPrefixKey),
+			sharedPrefixKey,
+		}).Result()
+	if err != nil {
+		return nil, newHTTPErrorWithCauseError(500, "error while runing script", err)
+	}
+
+	var stringSharesSlice [][]interface{}
+
+	err = mapstructure.Decode(opResult, &stringSharesSlice)
+	if err != nil {
+		return nil, newHTTPErrorWithCauseError(500, "could not marshall results", err)
+	}
+	for _, entry := range stringSharesSlice {
+		var share Share
+		err = stringSliceToFlatStruct(entry, &share)
+		if err != nil {
+			return nil, newHTTPErrorWithCauseError(500, "could not marshall day", err)
+		}
+		ret = append(ret, share)
+	}
+	return
 }

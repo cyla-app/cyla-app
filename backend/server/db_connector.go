@@ -20,7 +20,8 @@ type DayPersistence interface {
 	ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) error
 }
 type SharePersistence interface {
-	ShareDays(ctx context.Context, userId string, days []Day) (ret string, err error)
+	GetShares(ctx context.Context, userId string) (ret []Share, err error)
+	ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (ret string, err error)
 }
 type StatsPersistence interface {
 	GetPeriodStats(ctx context.Context, userId string) (ret Statistic, err error)

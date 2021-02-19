@@ -30,6 +30,7 @@ type DayApiRouter interface {
 // The ShareApiRouter implementation should parse necessary information from the http request,
 // pass the data to a ShareApiServicer to perform the required actions, then write the service results to the http response.
 type ShareApiRouter interface {
+	GetShares(http.ResponseWriter, *http.Request)
 	ShareDays(http.ResponseWriter, *http.Request)
 }
 
@@ -71,7 +72,8 @@ type DayApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type ShareApiServicer interface {
-	ShareDays(context.Context, string, []Day) (ImplResponse, error)
+	GetShares(context.Context, string) (ImplResponse, error)
+	ShareDays(context.Context, string, ShareInfoUpload) (ImplResponse, error)
 }
 
 // StatsApiServicer defines the api actions for the StatsApi service

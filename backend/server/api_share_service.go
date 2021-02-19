@@ -24,9 +24,16 @@ func NewShareApiService() ShareApiServicer {
 	return &ShareApiService{}
 }
 
+// GetShares -
+func (s *ShareApiService) GetShares(ctx context.Context, userId string) (response ImplResponse, err error) {
+	ret, err := DBConnection.GetShares(ctx, userId)
+	response, err = httpResponseWithBody(ret, err)
+	return
+}
+
 // ShareDays -
-func (s *ShareApiService) ShareDays(ctx context.Context, userId string, day []Day) (response ImplResponse, err error) {
-	ret, err := DBConnection.ShareDays(ctx, userId, day)
+func (s *ShareApiService) ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (response ImplResponse, err error) {
+	ret, err := DBConnection.ShareDays(ctx, userId, shareInfoUpload)
 	response, err = httpResponseWithBody(ret, err)
 	return
 }
