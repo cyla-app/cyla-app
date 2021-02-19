@@ -219,6 +219,38 @@ paths:
           description: Period stat entry not found
         "500":
           description: Error when retrieving stat
+  /share/{userId}:
+    post:
+      tags:
+        - share
+      description: Share / publish a set of days
+      operationId: shareDays
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        description: Days to share, encrypted with share key
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              title: sharedDays
+              items:
+                $ref : "#/components/schemas/Day"
+      responses:
+        "200":
+          description: Successfully published data
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "https://share.app.cyla/AxQe21S"
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        "400":
+          description: One or more days don't exist
+        "500":
+          description: Server error
 components:
   parameters:
     userId:
@@ -373,6 +405,8 @@ components:
         hashValue:
           type: string
           description: fnv32-HashSum for the value property
+        version:
+          type: string
       required:
         - value
   securitySchemes:

@@ -7,6 +7,7 @@ import (
 
 type DBConnector interface {
 	DayPersistence
+	SharePersistence
 	StatsPersistence
 	UserPersistence
 	LoginPersistence
@@ -14,9 +15,12 @@ type DBConnector interface {
 
 type DayPersistence interface {
 	GetDayByUserAndRange(ctx context.Context, userId string, startDate string, endDate string) (ret []Day, err error)
-	GetDaysByUserIdAndDate(ctx context.Context, userId string, date []string) (ret []Day, err error)
+	GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []string) (ret []Day, err error)
 	ModifyDayEntry(ctx context.Context, userId string, day Day) error
 	ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) error
+}
+type SharePersistence interface {
+	ShareDays(ctx context.Context, userId string, days []Day) (ret string, err error)
 }
 type StatsPersistence interface {
 	GetPeriodStats(ctx context.Context, userId string) (ret Statistic, err error)

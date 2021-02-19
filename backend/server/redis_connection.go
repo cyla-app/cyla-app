@@ -29,12 +29,14 @@ var changeStats = loadLuaScript("resources/change_stats_script.lua")
 var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua")
 var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
 var getHashUserKeyForLogin = loadLuaScript("resources/get_hash_user_key_for_login.lua")
+var shareDayScript = loadLuaScript("resources/share_day_script.lua")
 
 const userPrefixKey = "user"
 const userNamePrefixKey = "name"
 const dayPrefixKey = "day"
 const statsPrefixKey = "stats"
 const hashPrefixKey = "hashVal"
+const sharedPrefixKey = "shared"
 
 const initHashVal = "init"
 
@@ -57,6 +59,7 @@ func NewRedisClient() (*CylaRedisClient, error) {
 		updateHResourceScript.Load(context.Background(), cylaClient)
 		getDayByRange.Load(context.Background(), cylaClient)
 		getHashUserKeyForLogin.Load(context.Background(), cylaClient)
+		shareDayScript.Load(context.Background(), cylaClient).Err()
 		return &cylaClient, nil
 	}
 
@@ -188,6 +191,43 @@ func (s *CylaRedisClient) ModifyDayEntry(ctx context.Context, userId string, day
 	}
 	return nil
 
+}
+
+func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, days []Day) (ret string, err error) {
+	shareId, err := uuid.NewRandom()
+	if err != nil {
+		return "", newHTTPErrorWithCauseError(500, "could not create random", err)
+	}
+	ret = shareId.String()
+
+	if s.Exists(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId)).Val() == 0 {
+		return "", newHTTPError(404, "user doesn't exist")
+	}
+
+	pipeline := s.TxPipeline()
+	for _, day := range days {
+		valList, err := flatStructToSlice(day)
+		if err != nil {
+			return "", newHTTPErrorWithCauseError(500, "could not marshall day", err)
+		}
+
+		shareDayScript.Run(ctx, pipeline,
+			[]string{
+				fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),                                   //sorted set for user's days
+				fmt.Sprintf("%v:%v:%v:%v:%v", userPrefixKey, userId, sharedPrefixKey, ret, dayPrefixKey),               //sorted set for shared days
+				fmt.Sprintf("%v:%v:%v:%v:%v:%v", userPrefixKey, userId, sharedPrefixKey, ret, dayPrefixKey, day.Date)}, //days resource
+			append([]interface{}{day.Date}, valList...))
+	}
+	pipeline.SAdd(ctx,
+		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, sharedPrefixKey),
+		ret)
+	_, err = pipeline.Exec(ctx)
+	if err != nil {
+		// TODO: Clean database of incomplete share entries. Maybe use expiration dates for that?
+		return "", newHTTPErrorWithCauseError(400, "One or more days to be shared don't exist", err)
+	}
+
+	return ret, nil
 }
 
 func (s *CylaRedisClient) ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) error {
@@ -349,7 +389,7 @@ func (s *CylaRedisClient) GetPeriodStats(ctx context.Context, userId string) (re
 	return s.getSingleStat(ctx, userId, GetUserStatsPeriodStatsName())
 }
 
-func (s* CylaRedisClient) getSingleStat(ctx context.Context, userId string, statName string) (ret Statistic, err error) {
+func (s *CylaRedisClient) getSingleStat(ctx context.Context, userId string, statName string) (ret Statistic, err error) {
 	redisRet := s.HGetAll(ctx,
 		fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, statsPrefixKey, statName))
 
@@ -370,4 +410,3 @@ func (s* CylaRedisClient) getSingleStat(ctx context.Context, userId string, stat
 	}
 	return ret, nil
 }
-

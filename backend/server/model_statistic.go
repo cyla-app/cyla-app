@@ -18,6 +18,8 @@ type Statistic struct {
 
 	// fnv32-HashSum for the value property
 	HashValue string `json:"hashValue,omitempty" mapstructure:"HashValue"`
+
+	Version string `json:"version,omitempty" mapstructure:"Version"`
 }
 
 func GetStatisticValueName() string {
@@ -28,4 +30,7 @@ func GetStatisticPrevHashValueName() string {
 }
 func GetStatisticHashValueName() string {
 	return "HashValue"
+}
+func GetStatisticVersionName() string {
+	return "Version"
 }

@@ -1,6 +1,6 @@
 ---
---- Script to add a day entry to the database, only if it doesn't exit.
---- If the day isn't already present, then it is added to both the Hash for that day and to the set for keeping tabs
+--- Script to add or modify a day entry to the database.
+--- The day is added to both the Hash for that day and to the set for keeping tabs
 --- on users days.
 --- KEYS:
 ---     [1]: Key to the users information. E.g. : user:<userId>
@@ -11,7 +11,7 @@
 ---     [2:-1]: Remaining values are the fields for day. The order doens't matter, but they should come in pairs
 ---             (e.g. first "date"-field name, then "date"-value, then "dayInfo"-field name and so on.)
 --- Return:
----     0 if the entry already exists or the user doesn't exist
+---     0 if the user doesn't exist
 ---     number of fields added, otherwise
 ---
 

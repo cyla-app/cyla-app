@@ -26,6 +26,13 @@ type DayApiRouter interface {
 	ModifyDayEntryWithStats(http.ResponseWriter, *http.Request)
 }
 
+// ShareApiRouter defines the required methods for binding the api requests to a responses for the ShareApi
+// The ShareApiRouter implementation should parse necessary information from the http request,
+// pass the data to a ShareApiServicer to perform the required actions, then write the service results to the http response.
+type ShareApiRouter interface {
+	ShareDays(http.ResponseWriter, *http.Request)
+}
+
 // StatsApiRouter defines the required methods for binding the api requests to a responses for the StatsApi
 // The StatsApiRouter implementation should parse necessary information from the http request,
 // pass the data to a StatsApiServicer to perform the required actions, then write the service results to the http response.
@@ -57,6 +64,14 @@ type DayApiServicer interface {
 	GetDaysByUserIdAndDate(context.Context, string, []string) (ImplResponse, error)
 	ModifyDayEntry(context.Context, string, Day) (ImplResponse, error)
 	ModifyDayEntryWithStats(context.Context, string, DayStatsUpdate) (ImplResponse, error)
+}
+
+// ShareApiServicer defines the api actions for the ShareApi service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type ShareApiServicer interface {
+	ShareDays(context.Context, string, []Day) (ImplResponse, error)
 }
 
 // StatsApiServicer defines the api actions for the StatsApi service
