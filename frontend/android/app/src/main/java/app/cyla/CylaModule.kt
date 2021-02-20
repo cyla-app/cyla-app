@@ -30,7 +30,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         private const val DAY_VERSION = 1
 
         // Value of the Schema name for jwt bearer auth as defined in the OpenAPI spec.
-        private const val JWT_AUTH_SCHEMA_NAME = "bearerJWTAuth"
+        private const val JWT_AUTH_SCHEMA_NAME = "userJWTAuth"
     }
 
     private lateinit var userInfo: UserInfo
