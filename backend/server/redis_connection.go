@@ -412,7 +412,7 @@ func (s *CylaRedisClient) getDayByRange(ctx context.Context, daySetKey string, s
 
 func (s *CylaRedisClient) getStats(ctx context.Context, keyPrefix string) (userStats UserStats, err error) {
 	pipeline := s.TxPipeline()
-	
+
 	var mapTmp = map[string]interface{}{}
 	_ = mapstructure.Decode(userStats, &mapTmp)
 	cmdMap := make(map[string]*redis.StringStringMapCmd)
