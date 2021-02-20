@@ -43,6 +43,14 @@ type ShareDayApiRouter interface {
 	ShareGetDaysByUserIdAndDate(http.ResponseWriter, *http.Request)
 }
 
+// ShareStatsApiRouter defines the required methods for binding the api requests to a responses for the ShareStatsApi
+// The ShareStatsApiRouter implementation should parse necessary information from the http request,
+// pass the data to a ShareStatsApiServicer to perform the required actions, then write the service results to the http response.
+type ShareStatsApiRouter interface {
+	ShareGetPeriodStats(http.ResponseWriter, *http.Request)
+	ShareGetStats(http.ResponseWriter, *http.Request)
+}
+
 // StatsApiRouter defines the required methods for binding the api requests to a responses for the StatsApi
 // The StatsApiRouter implementation should parse necessary information from the http request,
 // pass the data to a StatsApiServicer to perform the required actions, then write the service results to the http response.
@@ -93,6 +101,15 @@ type ShareApiServicer interface {
 type ShareDayApiServicer interface {
 	ShareGetDayByUserAndRange(context.Context, string, string, string, string) (ImplResponse, error)
 	ShareGetDaysByUserIdAndDate(context.Context, string, string, []string) (ImplResponse, error)
+}
+
+// ShareStatsApiServicer defines the api actions for the ShareStatsApi service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type ShareStatsApiServicer interface {
+	ShareGetPeriodStats(context.Context, string, string) (ImplResponse, error)
+	ShareGetStats(context.Context, string, string) (ImplResponse, error)
 }
 
 // StatsApiServicer defines the api actions for the StatsApi service

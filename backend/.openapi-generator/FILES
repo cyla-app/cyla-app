@@ -6,6 +6,8 @@ server/api_share.go
 server/api_share_day.go
 server/api_share_day_service.go
 server/api_share_service.go
+server/api_share_stats.go
+server/api_share_stats_service.go
 server/api_stats.go
 server/api_stats_service.go
 server/api_user.go

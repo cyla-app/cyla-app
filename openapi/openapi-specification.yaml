@@ -274,6 +274,42 @@ paths:
           description: Period stat entry not found
         "500":
           description: Error when retrieving stat
+  /share/{shareId}/stats/{userId}:
+    get:
+      tags:
+        - shareStats
+      security:
+        - shareJWTAuth: []
+      description: Get all shared stats in a share
+      operationId: shareGetStats
+      parameters:
+        - $ref: "#/components/parameters/shareId"
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          $ref: "#/components/responses/UserStatsFound"
+        "404":
+          description: Stats entry not found
+        "500":
+          description: Error when retrieving stats
+  /share/{shareId}/stats/{userId}/periodStats:
+    get:
+      tags:
+        - shareStats
+      security:
+        - shareJWTAuth: [ ]
+      description: Get the periodStats for a share
+      operationId: shareGetPeriodStats
+      parameters:
+        - $ref : "#/components/parameters/shareId"
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          $ref: "#/components/responses/StatFound"
+        "404":
+          description: Period stat entry not found
+        "500":
+          description: Error when retrieving stat
   /share/{userId}:
     post:
       tags:

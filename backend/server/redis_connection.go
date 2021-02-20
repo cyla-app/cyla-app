@@ -326,7 +326,7 @@ func saveStatsShare(ctx context.Context, pipeline redis.Pipeliner, userStats Use
 		}
 		pipeline.HSet(ctx,
 			fmt.Sprintf("%v:%v:%v:%v:%v:%v",
-				sharedPrefixKey, shareId, userPrefixKey, userId,statsPrefixKey, statName),
+				sharedPrefixKey, shareId, userPrefixKey, userId, statsPrefixKey, statName),
 			valListStats...)
 	}
 	return nil
@@ -410,18 +410,22 @@ func (s *CylaRedisClient) getDayByRange(ctx context.Context, daySetKey string, s
 	return days, nil
 }
 
-func (s *CylaRedisClient) GetStats(ctx context.Context, userId string) (userStats UserStats, err error) {
+func (s *CylaRedisClient) getStats(ctx context.Context, keyPrefix string) (userStats UserStats, err error) {
 	pipeline := s.TxPipeline()
-	userStatsMap, _ := userStatsToMap(userStats)
+	
+	var mapTmp = map[string]interface{}{}
+	_ = mapstructure.Decode(userStats, &mapTmp)
 	cmdMap := make(map[string]*redis.StringStringMapCmd)
-	for statName := range userStatsMap {
+	for statName := range mapTmp {
 		cmdMap[statName] = pipeline.HGetAll(ctx,
-			fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, statsPrefixKey, statName))
+			fmt.Sprintf("%v:%v:%v", keyPrefix, statsPrefixKey, statName))
 	}
 	_, err = pipeline.Exec(ctx)
 	if err != nil {
 		return userStats, newHTTPErrorWithCauseError(500, "error during execution of pipeline", err)
 	}
+
+	userStatsMap := make(map[string]Statistic)
 	for statName, cmd := range cmdMap {
 		ret := cmd.Val()
 		if len(ret) == 0 {
@@ -446,13 +450,28 @@ func (s *CylaRedisClient) GetStats(ctx context.Context, userId string) (userStat
 	return
 }
 
-func (s *CylaRedisClient) GetPeriodStats(ctx context.Context, userId string) (ret Statistic, err error) {
-	return s.getSingleStat(ctx, userId, GetUserStatsPeriodStatsName())
+func (s *CylaRedisClient) GetStats(ctx context.Context, userId string) (userStats UserStats, err error) {
+	return s.getStats(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId))
 }
 
-func (s *CylaRedisClient) getSingleStat(ctx context.Context, userId string, statName string) (ret Statistic, err error) {
+func (s *CylaRedisClient) ShareGetStats(ctx context.Context, shareId string, userId string) (ret UserStats, err error) {
+	return s.getStats(ctx, fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, shareId, userPrefixKey, userId))
+}
+
+func (s *CylaRedisClient) GetPeriodStats(ctx context.Context, userId string) (ret Statistic, err error) {
+	return s.getSingleStat(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId),
+		GetUserStatsPeriodStatsName())
+}
+
+func (s *CylaRedisClient) ShareGetPeriodStats(ctx context.Context, shareId string, userId string) (ret Statistic, err error) {
+	return s.getSingleStat(ctx,
+		fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, shareId, userPrefixKey, userId),
+		GetUserStatsPeriodStatsName())
+}
+
+func (s *CylaRedisClient) getSingleStat(ctx context.Context, keyPrefix string, statName string) (ret Statistic, err error) {
 	redisRet := s.HGetAll(ctx,
-		fmt.Sprintf("%v:%v:%v:%v", userPrefixKey, userId, statsPrefixKey, statName))
+		fmt.Sprintf("%v:%v:%v", keyPrefix, statsPrefixKey, statName))
 
 	if redisRet.Err() != nil {
 		return ret, newHTTPErrorWithCauseError(500,
