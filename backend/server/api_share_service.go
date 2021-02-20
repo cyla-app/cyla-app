@@ -31,6 +31,13 @@ func (s *ShareApiService) GetShares(ctx context.Context, userId string) (respons
 	return
 }
 
+// ShareAuth -
+func (s *ShareApiService) ShareAuth(ctx context.Context, shareId string, sharedPwdDto SharedPwdDto) (response ImplResponse, err error) {
+	ret, err := DBConnection.ShareAuth(ctx, shareId, sharedPwdDto)
+	response, err = httpResponseWithBody(ret, err)
+	return
+}
+
 // ShareDays -
 func (s *ShareApiService) ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (response ImplResponse, err error) {
 	ret, err := DBConnection.ShareDays(ctx, userId, shareInfoUpload)

@@ -22,6 +22,9 @@ type Share struct {
 
 	// UUID
 	ShareId string `json:"shareId,omitempty" mapstructure:"ShareId"`
+
+	// value for later authentication
+	AuthKey string `json:"auth_key,omitempty" mapstructure:"AuthKey"`
 }
 
 func GetShareOwnerName() string {
@@ -35,4 +38,7 @@ func GetShareSharedKeyBackupName() string {
 }
 func GetShareShareIdName() string {
 	return "ShareId"
+}
+func GetShareAuthKeyName() string {
+	return "AuthKey"
 }

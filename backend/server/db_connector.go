@@ -22,6 +22,7 @@ type DayPersistence interface {
 }
 type SharePersistence interface {
 	GetShares(ctx context.Context, userId string) (ret []Share, err error)
+	ShareAuth(ctx context.Context, shareId string, sharedPwdDto SharedPwdDto) (ret string, err error)
 	ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (ret string, err error)
 }
 type ShareDayPersistence interface {

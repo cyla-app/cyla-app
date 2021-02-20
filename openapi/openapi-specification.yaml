@@ -318,6 +318,30 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Share"
+  /share/auth/{shareId}:
+    post:
+      tags:
+        - share
+      security: [ ]
+      description: Authenticate for a set of share data
+      operationId: shareAuth
+      parameters:
+        - $ref: "#/components/parameters/shareId"
+      requestBody:
+        description: Hashed share passphare
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SharedPwdDTO"
+      responses:
+        "200":
+          description: Auth succesful
+          content:
+            text/plain:
+              schema:
+                description: JWT Token
+                type: string
 components:
   parameters:
     userId:
@@ -391,6 +415,16 @@ components:
             type: string
             description: Error message
   schemas:
+    SharedPwdDTO:
+      title: SharePwdDTO
+      type: object
+      properties:
+        hashedPwd:
+          title: hashedPwd
+          type: string
+          format: byte
+      required:
+        - hashedPwd
     EncryptedAttribute:
       title: encryptedAttribute
       type: string
@@ -495,6 +529,11 @@ components:
             $ref: "#/components/schemas/Day"
         shared_key_backup:
           $ref: "#/components/schemas/EncryptedAttribute"
+        auth_key:
+          type: string
+          format: byte
+          title: authKey
+          description: value for later authentication
     Share:
       title: Share Info
       type: object
@@ -511,6 +550,11 @@ components:
           $ref: "#/components/schemas/EncryptedAttribute"
         shareId:
           $ref: "#/components/schemas/Id"
+        auth_key:
+          type: string
+          format: byte
+          title: authKey
+          description: value for later authentication
   securitySchemes:
     bearerJWTAuth:
       type: http

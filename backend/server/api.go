@@ -31,6 +31,7 @@ type DayApiRouter interface {
 // pass the data to a ShareApiServicer to perform the required actions, then write the service results to the http response.
 type ShareApiRouter interface {
 	GetShares(http.ResponseWriter, *http.Request)
+	ShareAuth(http.ResponseWriter, *http.Request)
 	ShareDays(http.ResponseWriter, *http.Request)
 }
 
@@ -81,6 +82,7 @@ type DayApiServicer interface {
 // and updated with the logic required for the API.
 type ShareApiServicer interface {
 	GetShares(context.Context, string) (ImplResponse, error)
+	ShareAuth(context.Context, string, SharedPwdDto) (ImplResponse, error)
 	ShareDays(context.Context, string, ShareInfoUpload) (ImplResponse, error)
 }
 

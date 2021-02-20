@@ -37,6 +37,12 @@ func (c *ShareApiController) Routes() Routes {
 			Authorize(c.GetShares),
 		},
 		{
+			"ShareAuth",
+			strings.ToUpper("Post"),
+			"/share/auth/{shareId}",
+			c.ShareAuth,
+		},
+		{
 			"ShareDays",
 			strings.ToUpper("Post"),
 			"/share/{userId}",
@@ -50,6 +56,27 @@ func (c *ShareApiController) GetShares(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userId := params["userId"]
 	result, err := c.service.GetShares(r.Context(), userId)
+	//If an error occured, encode the error with the status code
+	if err != nil {
+		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
+		return
+	}
+	//If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+
+}
+
+// ShareAuth -
+func (c *ShareApiController) ShareAuth(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	shareId := params["shareId"]
+	sharedPwdDto := &SharedPwdDto{}
+	if err := json.NewDecoder(r.Body).Decode(&sharedPwdDto); err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	result, err := c.service.ShareAuth(r.Context(), shareId, *sharedPwdDto)
 	//If an error occured, encode the error with the status code
 	if err != nil {
 		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)

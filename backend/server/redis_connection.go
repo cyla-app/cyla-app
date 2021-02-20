@@ -14,6 +14,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func loadLuaScript(scriptPath string) *redis.Script {
@@ -220,12 +221,13 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 				fmt.Sprintf("%v:%v:%v:%v:%v:%v", sharedPrefixKey, ret, userPrefixKey, userId, dayPrefixKey, day.Date)}, //days resource
 			append([]interface{}{day.Date}, valList...))
 	}
-
+	hashPwd, _ := bcrypt.GenerateFromPassword([]byte(shareInfoUpload.AuthKey), bcrypt.MinCost)
 	share := Share{
 		Owner:           userId,
 		ExpirationDate:  "testExpDate", //TODO: Use proper exp date
 		SharedKeyBackup: shareInfoUpload.SharedKeyBackup,
 		ShareId:         ret,
+		AuthKey:         string(hashPwd),
 	}
 	var redisShare map[string]interface{}
 	err = mapstructure.Decode(share, &redisShare)
@@ -308,7 +310,7 @@ func saveStats(ctx context.Context, pipeline redis.Pipeliner, userStats UserStat
 }
 
 func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId string, dates []DayDate) (days []Day, err error) {
-	return s.getDaysByDate(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId),dates)
+	return s.getDaysByDate(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId), dates)
 }
 
 func (s *CylaRedisClient) ShareGetDaysByUserIdAndDate(
@@ -472,4 +474,15 @@ func (s *CylaRedisClient) GetShares(ctx context.Context, userId string) (ret []S
 		ret = append(ret, share)
 	}
 	return
+}
+
+func (s *CylaRedisClient) ShareAuth(ctx context.Context, shareId string, sharedPwdDto SharedPwdDto) (ret string, err error) {
+	hashedPwd := s.HGet(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareId), GetShareAuthKeyName()).Val()
+	log.Println("Retrieved pwd")
+	log.Println(hashedPwd)
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(sharedPwdDto.HashedPwd))
+	if err != nil {
+		return "", newHTTPErrorWithCauseError(500, "error when authenticating", err)
+	}
+	return "OK", nil
 }
