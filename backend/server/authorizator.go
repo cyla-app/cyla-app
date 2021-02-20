@@ -21,30 +21,43 @@ type SuccessfulAuthMsg struct {
 	JWT string `json:"jwt"`
 }
 
-type CylaClaims struct {
+type CylaUserClaims struct {
 	UUID string `json:"uuid"`
+	jwt.StandardClaims
+}
+
+type CylaShareClaims struct {
+	ShareId string `json:"shareId"`
 	jwt.StandardClaims
 }
 
 var Authorize = authorizeBasedOnUserId
 
-func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
+var errResult = ImplResponse{
+	Code: http.StatusUnauthorized,
+	Body: "Invalid claims",
+}
+
+type checkValidToken func(*jwt.Token, string) bool
+
+func authorizeBasedOnClaim(
+	baseFunc func(w http.ResponseWriter, r *http.Request),
+	claimName string,
+	emptyClaimStruct jwt.Claims,
+	checkValidToken checkValidToken) http.HandlerFunc {
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		errResult := ImplResponse{
-			Code: http.StatusUnauthorized,
-			Body: "Invalid claims",
-		}
 		vars := mux.Vars(r)
-		userId := vars["userId"]
+		claim := vars[claimName]
 		var jwtString string
 		splitAuthHeader := strings.Split(r.Header.Get("Authorization"), " ")
 		if len(splitAuthHeader) != 2 {
 			log.Println("Error while extraction jwt")
-			EncodeJSONResponse(errResult.Body, &errResult.Code, nil, w)
+			encodeUnauthError(w)
 			return
 		}
 		jwtString = splitAuthHeader[1]
-		token, err := jwt.ParseWithClaims(jwtString, &CylaClaims{}, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(jwtString, emptyClaimStruct, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
@@ -52,21 +65,49 @@ func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request
 		})
 		if err != nil {
 			log.Println("Error while decoding", err)
-			EncodeJSONResponse(errResult.Body, &errResult.Code, nil, w)
+			encodeUnauthError(w)
 			return
 		}
 
-		if claims, ok := token.Claims.(*CylaClaims); ok && token.Valid && claims.UUID == userId {
+		if checkValidToken(token, claim) {
 			baseFunc(w, r)
 		} else {
-			log.Printf("Error during claim check: claimed id %s vs expected id %s", claims.UUID, userId)
-			EncodeJSONResponse(errResult.Body, &errResult.Code, nil, w)
+			encodeUnauthError(w)
 		}
 	}
 }
 
+func checkValidCylaUserToken(token *jwt.Token, claim string) (isValid bool) {
+	claims, ok := token.Claims.(*CylaUserClaims)
+	isValid = ok && token.Valid && claims.UUID == claim
+	if !isValid {
+		log.Printf("Error during claim check: claimed id %s vs expected id %s", claims.UUID, claim)
+	}
+	return
+}
+
+func checkValidCylaShareToken(token *jwt.Token, claim string) (isValid bool) {
+	claims, ok := token.Claims.(*CylaShareClaims)
+	isValid = ok && token.Valid && claims.ShareId == claim
+	if !isValid {
+		log.Printf("Error during claim check: claimed id %s vs expected id %s", claims.ShareId, claim)
+	}
+	return
+}
+func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
+	return authorizeBasedOnClaim(baseFunc, "userId", &CylaUserClaims{}, checkValidCylaUserToken)
+}
+
+func authorizeBasedOnShareId(baseFunc func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
+	return authorizeBasedOnClaim(baseFunc, "shareId", &CylaShareClaims{}, checkValidCylaShareToken)
+}
+
+func encodeUnauthError(w http.ResponseWriter) {
+	EncodeJSONResponse(errResult.Body, &errResult.Code, nil, w)
+}
+
 func getJWTToken(uuid string) (string, error) {
-	claims := CylaClaims{
+	claims := CylaUserClaims{
 		uuid,
 		jwt.StandardClaims{
 			//TODO: proper expiration time
