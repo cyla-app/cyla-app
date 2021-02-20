@@ -40,19 +40,19 @@ func (c *UserApiController) Routes() Routes {
 			"GetRestoreData",
 			strings.ToUpper("Get"),
 			"/user/{userId}/restore",
-			Authorize(c.GetRestoreData),
+			Authorize(c.GetRestoreData, []authFunc{userJWTAuth}),
 		},
 		{
 			"GetUserById",
 			strings.ToUpper("Get"),
 			"/user/{userId}",
-			Authorize(c.GetUserById),
+			Authorize(c.GetUserById, []authFunc{userJWTAuth}),
 		},
 		{
 			"UpdateUser",
 			strings.ToUpper("Put"),
 			"/user/{userId}",
-			Authorize(c.UpdateUser),
+			Authorize(c.UpdateUser, []authFunc{userJWTAuth}),
 		},
 	}
 }

@@ -10,7 +10,7 @@ servers:
     description: "Development server"
 security:
   # By default, all endpoints are protected. There are some exceptions, like user sign up.
-  - bearerJWTAuth: [ ]
+  - userJWTAuth: [ ]
 paths:
   /user:
     post:
@@ -191,7 +191,8 @@ paths:
           description: Error when retrieving days
   /share/{shareId}/day/{userId}/byDate:
     get:
-      security: [ ]
+      security:
+        - shareJWTAuth: []
       tags:
         - shareDay
       description: Get the shared days from user at date
@@ -217,7 +218,8 @@ paths:
           description: Error when retrieving days
   /share/{shareId}/day/{userId}/byRange:
     get:
-      security: [ ]
+      security:
+        - shareJWTAuth : []
       tags:
         - shareDay
       description: Get a range of shared dates from user. If not provided, end defaults to start. Both dates are inclusive.
@@ -555,7 +557,11 @@ components:
         auth_key:
           $ref: "#/components/schemas/CryptoHashedAttribute"
   securitySchemes:
-    bearerJWTAuth:
+    userJWTAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    shareJWTAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT

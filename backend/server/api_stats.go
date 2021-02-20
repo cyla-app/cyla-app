@@ -33,13 +33,13 @@ func (c *StatsApiController) Routes() Routes {
 			"GetPeriodStats",
 			strings.ToUpper("Get"),
 			"/stats/{userId}/periodStats",
-			Authorize(c.GetPeriodStats),
+			Authorize(c.GetPeriodStats, []authFunc{userJWTAuth}),
 		},
 		{
 			"GetStats",
 			strings.ToUpper("Get"),
 			"/stats/{userId}",
-			Authorize(c.GetStats),
+			Authorize(c.GetStats, []authFunc{userJWTAuth}),
 		},
 	}
 }

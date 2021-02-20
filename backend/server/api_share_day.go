@@ -33,13 +33,13 @@ func (c *ShareDayApiController) Routes() Routes {
 			"ShareGetDayByUserAndRange",
 			strings.ToUpper("Get"),
 			"/share/{shareId}/day/{userId}/byRange",
-			c.ShareGetDayByUserAndRange,
+			Authorize(c.ShareGetDayByUserAndRange, []authFunc{shareJWTAuth}),
 		},
 		{
 			"ShareGetDaysByUserIdAndDate",
 			strings.ToUpper("Get"),
 			"/share/{shareId}/day/{userId}/byDate",
-			c.ShareGetDaysByUserIdAndDate,
+			Authorize(c.ShareGetDaysByUserIdAndDate, []authFunc{shareJWTAuth}),
 		},
 	}
 }

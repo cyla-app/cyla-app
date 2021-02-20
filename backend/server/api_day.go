@@ -34,25 +34,25 @@ func (c *DayApiController) Routes() Routes {
 			"GetDayByUserAndRange",
 			strings.ToUpper("Get"),
 			"/day/{userId}/byRange",
-			Authorize(c.GetDayByUserAndRange),
+			Authorize(c.GetDayByUserAndRange, []authFunc{userJWTAuth}),
 		},
 		{
 			"GetDaysByUserIdAndDate",
 			strings.ToUpper("Get"),
 			"/day/{userId}/byDate",
-			Authorize(c.GetDaysByUserIdAndDate),
+			Authorize(c.GetDaysByUserIdAndDate, []authFunc{userJWTAuth}),
 		},
 		{
 			"ModifyDayEntry",
 			strings.ToUpper("Post"),
 			"/day/{userId}",
-			Authorize(c.ModifyDayEntry),
+			Authorize(c.ModifyDayEntry, []authFunc{userJWTAuth}),
 		},
 		{
 			"ModifyDayEntryWithStats",
 			strings.ToUpper("Post"),
 			"/day/{userId}/withStats",
-			Authorize(c.ModifyDayEntryWithStats),
+			Authorize(c.ModifyDayEntryWithStats, []authFunc{userJWTAuth}),
 		},
 	}
 }

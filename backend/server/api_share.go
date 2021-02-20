@@ -34,7 +34,7 @@ func (c *ShareApiController) Routes() Routes {
 			"GetShares",
 			strings.ToUpper("Get"),
 			"/share/{userId}",
-			Authorize(c.GetShares),
+			Authorize(c.GetShares, []authFunc{userJWTAuth}),
 		},
 		{
 			"ShareAuth",
@@ -46,7 +46,7 @@ func (c *ShareApiController) Routes() Routes {
 			"ShareDays",
 			strings.ToUpper("Post"),
 			"/share/{userId}",
-			Authorize(c.ShareDays),
+			Authorize(c.ShareDays, []authFunc{userJWTAuth}),
 		},
 	}
 }

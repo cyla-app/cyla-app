@@ -31,8 +31,6 @@ type CylaShareClaims struct {
 	jwt.StandardClaims
 }
 
-var Authorize = authorizeBasedOnUserId
-
 var errResult = ImplResponse{
 	Code: http.StatusUnauthorized,
 	Body: "Invalid claims",
@@ -40,20 +38,40 @@ var errResult = ImplResponse{
 
 type checkValidToken func(*jwt.Token, string) bool
 
+type authFunc func(w http.ResponseWriter, r *http.Request) (isAuthorized bool)
+
+func authorizationChain(w http.ResponseWriter, r *http.Request, sliceFunc []authFunc) (isAuthorized bool) {
+	for _, authFunc := range sliceFunc {
+		isAuthorized = authFunc(w, r)
+		if isAuthorized {
+			return
+		}
+	}
+	return
+}
+
+func processRequestWithAuth(baseFunc http.HandlerFunc, sliceFunc []authFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if authorizationChain(w, r, sliceFunc) {
+			baseFunc.ServeHTTP(w, r)
+		} else {
+			encodeUnauthError(w)
+		}
+	}
+}
+
 func authorizeBasedOnClaim(
-	baseFunc func(w http.ResponseWriter, r *http.Request),
 	claimName string,
 	emptyClaimStruct jwt.Claims,
-	checkValidToken checkValidToken) http.HandlerFunc {
+	checkValidToken checkValidToken) authFunc {
 
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) (isAuthorized bool) {
 		vars := mux.Vars(r)
 		claim := vars[claimName]
 		var jwtString string
 		splitAuthHeader := strings.Split(r.Header.Get("Authorization"), " ")
 		if len(splitAuthHeader) != 2 {
 			log.Println("Error while extraction jwt")
-			encodeUnauthError(w)
 			return
 		}
 		jwtString = splitAuthHeader[1]
@@ -65,15 +83,10 @@ func authorizeBasedOnClaim(
 		})
 		if err != nil {
 			log.Println("Error while decoding", err)
-			encodeUnauthError(w)
 			return
 		}
 
-		if checkValidToken(token, claim) {
-			baseFunc(w, r)
-		} else {
-			encodeUnauthError(w)
-		}
+		return checkValidToken(token, claim)
 	}
 }
 
@@ -93,13 +106,6 @@ func checkValidCylaShareToken(token *jwt.Token, claim string) (isValid bool) {
 		log.Printf("Error during claim check: claimed id %s vs expected id %s", claims.ShareId, claim)
 	}
 	return
-}
-func authorizeBasedOnUserId(baseFunc func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
-	return authorizeBasedOnClaim(baseFunc, "userId", &CylaUserClaims{}, checkValidCylaUserToken)
-}
-
-func authorizeBasedOnShareId(baseFunc func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
-	return authorizeBasedOnClaim(baseFunc, "shareId", &CylaShareClaims{}, checkValidCylaShareToken)
 }
 
 func encodeUnauthError(w http.ResponseWriter) {
