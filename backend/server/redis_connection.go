@@ -117,7 +117,7 @@ func (s *CylaRedisClient) CreateUser(ctx context.Context, user User) (response U
 	if err != nil {
 		return response, newHTTPErrorWithCauseError(500, "redis error", err)
 	}
-	jwt, err := getJWTToken(user.Id)
+	jwt, err := getUserJWTToken(user.Id)
 	if err != nil {
 		return response, newHTTPErrorWithCauseError(500, "error creating jwt", err)
 	}
@@ -478,11 +478,14 @@ func (s *CylaRedisClient) GetShares(ctx context.Context, userId string) (ret []S
 
 func (s *CylaRedisClient) ShareAuth(ctx context.Context, shareId string, sharedPwdDto SharedPwdDto) (ret string, err error) {
 	hashedPwd := s.HGet(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareId), GetShareAuthKeyName()).Val()
-	log.Println("Retrieved pwd")
-	log.Println(hashedPwd)
+
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(sharedPwdDto.HashedPwd))
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "error when authenticating", err)
 	}
-	return "OK", nil
+	ret, err = getShareJWTToken(shareId)
+	if err != nil {
+		return "", newHTTPErrorWithCauseError(500, "error when authenticating", err)
+	}
+	return
 }

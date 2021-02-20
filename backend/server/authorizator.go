@@ -112,9 +112,24 @@ func encodeUnauthError(w http.ResponseWriter) {
 	EncodeJSONResponse(errResult.Body, &errResult.Code, nil, w)
 }
 
-func getJWTToken(uuid string) (string, error) {
+func getUserJWTToken(uuid string) (string, error) {
 	claims := CylaUserClaims{
 		uuid,
+		jwt.StandardClaims{
+			//TODO: proper expiration time
+			//TODO: Flow for JWT refresh
+			//ExpiresAt: 15000000000,
+			Issuer: "CylaServer",
+		},
+	}
+	//TODO: User better encryption method, e.g. RS
+	jwtString, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test"))
+	return jwtString, err
+}
+
+func getShareJWTToken(shareId string) (string, error) {
+	claims := CylaShareClaims{
+		shareId,
 		jwt.StandardClaims{
 			//TODO: proper expiration time
 			//TODO: Flow for JWT refresh

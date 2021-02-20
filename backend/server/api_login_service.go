@@ -117,7 +117,7 @@ func (s *LoginApiService) LoginUser(ctx context.Context, username string, conn *
 
 func sendJWT(authData *successfulAuthData, closeReason *string, conn *websocket.Conn) {
 	//TODO: Use encrypted token
-	token, err := getJWTToken(authData.UUID)
+	token, err := getUserJWTToken(authData.UUID)
 	if err != nil {
 		log.Println("Error", err)
 		*closeReason = err.Error()
