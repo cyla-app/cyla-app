@@ -10,4 +10,5 @@
 package server
 
 type EncryptedAttribute = string
+type CryptoHashedAttribute = string
 type DayDate = string

@@ -429,6 +429,11 @@ components:
       title: encryptedAttribute
       type: string
       format: byte
+    CryptoHashedAttribute:
+      title: cryptoHashedAttribute
+      type: string
+      format: byte
+      description: Attribute that has been hashed with a CHF
     DayDate:
       title: date
       description: ISO-8601-formatted date for an day entry. Only the date, no time is given.
@@ -530,10 +535,7 @@ components:
         shared_key_backup:
           $ref: "#/components/schemas/EncryptedAttribute"
         auth_key:
-          type: string
-          format: byte
-          title: authKey
-          description: value for later authentication
+          $ref: "#/components/schemas/CryptoHashedAttribute"
     Share:
       title: Share Info
       type: object
@@ -551,10 +553,7 @@ components:
         shareId:
           $ref: "#/components/schemas/Id"
         auth_key:
-          type: string
-          format: byte
-          title: authKey
-          description: value for later authentication
+          $ref: "#/components/schemas/CryptoHashedAttribute"
   securitySchemes:
     bearerJWTAuth:
       type: http
