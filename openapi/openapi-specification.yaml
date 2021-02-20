@@ -538,6 +538,8 @@ components:
           $ref: "#/components/schemas/EncryptedAttribute"
         auth_key:
           $ref: "#/components/schemas/CryptoHashedAttribute"
+        statistics:
+          $ref: "#/components/schemas/UserStats"
     Share:
       title: Share Info
       type: object

@@ -38,7 +38,9 @@ func userStatsToMap(userStats UserStats) (ret map[string]Statistic, err error) {
 		if err != nil {
 			return nil, err
 		}
-		ret[statName] = stat
+		if !((Statistic{}) == stat) {
+			ret[statName] = stat
+		}
 	}
 	return
 }

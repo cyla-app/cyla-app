@@ -16,6 +16,8 @@ type ShareInfoUpload struct {
 	SharedKeyBackup EncryptedAttribute `json:"shared_key_backup,omitempty" mapstructure:"SharedKeyBackup"`
 
 	AuthKey CryptoHashedAttribute `json:"auth_key,omitempty" mapstructure:"AuthKey"`
+
+	Statistics UserStats `json:"statistics,omitempty" mapstructure:"Statistics"`
 }
 
 func GetShareInfoUploadDaysName() string {
@@ -26,4 +28,7 @@ func GetShareInfoUploadSharedKeyBackupName() string {
 }
 func GetShareInfoUploadAuthKeyName() string {
 	return "AuthKey"
+}
+func GetShareInfoUploadStatisticsName() string {
+	return "Statistics"
 }

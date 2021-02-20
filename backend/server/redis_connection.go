@@ -221,6 +221,10 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 				fmt.Sprintf("%v:%v:%v:%v:%v:%v", sharedPrefixKey, ret, userPrefixKey, userId, dayPrefixKey, day.Date)}, //days resource
 			append([]interface{}{day.Date}, valList...))
 	}
+	if err = saveStatsShare(ctx, pipeline, shareInfoUpload.Statistics, ret, userId); err != nil {
+		return "", err
+	}
+
 	hashPwd, _ := bcrypt.GenerateFromPassword([]byte(shareInfoUpload.AuthKey), bcrypt.MinCost)
 	share := Share{
 		Owner:           userId,
@@ -305,6 +309,25 @@ func saveStats(ctx context.Context, pipeline redis.Pipeliner, userStats UserStat
 			statPrefix}, // TODO: Use constant stats prefix keys instead of statName
 			append([]interface{}{stat.PrevHashValue, stringHashValue}, valListStats...))
 
+	}
+	return nil
+}
+
+func saveStatsShare(ctx context.Context, pipeline redis.Pipeliner, userStats UserStats, shareId string, userId string) error {
+	userStatsMap, err := userStatsToMap(userStats)
+	if err != nil {
+		return newHTTPErrorWithCauseError(500, "could not marshall user stats", err)
+	}
+
+	for statName, stat := range userStatsMap {
+		valListStats, err := flatStructToSlice(stat)
+		if err != nil {
+			return newHTTPErrorWithCauseError(500, "could not marshall stat", err)
+		}
+		pipeline.HSet(ctx,
+			fmt.Sprintf("%v:%v:%v:%v:%v:%v",
+				sharedPrefixKey, shareId, userPrefixKey, userId,statsPrefixKey, statName),
+			valListStats...)
 	}
 	return nil
 }
