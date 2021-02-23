@@ -38,7 +38,9 @@ func NewRouter(routers ...Router) *mux.Router {
 			handler = route.HandlerFunc
 			handler = Logger(handler, route.Name)
             {{#featureCORS}}
-			handler = handlers.CORS()(handler)
+            if env, ok := os.LookupEnv("CYLA_ENV"); ok && env == "dev" {
+                handler = handlers.CORS()(handler)
+            }
             {{/featureCORS}}
 
 			router.
