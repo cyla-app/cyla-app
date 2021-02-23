@@ -2,8 +2,10 @@
 package main
 
 import (
+    "github.com/gorilla/handlers"
 	"log"
 	"net/http"
+    "os"
 
 	{{packageName}} "{{gitHost}}/{{gitUserId}}/{{gitRepoId}}/{{sourceFolder}}"
 )
@@ -23,12 +25,12 @@ func main() {
 
     {{#featureCORS}}
     if env, ok := os.LookupEnv("CYLA_ENV"); ok && env == "dev" {
-        log.Fatal(http.ListenAndServe("{{serverPort}}", handlers.CORS()(router)))
+        log.Fatal(http.ListenAndServe(":{{serverPort}}", handlers.CORS()(router)))
     } else {
-        log.Fatal(http.ListenAndServe("{{serverPort}}", router))
+        log.Fatal(http.ListenAndServe(":{{serverPort}}", router))
     }
     {{/featureCORS}}
     {{^featureCORS}}
-    log.Fatal(http.ListenAndServe("{{serverPort}}", router))
+    log.Fatal(http.ListenAndServe(":{{serverPort}}", router))
     {{/featureCORS}}
 }

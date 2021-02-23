@@ -10,8 +10,10 @@
 package main
 
 import (
+    "github.com/gorilla/handlers"
 	"log"
 	"net/http"
+    "os"
 
 	server "github.com/cyla-app/cyla-app/server"
 )
@@ -45,8 +47,8 @@ func main() {
 	router := server.NewRouter(LoginApiController,DayApiController, ShareApiController, ShareDayApiController, ShareStatsApiController, StatsApiController, UserApiController)
 
     if env, ok := os.LookupEnv("CYLA_ENV"); ok && env == "dev" {
-        log.Fatal(http.ListenAndServe("5000", handlers.CORS()(router)))
+        log.Fatal(http.ListenAndServe(":5000", handlers.CORS()(router)))
     } else {
-        log.Fatal(http.ListenAndServe("5000", router))
+        log.Fatal(http.ListenAndServe(":5000", router))
     }
 }
