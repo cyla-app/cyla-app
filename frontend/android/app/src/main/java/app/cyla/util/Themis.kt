@@ -8,13 +8,13 @@ import java.security.MessageDigest
 
 class Themis {
     companion object {
-        fun createUserKey(passphrase: String): Pair<SymmetricKey, ByteArray> {
-            val userKey = SymmetricKey()
+        fun createEncryptionKey(passphrase: String): Pair<SymmetricKey, ByteArray> {
+            val key = SymmetricKey()
 
-            val encryptedUserKey = SecureCell.SealWithPassphrase(passphrase)
-                .encrypt(userKey.toByteArray())
+            val encryptedKey = SecureCell.SealWithPassphrase(passphrase)
+                .encrypt(key.toByteArray())
 
-            return Pair(userKey, encryptedUserKey)
+            return Pair(key, encryptedKey)
         }
 
         fun generateAuthKey(passphrase: String): ByteArray {

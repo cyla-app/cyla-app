@@ -2,11 +2,13 @@ package app.cyla
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import app.cyla.api.DayApi
+import app.cyla.api.ShareApi
 import app.cyla.api.UserApi
 import app.cyla.util.*
 import app.cyla.util.Themis.Companion.generateAuthKey
-import app.cyla.util.Themis.Companion.createUserKey
+import app.cyla.util.Themis.Companion.createEncryptionKey
 import app.cyla.util.Themis.Companion.decryptUserKey
 import app.cyla.invoker.auth.HttpBearerAuth
 import com.facebook.react.bridge.*
@@ -52,6 +54,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     private val userApi = UserApi(authApiClient)
     private val dayApi = DayApi(dataApiClient)
     private val statsApi = StatsApi(dataApiClient)
+    private val shareApi = ShareApi(dataApiClient)
 
     override fun getName(): String {
         return "CylaModule"
@@ -101,7 +104,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     private fun createNewUserKey(username: String, passphrase: String): Triple<UserInfo, ByteArray, String> {
-        val (userKey, encryptedUserKey) = createUserKey(passphrase)
+        val (userKey, encryptedUserKey) = createEncryptionKey(passphrase)
         val authKey = generateAuthKey(passphrase)
 
         val user = User()
@@ -314,6 +317,49 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             promise.reject(Exception("Failed to delete complete cache"))
         } else {
             promise.resolve(null)
+        }
+    }
+
+    @ReactMethod
+    fun shareData(iso8601dateFrom: String, iso8601dateTo: String, promise: Promise) {
+        //TODO: Remove duplicate code here and in fetchDaysByRange
+        val userId = getAppStorage().getUserId()
+        //TODO: Generate strong, random password for sharing
+        val sharePwd = "password"
+        val (shareKey, shareKeyEncrypted) = Themis.createEncryptionKey(sharePwd)
+
+        CompletableFuture.supplyAsync {
+            val days = dayApi.getDayByUserAndRange(
+                    userId!!,
+                    LocalDate.parse(iso8601dateFrom),
+                    LocalDate.parse(iso8601dateTo)
+            )
+            for (day in days) {
+                if (day.version != DAY_VERSION) {
+                    throw Exception("Version ${day.version} of day is not supported")
+                }
+
+                val plaintextDay = Themis.decryptDayInfo(userInfo.userKey, day)
+                val (encryptedDayInfo, encryptedDayKey) = Themis.encryptDayInfo(shareKey, plaintextDay, day.date.toString())
+                day.dayInfo = encryptedDayInfo
+                day.dayKey = encryptedDayKey
+            }
+            //TODO: Compute stats for the shared days
+            val periodStats = statsApi.getPeriodStats(userId)
+            val decryptedStats = Themis.decryptData(userInfo.userKey, periodStats.value)
+            periodStats.value = Themis.encryptData(shareKey, decryptedStats)
+
+            val shareInfo = ShareInfoUpload()
+            shareInfo.days = days
+            shareInfo.sharedKeyBackup = shareKeyEncrypted
+            //TODO: Hash the sharePwd before sending it
+            shareInfo.authKey = sharePwd.toByteArray()
+            val shareUserStats = UserStats()
+            shareInfo.statistics = shareUserStats
+            shareUserStats.periodStats = periodStats
+
+            val shareId = shareApi.shareDays(userId, shareInfo)
+            promise.resolve(shareId)
         }
     }
 

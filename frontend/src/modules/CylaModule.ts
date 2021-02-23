@@ -126,7 +126,10 @@ class CylaModule {
   }
 
   async shareData(startDate: Date, endDate: Date) {
-    throw Error('Not implemented')
+    return await CylaNativeModule.shareData(
+      formatDay(startDate),
+      formatDay(endDate),
+    )
   }
 }
 

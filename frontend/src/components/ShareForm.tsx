@@ -3,11 +3,13 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { useState } from 'react'
 import { Button } from 'react-native-paper'
 import CylaModule from '../modules/CylaModule'
+import { Text, View } from 'react-native'
 
 export default () => {
   const [startDate, setStartDate] = useState(new Date())
   const [endDate, setEndDate] = useState(new Date())
   const [isShow, setIsShow] = useState(false)
+  const [shareId, setShareId] = useState('')
 
   // FIXME: There's got to be a better way than creating an object with the func as attribute
   const [changeDateFunc, setChangeFunc] = useState({ changeFunc: setStartDate })
@@ -51,12 +53,15 @@ export default () => {
           margin: 20,
         }}
         onPress={() => {
-          CylaModule.shareData(startDate, endDate).catch((err) =>
-            console.log(err),
+          CylaModule.shareData(startDate, endDate).then((lastShareId) =>
+            setShareId(lastShareId),
           )
         }}>
         Share!
       </Button>
+      <View>
+        <Text>Share Id: {shareId}</Text>
+      </View>
     </>
   )
 }
