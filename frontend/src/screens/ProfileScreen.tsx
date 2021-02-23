@@ -7,8 +7,19 @@ import { ActivityIndicator, Button, Headline } from 'react-native-paper'
 import useRefresh from '../hooks/useRefresh'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { logout } from '../sessionSlice'
+import { StackNavigationProp } from '@react-navigation/stack'
+import { MainStackParamList } from '../navigation/MainStackNavigation'
 
-export default () => {
+type ProfileScreenNavigationProp = StackNavigationProp<
+  MainStackParamList,
+  'SignIn'
+>
+
+type PropType = {
+  navigation: ProfileScreenNavigationProp
+}
+
+export default ({ navigation }: PropType) => {
   const [userId, setUserId] = useState<string>('')
   const daysLoaded = useSelector<RootState, number>(
     (state) => Object.keys(state.days.byDay).length,
@@ -69,6 +80,13 @@ export default () => {
           <Text>Days Loaded: {daysLoaded}</Text>
         </View>
       ) : null}
+      <Button
+        icon={'wrench'}
+        onPress={() => {
+          navigation.navigate('Share')
+        }}>
+        Share
+      </Button>
     </ScrollView>
   )
 }

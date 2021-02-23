@@ -16,6 +16,7 @@ import StatusBanner from '../components/StatusBanner'
 import { ActivityIndicator, useTheme } from 'react-native-paper'
 import { View } from 'react-native'
 import ServerChangeScreen from '../screens/ServerChangeScreen'
+import SharingScreen from '../screens/SharingScreen'
 
 export type MainStackParamList = {
   SignUp: undefined
@@ -23,6 +24,7 @@ export type MainStackParamList = {
   ServerChange: undefined
   Tabs: NavigatorScreenParams<TabsParamList>
   Profile: undefined
+  Share: undefined
   Detail: { day: Day }
 }
 
@@ -90,6 +92,7 @@ export default () => {
                 },
               }}
             />
+            <Stack.Screen name="Share" component={SharingScreen} />
           </>
         )}
       </Stack.Navigator>

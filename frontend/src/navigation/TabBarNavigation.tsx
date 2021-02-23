@@ -2,6 +2,7 @@ import React from 'react'
 import DailyScreen from '../screens/DailyScreen'
 import CalendarScreen from '../screens/CalendarScreen'
 import ProfileScreen from '../screens/ProfileScreen'
+import SharingScreen from '../screens/SharingScreen'
 import { TouchableRipple, useTheme } from 'react-native-paper'
 import StatisticsScreen from '../screens/StatisticsScreen'
 
@@ -23,6 +24,7 @@ export type TabsParamList = {
   Add: undefined
   Statistics: undefined
   Profile: undefined
+  Sharing: undefined
 }
 
 const AddButton = () => {

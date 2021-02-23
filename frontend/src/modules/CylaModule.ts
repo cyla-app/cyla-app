@@ -31,6 +31,7 @@ type CylaModuleType = {
     iso8601dateFrom: string,
     iso8601dateTo: string,
   ) => Promise<string[]>
+  shareData: (iso8601dateFrom: string, iso8601dateTo: string) => Promise<string>
 }
 
 const CylaNativeModule: CylaModuleType = NativeModules.CylaModule
@@ -122,6 +123,10 @@ class CylaModule {
 
   async getUserId() {
     return await CylaNativeModule.getUserId()
+  }
+
+  async shareData(startDate: Date, endDate: Date) {
+    throw Error('Not implemented')
   }
 }
 
