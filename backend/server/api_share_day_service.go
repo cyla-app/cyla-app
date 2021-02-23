@@ -25,8 +25,8 @@ func NewShareDayApiService() ShareDayApiServicer {
 }
 
 // ShareGetDayByUserAndRange -
-func (s *ShareDayApiService) ShareGetDayByUserAndRange(ctx context.Context, shareId string, userId string, startDate string, endDate string) (response ImplResponse, err error) {
-	ret, err := DBConnection.ShareGetDayByUserAndRange(ctx, shareId, userId, startDate, endDate)
+func (s *ShareDayApiService) ShareGetDayByUserAndRange(ctx context.Context, shareId string, startDate string, endDate string) (response ImplResponse, err error) {
+	ret, err := DBConnection.ShareGetDayByUserAndRange(ctx, shareId, startDate, endDate)
 	response, err = httpResponseWithBody(ret, err)
 	if response.Code == 200 {
 		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age=86400"}}
@@ -35,8 +35,8 @@ func (s *ShareDayApiService) ShareGetDayByUserAndRange(ctx context.Context, shar
 }
 
 // ShareGetDaysByUserIdAndDate -
-func (s *ShareDayApiService) ShareGetDaysByUserIdAndDate(ctx context.Context, shareId string, userId string, date []string) (response ImplResponse, err error) {
-	ret, err := DBConnection.ShareGetDaysByUserIdAndDate(ctx, shareId, userId, date)
+func (s *ShareDayApiService) ShareGetDaysByUserIdAndDate(ctx context.Context, shareId string, date []string) (response ImplResponse, err error) {
+	ret, err := DBConnection.ShareGetDaysByUserIdAndDate(ctx, shareId, date)
 	response, err = httpResponseWithBody(ret, err)
 	if response.Code == 200 {
 		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age=86400"}}

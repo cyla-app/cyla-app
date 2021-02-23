@@ -25,8 +25,8 @@ func NewShareStatsApiService() ShareStatsApiServicer {
 }
 
 // ShareGetPeriodStats -
-func (s *ShareStatsApiService) ShareGetPeriodStats(ctx context.Context, shareId string, userId string) (response ImplResponse, err error) {
-	ret, err := DBConnection.ShareGetPeriodStats(ctx, shareId, userId)
+func (s *ShareStatsApiService) ShareGetPeriodStats(ctx context.Context, shareId string) (response ImplResponse, err error) {
+	ret, err := DBConnection.ShareGetPeriodStats(ctx, shareId)
 	response, err = httpResponseWithBody(ret, err)
 	if response.Code == 200 {
 		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age=86400"}}
@@ -35,8 +35,8 @@ func (s *ShareStatsApiService) ShareGetPeriodStats(ctx context.Context, shareId 
 }
 
 // ShareGetStats -
-func (s *ShareStatsApiService) ShareGetStats(ctx context.Context, shareId string, userId string) (response ImplResponse, err error) {
-	ret, err := DBConnection.ShareGetStats(ctx, shareId, userId)
+func (s *ShareStatsApiService) ShareGetStats(ctx context.Context, shareId string) (response ImplResponse, err error) {
+	ret, err := DBConnection.ShareGetStats(ctx, shareId)
 	response, err = httpResponseWithBody(ret, err)
 	if response.Code == 200 {
 		response.Headers = []Header{{Name: "Cache-Control", Value: "max-age=86400"}}

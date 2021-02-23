@@ -32,13 +32,13 @@ func (c *ShareStatsApiController) Routes() Routes {
 		{
 			"ShareGetPeriodStats",
 			strings.ToUpper("Get"),
-			"/share/{shareId}/stats/{userId}/periodStats",
+			"/share/{shareId}/stats/periodStats",
 			Authorize(c.ShareGetPeriodStats, []authFunc{shareJWTAuth}),
 		},
 		{
 			"ShareGetStats",
 			strings.ToUpper("Get"),
-			"/share/{shareId}/stats/{userId}",
+			"/share/{shareId}/stats",
 			Authorize(c.ShareGetStats, []authFunc{shareJWTAuth}),
 		},
 	}
@@ -48,8 +48,7 @@ func (c *ShareStatsApiController) Routes() Routes {
 func (c *ShareStatsApiController) ShareGetPeriodStats(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	shareId := params["shareId"]
-	userId := params["userId"]
-	result, err := c.service.ShareGetPeriodStats(r.Context(), shareId, userId)
+	result, err := c.service.ShareGetPeriodStats(r.Context(), shareId)
 	//If an error occured, encode the error with the status code
 	if err != nil {
 		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
@@ -64,8 +63,7 @@ func (c *ShareStatsApiController) ShareGetPeriodStats(w http.ResponseWriter, r *
 func (c *ShareStatsApiController) ShareGetStats(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	shareId := params["shareId"]
-	userId := params["userId"]
-	result, err := c.service.ShareGetStats(r.Context(), shareId, userId)
+	result, err := c.service.ShareGetStats(r.Context(), shareId)
 	//If an error occured, encode the error with the status code
 	if err != nil {
 		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)

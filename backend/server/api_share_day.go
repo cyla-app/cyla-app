@@ -32,13 +32,13 @@ func (c *ShareDayApiController) Routes() Routes {
 		{
 			"ShareGetDayByUserAndRange",
 			strings.ToUpper("Get"),
-			"/share/{shareId}/day/{userId}/byRange",
+			"/share/{shareId}/day/byRange",
 			Authorize(c.ShareGetDayByUserAndRange, []authFunc{shareJWTAuth}),
 		},
 		{
 			"ShareGetDaysByUserIdAndDate",
 			strings.ToUpper("Get"),
-			"/share/{shareId}/day/{userId}/byDate",
+			"/share/{shareId}/day/byDate",
 			Authorize(c.ShareGetDaysByUserIdAndDate, []authFunc{shareJWTAuth}),
 		},
 	}
@@ -49,10 +49,9 @@ func (c *ShareDayApiController) ShareGetDayByUserAndRange(w http.ResponseWriter,
 	params := mux.Vars(r)
 	query := r.URL.Query()
 	shareId := params["shareId"]
-	userId := params["userId"]
 	startDate := query.Get("startDate")
 	endDate := query.Get("endDate")
-	result, err := c.service.ShareGetDayByUserAndRange(r.Context(), shareId, userId, startDate, endDate)
+	result, err := c.service.ShareGetDayByUserAndRange(r.Context(), shareId, startDate, endDate)
 	//If an error occured, encode the error with the status code
 	if err != nil {
 		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
@@ -68,9 +67,8 @@ func (c *ShareDayApiController) ShareGetDaysByUserIdAndDate(w http.ResponseWrite
 	params := mux.Vars(r)
 	query := r.URL.Query()
 	shareId := params["shareId"]
-	userId := params["userId"]
 	date := strings.Split(query.Get("date"), ",")
-	result, err := c.service.ShareGetDaysByUserIdAndDate(r.Context(), shareId, userId, date)
+	result, err := c.service.ShareGetDaysByUserIdAndDate(r.Context(), shareId, date)
 	//If an error occured, encode the error with the status code
 	if err != nil {
 		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)

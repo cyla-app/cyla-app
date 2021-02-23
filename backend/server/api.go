@@ -99,8 +99,8 @@ type ShareApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type ShareDayApiServicer interface {
-	ShareGetDayByUserAndRange(context.Context, string, string, string, string) (ImplResponse, error)
-	ShareGetDaysByUserIdAndDate(context.Context, string, string, []string) (ImplResponse, error)
+	ShareGetDayByUserAndRange(context.Context, string, string, string) (ImplResponse, error)
+	ShareGetDaysByUserIdAndDate(context.Context, string, []string) (ImplResponse, error)
 }
 
 // ShareStatsApiServicer defines the api actions for the ShareStatsApi service
@@ -108,8 +108,8 @@ type ShareDayApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type ShareStatsApiServicer interface {
-	ShareGetPeriodStats(context.Context, string, string) (ImplResponse, error)
-	ShareGetStats(context.Context, string, string) (ImplResponse, error)
+	ShareGetPeriodStats(context.Context, string) (ImplResponse, error)
+	ShareGetStats(context.Context, string) (ImplResponse, error)
 }
 
 // StatsApiServicer defines the api actions for the StatsApi service

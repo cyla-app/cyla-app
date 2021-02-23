@@ -216,9 +216,9 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 
 		shareDayScript.Run(ctx, pipeline,
 			[]string{
-				fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),                                           //sorted set for user's days
-				fmt.Sprintf("%v:%v:%v:%v:%v", sharedPrefixKey, ret, userPrefixKey, userId, dayPrefixKey),               //sorted set for shared days
-				fmt.Sprintf("%v:%v:%v:%v:%v:%v", sharedPrefixKey, ret, userPrefixKey, userId, dayPrefixKey, day.Date)}, //days resource
+				fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),              //sorted set for user's days
+				fmt.Sprintf("%v:%v:%v", sharedPrefixKey, ret, dayPrefixKey),               //sorted set for shared days
+				fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, ret, dayPrefixKey, day.Date)}, //days resource
 			append([]interface{}{day.Date}, valList...))
 	}
 	if err = saveStatsShare(ctx, pipeline, shareInfoUpload.Statistics, ret, userId); err != nil {
@@ -325,8 +325,8 @@ func saveStatsShare(ctx context.Context, pipeline redis.Pipeliner, userStats Use
 			return newHTTPErrorWithCauseError(500, "could not marshall stat", err)
 		}
 		pipeline.HSet(ctx,
-			fmt.Sprintf("%v:%v:%v:%v:%v:%v",
-				sharedPrefixKey, shareId, userPrefixKey, userId, statsPrefixKey, statName),
+			fmt.Sprintf("%v:%v:%v:%v",
+				sharedPrefixKey, shareId, statsPrefixKey, statName),
 			valListStats...)
 	}
 	return nil
@@ -337,8 +337,8 @@ func (s *CylaRedisClient) GetDaysByUserIdAndDate(ctx context.Context, userId str
 }
 
 func (s *CylaRedisClient) ShareGetDaysByUserIdAndDate(
-	ctx context.Context, shareId string, userId string, dates []string) (ret []Day, err error) {
-	return s.getDaysByDate(ctx, fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, shareId, userPrefixKey, userId), dates)
+	ctx context.Context, shareId string, dates []string) (ret []Day, err error) {
+	return s.getDaysByDate(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareId), dates)
 }
 
 func (s *CylaRedisClient) getDaysByDate(ctx context.Context, keyPrefix string, dates []DayDate) (days []Day, err error) {
@@ -375,9 +375,9 @@ func (s *CylaRedisClient) GetDayByUserAndRange(ctx context.Context, userId strin
 }
 
 func (s *CylaRedisClient) ShareGetDayByUserAndRange(
-	ctx context.Context, shareId string, userId string, startDate string, endDate string) (ret []Day, err error) {
+	ctx context.Context, shareId string, startDate string, endDate string) (ret []Day, err error) {
 	return s.getDayByRange(ctx,
-		fmt.Sprintf("%v:%v:%v:%v:%v", sharedPrefixKey, shareId, userPrefixKey, userId, dayPrefixKey), startDate, endDate)
+		fmt.Sprintf("%v:%v:%v", sharedPrefixKey, shareId, dayPrefixKey), startDate, endDate)
 }
 
 func (s *CylaRedisClient) getDayByRange(ctx context.Context, daySetKey string, startDate string, endDate string) (ret []Day, err error) {
@@ -454,8 +454,8 @@ func (s *CylaRedisClient) GetStats(ctx context.Context, userId string) (userStat
 	return s.getStats(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId))
 }
 
-func (s *CylaRedisClient) ShareGetStats(ctx context.Context, shareId string, userId string) (ret UserStats, err error) {
-	return s.getStats(ctx, fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, shareId, userPrefixKey, userId))
+func (s *CylaRedisClient) ShareGetStats(ctx context.Context, shareId string) (ret UserStats, err error) {
+	return s.getStats(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareId))
 }
 
 func (s *CylaRedisClient) GetPeriodStats(ctx context.Context, userId string) (ret Statistic, err error) {
@@ -463,9 +463,9 @@ func (s *CylaRedisClient) GetPeriodStats(ctx context.Context, userId string) (re
 		GetUserStatsPeriodStatsName())
 }
 
-func (s *CylaRedisClient) ShareGetPeriodStats(ctx context.Context, shareId string, userId string) (ret Statistic, err error) {
+func (s *CylaRedisClient) ShareGetPeriodStats(ctx context.Context, shareId string) (ret Statistic, err error) {
 	return s.getSingleStat(ctx,
-		fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, shareId, userPrefixKey, userId),
+		fmt.Sprintf("%v:%v", sharedPrefixKey, shareId),
 		GetUserStatsPeriodStatsName())
 }
 

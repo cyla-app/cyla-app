@@ -27,12 +27,12 @@ type SharePersistence interface {
 	ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (ret string, err error)
 }
 type ShareDayPersistence interface {
-	ShareGetDayByUserAndRange(ctx context.Context, shareId string, userId string, startDate string, endDate string) (ret []Day, err error)
-	ShareGetDaysByUserIdAndDate(ctx context.Context, shareId string, userId string, dates []string) (ret []Day, err error)
+	ShareGetDayByUserAndRange(ctx context.Context, shareId string, startDate string, endDate string) (ret []Day, err error)
+	ShareGetDaysByUserIdAndDate(ctx context.Context, shareId string, dates []string) (ret []Day, err error)
 }
 type ShareStatsPersistence interface {
-	ShareGetPeriodStats(ctx context.Context, shareId string, userId string) (ret Statistic, err error)
-	ShareGetStats(ctx context.Context, shareId string, userId string) (ret UserStats, err error)
+	ShareGetPeriodStats(ctx context.Context, shareId string) (ret Statistic, err error)
+	ShareGetStats(ctx context.Context, shareId string) (ret UserStats, err error)
 }
 type StatsPersistence interface {
 	GetPeriodStats(ctx context.Context, userId string) (ret Statistic, err error)
