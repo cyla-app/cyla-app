@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/data-grid": "^4.0.0-alpha.20",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -10,6 +12,7 @@
     "protobufjs": "^6.10.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-router-dom": "^5.2.0",
     "text-encoding": "^0.7.0",
     "wasm-themis": "^0.13.1",
     "web-vitals": "^1.0.1"
@@ -20,6 +23,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "@types/react-router-dom": "^5.1.7",
     "react-app-rewired": "^2.1.8",
     "react-scripts": "4.0.2",
     "ts-proto": "^1.54.0",
@@ -31,7 +35,8 @@
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
     "generate:protobuf": "cd ../specs && protoc --plugin=../web/node_modules/ts-proto/protoc-gen-ts_proto --ts_proto_opt=esModuleInterop=true --ts_proto_opt=useOptionals=true --ts_proto_out=../web/src/generated/ ./period-stats.proto ./day.proto",
-    "generate:openapi": "rimraf ./src/generated/openapi && openapi --input ../openapi/openapi-specification.yaml --output ./src/generated/openapi --exportCore true --exportServices true"
+    "generate:openapi": "rimraf ./src/generated/openapi && openapi --input ../openapi/openapi-specification.yaml --output ./src/generated/openapi --exportCore true --exportServices true",
+    "postinstall": "yarn run generate:openapi"
   },
   "eslintConfig": {
     "extends": [
