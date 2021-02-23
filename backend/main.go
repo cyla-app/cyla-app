@@ -44,5 +44,9 @@ func main() {
 
 	router := server.NewRouter(LoginApiController,DayApiController, ShareApiController, ShareDayApiController, ShareStatsApiController, StatsApiController, UserApiController)
 
-	log.Fatal(http.ListenAndServe(":5000", router))
+    if env, ok := os.LookupEnv("CYLA_ENV"); ok && env == "dev" {
+        log.Fatal(http.ListenAndServe("5000", handlers.CORS()(router)))
+    } else {
+        log.Fatal(http.ListenAndServe("5000", router))
+    }
 }

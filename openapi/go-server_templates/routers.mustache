@@ -25,7 +25,7 @@ type Route struct {
 type Routes []Route
 
 // Router defines the required methods for retrieving api routes
-type Router interface { 
+type Router interface {
 	Routes() Routes
 }
 
@@ -37,11 +37,6 @@ func NewRouter(routers ...Router) *mux.Router {
 			var handler http.Handler
 			handler = route.HandlerFunc
 			handler = Logger(handler, route.Name)
-            {{#featureCORS}}
-            if env, ok := os.LookupEnv("CYLA_ENV"); ok && env == "dev" {
-                handler = handlers.CORS()(handler)
-            }
-            {{/featureCORS}}
 
 			router.
 				Methods(route.Method).
