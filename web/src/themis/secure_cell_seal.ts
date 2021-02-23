@@ -428,5 +428,3 @@ class SecureCellSealWithPassphrase extends SecureCellSeal {
     }
   }
 }
-
-module.exports = SecureCellSeal;

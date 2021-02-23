@@ -1,7 +1,7 @@
 import { ThemisErrorCode } from "./themis_error";
 import { KeyKind } from "./secure_keygen";
 
-interface YourOwnEmscriptenModule extends EmscriptenModule {
+export interface YourOwnEmscriptenModule extends EmscriptenModule {
   writeArrayToMemory: typeof writeArrayToMemory;
   _memset: (buffer: number, offer: number, length: number) => void;
   setValue: typeof setValue;

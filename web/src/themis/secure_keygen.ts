@@ -34,7 +34,7 @@ const cryptosystem_name = "KeyPair";
  *
  * Keep in sync with <themis/secure_keygen.h>.
  */
-export const enum KeyKind {
+export enum KeyKind {
   INVALID = 0,
   RSA_PRIVATE = 1,
   RSA_PUBLIC = 2,

@@ -22,7 +22,7 @@
  *
  * Keep in sync with <themis/themis_error.h>.
  */
-export const enum ThemisErrorCode {
+export enum ThemisErrorCode {
   SUCCESS = 0,
   FAIL = 11,
   INVALID_PARAMETER = 12,
