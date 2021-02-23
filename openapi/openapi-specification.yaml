@@ -189,7 +189,7 @@ paths:
           $ref: "#/components/responses/DaysFound"
         "500":
           description: Error when retrieving days
-  /share/{shareId}/day/{userId}/byDate:
+  /share/{shareId}/day/byDate:
     get:
       security:
         - shareJWTAuth: []
@@ -199,7 +199,6 @@ paths:
       operationId: shareGetDaysByUserIdAndDate
       parameters:
         - $ref: "#/components/parameters/shareId"
-        - $ref: "#/components/parameters/userId"
         - name: date
           in: query
           description: date(s) of the entries to get
@@ -216,7 +215,7 @@ paths:
           description: Day entry with date not found
         "500":
           description: Error when retrieving days
-  /share/{shareId}/day/{userId}/byRange:
+  /share/{shareId}/day/byRange:
     get:
       security:
         - shareJWTAuth : []
@@ -226,7 +225,6 @@ paths:
       operationId: shareGetDayByUserAndRange
       parameters:
         - $ref: "#/components/parameters/shareId"
-        - $ref: "#/components/parameters/userId"
         - name: startDate
           in: query
           description: start date
@@ -274,7 +272,7 @@ paths:
           description: Period stat entry not found
         "500":
           description: Error when retrieving stat
-  /share/{shareId}/stats/{userId}:
+  /share/{shareId}/stats:
     get:
       tags:
         - shareStats
@@ -284,7 +282,6 @@ paths:
       operationId: shareGetStats
       parameters:
         - $ref: "#/components/parameters/shareId"
-        - $ref: "#/components/parameters/userId"
       responses:
         "200":
           $ref: "#/components/responses/UserStatsFound"
@@ -292,7 +289,7 @@ paths:
           description: Stats entry not found
         "500":
           description: Error when retrieving stats
-  /share/{shareId}/stats/{userId}/periodStats:
+  /share/{shareId}/stats/periodStats:
     get:
       tags:
         - shareStats
@@ -302,7 +299,6 @@ paths:
       operationId: shareGetPeriodStats
       parameters:
         - $ref : "#/components/parameters/shareId"
-        - $ref: "#/components/parameters/userId"
       responses:
         "200":
           $ref: "#/components/responses/StatFound"
