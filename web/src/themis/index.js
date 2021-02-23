@@ -12,20 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @file
- * WasmThemis module entry point.
- */
+import context from "./context";
+import libthemisFn from "./libthemis.js";
 
+export { SecureCellSeal } from "./secure_cell_seal";
+export { SecureCellTokenProtect } from "./secure_cell_token_protect";
+export { SecureCellContextImprint } from "./secure_cell_context_imprint";
+export { ThemisError, ThemisErrorCode } from "./themis_error";
+export {
+  SecureMessageSign,
+  SecureMessage,
+  SecureMessageVerify,
+} from "./secure_message";
+export { SecureSession } from "./secure_session";
+export { KeyPair, PrivateKey, PublicKey, SymmetricKey } from "./secure_keygen";
+export { SecureComparator } from "./secure_comparator";
 
+export const initialize = async (wasmPath) => {
+  const libthemis = await libthemisFn({
+    onRuntimeInitialized: function () {},
+    locateFile: function () {
+      return wasmPath;
+    },
+  });
 
-Object.assign(module.exports
-  , require('./initialize.js')
-  , require('./secure_cell.js')
-  , require('./secure_comparator.js')
-  , require('./secure_keygen.js')
-  , require('./secure_message.js')
-  , require('./secure_session.js')
-  , require('./themis_error.js')
-)
-
+  context["libthemis"] = libthemis;
+  return libthemis;
+};
