@@ -2,7 +2,6 @@ import React from 'react'
 import DailyScreen from '../screens/DailyScreen'
 import CalendarScreen from '../screens/CalendarScreen'
 import ProfileScreen from '../screens/ProfileScreen'
-import SharingScreen from '../screens/SharingScreen'
 import { TouchableRipple, useTheme } from 'react-native-paper'
 import StatisticsScreen from '../screens/StatisticsScreen'
 
@@ -16,6 +15,7 @@ import DailyIcon from './icons/DailyIcon'
 import createMaterialBottomTabNavigator from './tabview/createMaterialBottomTabNavigator'
 import { useNavigation } from '@react-navigation/native'
 import AddScreen from '../screens/AddScreen'
+import { useKeyboardStatus } from '../hooks/useKeyboardStatus'
 const SIZE = 55
 
 export type TabsParamList = {
@@ -29,8 +29,10 @@ export type TabsParamList = {
 
 const AddButton = () => {
   const navigation = useNavigation()
+  const isOpen = useKeyboardStatus()
+
   const { colors } = useTheme()
-  return (
+  return isOpen ? null : (
     <View
       style={{
         position: 'absolute',
@@ -89,7 +91,7 @@ export default () => {
           component={AddScreen}
           options={{
             tabBarColor: colors.add,
-            tabBarIcon: ({ color }) => <CalendarIcon color={color} size={20} />,
+            tabBarIcon: () => null,
             tabBarLabel: 'Add',
           }}
         />

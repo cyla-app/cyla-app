@@ -130,7 +130,6 @@ function MaterialBottomTabViewInner({
             key={route.key}
             style={{
               width: WIDTH,
-              // alignItems: 'center',
               justifyContent: 'flex-start',
             }}>
             <Svg
