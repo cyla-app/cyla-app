@@ -51,7 +51,7 @@ export default ({
           viewWidth={viewWidth}
           x={viewWidth - HORIZONTAL_SHIFT}
           day={days[days.length - 1]}
-          overwriteColor={'green'}
+          //overwriteColor={'green'}
           nextDay={previousDay}
         />
       )}
@@ -61,7 +61,7 @@ export default ({
           viewWidth={viewWidth}
           x={0 - HORIZONTAL_SHIFT}
           day={nextDay}
-          overwriteColor={'red'}
+          //overwriteColor={'red'}
           nextDay={days[0]}
         />
       )}
