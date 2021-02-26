@@ -33,7 +33,7 @@ export default ({ navigation }: PropType) => {
       <View
         style={{
           flex: 1,
-          padding: 20,
+          padding: 40,
           justifyContent: 'flex-end',
         }}>
         <View
@@ -41,7 +41,7 @@ export default ({ navigation }: PropType) => {
             flex: 1,
             justifyContent: 'center',
           }}>
-          <Headline>Sign Up</Headline>
+          <Headline style={{ textAlign: 'center' }}>Sign Up</Headline>
           <LoginForm
             repeatPassphrase={true}
             loading={isSessionLoading}
@@ -57,9 +57,7 @@ export default ({ navigation }: PropType) => {
             style={{
               justifyContent: 'flex-end',
             }}>
-            <Button
-              mode="outlined"
-              onPress={() => navigation.navigate('SignIn')}>
+            <Button mode="text" onPress={() => navigation.navigate('SignIn')}>
               Sign In instead
             </Button>
             <ServerSelectionButton

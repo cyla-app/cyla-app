@@ -9,7 +9,7 @@ import {
   NavigationContainer,
 } from '@react-navigation/native'
 import MainStackNavigation from './navigation/MainStackNavigation'
-import { StatusBar } from 'react-native'
+import { StatusBar, View } from 'react-native'
 import { Provider } from 'react-redux'
 import {
   AnyAction,
@@ -106,9 +106,11 @@ const App = () => {
         animated
       />
       <Provider store={store}>
-        <NavigationContainer theme={theme}>
-          <MainStackNavigation />
-        </NavigationContainer>
+        <View style={{ flex: 1, backgroundColor: colors.background }}>
+          <NavigationContainer theme={theme}>
+            <MainStackNavigation />
+          </NavigationContainer>
+        </View>
       </Provider>
     </PaperProvider>
   )

@@ -3,8 +3,8 @@ import React from 'react'
 
 export default ({ onPress }: { onPress: () => void }) => {
   return (
-    <Button mode="text" onPress={onPress}>
-      🌍 Connected to Earth. Change now
+    <Button style={{ marginTop: 10 }} mode="text" onPress={onPress}>
+      🌍 Change Server
     </Button>
   )
 }

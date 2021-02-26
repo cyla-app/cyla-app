@@ -24,15 +24,14 @@ export default ({ navigation }: PropType) => {
   )
   const dispatch = useDispatch()
 
-  const containerStyle: ViewStyle = {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  } as ViewStyle
-
   return (
-    <View style={containerStyle}>
-      <Headline>Sign In</Headline>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        padding: 40,
+      }}>
+      <Headline style={{ textAlign: 'center' }}>Sign In</Headline>
       <LoginForm
         repeatPassphrase={false}
         loading={isSessionLoading}

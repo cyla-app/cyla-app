@@ -76,22 +76,7 @@ export default () => {
           // User is signed in
           <>
             <Stack.Screen name="Tabs" component={TabBarNavigation} />
-            <Stack.Screen
-              name="Detail"
-              component={DetailScreen}
-              options={{
-                ...TransitionPresets.ModalSlideFromBottomIOS,
-                gestureEnabled: true,
-                gestureResponseDistance: {
-                  vertical: 500,
-                },
-                cardStyle: {
-                  backgroundColor: 'transparent',
-                  marginTop: 150,
-                  flex: 1,
-                },
-              }}
-            />
+            <Stack.Screen name="Detail" component={DetailScreen} />
             <Stack.Screen name="Share" component={SharingScreen} />
           </>
         )}
