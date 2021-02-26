@@ -3,6 +3,7 @@ import { scaleY } from './worklets'
 import { Circle, Line } from 'react-native-svg'
 import React from 'react'
 import { POINT_GAP } from './PointChart'
+import { useTheme } from 'react-native-paper'
 
 type PointLineProps = {
   day: Day
@@ -10,7 +11,7 @@ type PointLineProps = {
   viewHeight: number
   viewWidth: number
   x: number
-  color?: string
+  overwriteColor?: string
 }
 
 export default ({
@@ -19,8 +20,9 @@ export default ({
   x,
   day,
   nextDay,
-  color = 'black',
+  overwriteColor,
 }: PointLineProps) => {
+  const { colors } = useTheme()
   if (!day.temperature) {
     return null
   }
@@ -28,7 +30,6 @@ export default ({
   const nextDayTemperature = nextDay?.temperature
   return (
     <>
-      <Circle r={4} cx={viewWidth - x} cy={y} fill={color} />
       {nextDayTemperature && (
         <Line
           x1={viewWidth - x}
@@ -36,9 +37,16 @@ export default ({
           x2={viewWidth - x - POINT_GAP}
           y2={scaleY(nextDayTemperature.value, viewHeight)}
           strokeWidth={1}
-          stroke={color}
+          stroke={overwriteColor ?? colors.primary}
         />
       )}
+      <Circle
+        r={4}
+        cx={viewWidth - x}
+        cy={y}
+        fill={colors.background}
+        stroke={colors.primary}
+      />
     </>
   )
 }

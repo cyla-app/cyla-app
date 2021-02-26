@@ -22,7 +22,7 @@ export default ({
   percentage,
 }: {
   percentage: number
-  cycleDay: number
+  cycleDay?: number
 }) => {
   const { colors } = useTheme()
 
@@ -70,9 +70,11 @@ export default ({
         stroke={colors.primary}
         transform={`rotate(${fullDegrees} 50 50)`}
       />
-      <Text x={50} y={50} fill="black" fontSize={10} textAnchor="middle">
-        {'Current day: ' + cycleDay}
-      </Text>
+      {cycleDay && (
+        <Text x={50} y={50} fill="black" fontSize={10} textAnchor="middle">
+          {'Current day: ' + cycleDay}
+        </Text>
+      )}
     </Svg>
   )
 }

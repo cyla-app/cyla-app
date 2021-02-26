@@ -51,8 +51,18 @@ export default ({
           viewWidth={viewWidth}
           x={viewWidth - HORIZONTAL_SHIFT}
           day={days[days.length - 1]}
-          color={'green'}
+          overwriteColor={'green'}
           nextDay={previousDay}
+        />
+      )}
+      {nextDay?.temperature && (
+        <DayLine
+          viewHeight={viewHeight}
+          viewWidth={viewWidth}
+          x={0 - HORIZONTAL_SHIFT}
+          day={nextDay}
+          overwriteColor={'red'}
+          nextDay={days[0]}
         />
       )}
       {temperatures.map(([day, nextDay], index) => {
@@ -79,16 +89,6 @@ export default ({
           </React.Fragment>
         )
       })}
-      {nextDay?.temperature && (
-        <DayLine
-          viewHeight={viewHeight}
-          viewWidth={viewWidth}
-          x={0 - HORIZONTAL_SHIFT}
-          day={nextDay}
-          color={'red'}
-          nextDay={days[0]}
-        />
-      )}
     </>
   )
 }

@@ -1,5 +1,5 @@
 import { Subheading } from 'react-native-paper'
-import { max, min, stats } from '../utils/math'
+import { max, min, stats } from '../utils/stats'
 import React from 'react'
 
 export default ({ cycleLengths }: { cycleLengths: number[] }) => {
