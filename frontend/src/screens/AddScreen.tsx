@@ -55,14 +55,16 @@ export default ({}: { navigation: AddScreenNavigationProp }) => {
           />
         </ScrollView>
       </View>
-      <CalendarStrip
-        days={days}
-        periodStats={periodStats}
-        onDateSelected={(date: string) => {
-          setSelectedDate(new Date(date))
-        }}
-        onDaySelected={(_: Day) => {}}
-      />
+      <View style={{ marginBottom: 20 }}>
+        <CalendarStrip
+          days={days}
+          periodStats={periodStats}
+          onDateSelected={(date: string) => {
+            setSelectedDate(new Date(date))
+          }}
+          onDaySelected={(_: Day) => {}}
+        />
+      </View>
       <DaysErrorSnackbar daysError={daysError} />
     </>
   )
