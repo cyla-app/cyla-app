@@ -13,8 +13,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import SignInScreen from '../screens/SignInScreen'
 import StatusBanner from '../components/StatusBanner'
-import { ActivityIndicator, useTheme } from 'react-native-paper'
-import { View } from 'react-native'
+import { useTheme } from 'react-native-paper'
 import ServerChangeScreen from '../screens/ServerChangeScreen'
 import SharingScreen from '../screens/SharingScreen'
 
@@ -31,7 +30,6 @@ export type MainStackParamList = {
 const Stack = createStackNavigator<MainStackParamList>()
 
 export default () => {
-  const { colors } = useTheme()
   const sessionStatus = useSelector<RootState>((state) => state.session.status)
   const isOnline = useSelector<RootState, boolean>(
     (state) => state.connectivity.online,
@@ -48,18 +46,7 @@ export default () => {
   }, [dispatch])
 
   if (sessionStatus === SessionStatus.UNKNOWN && !sessionError) {
-    return (
-      <>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            backgroundColor: colors.background,
-          }}>
-          <ActivityIndicator size={100} />
-        </View>
-      </>
-    )
+    return null
   }
 
   return (
@@ -76,7 +63,22 @@ export default () => {
           // User is signed in
           <>
             <Stack.Screen name="Tabs" component={TabBarNavigation} />
-            <Stack.Screen name="Detail" component={DetailScreen} />
+            <Stack.Screen
+              name="Detail"
+              component={DetailScreen}
+              options={{
+                ...TransitionPresets.ModalSlideFromBottomIOS,
+                gestureEnabled: true,
+                gestureResponseDistance: {
+                  vertical: 500,
+                },
+                cardStyle: {
+                  backgroundColor: 'transparent',
+                  marginTop: 150,
+                  flex: 1,
+                },
+              }}
+            />
             <Stack.Screen name="Share" component={SharingScreen} />
           </>
         )}
