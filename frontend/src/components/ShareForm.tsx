@@ -28,16 +28,16 @@ export default () => {
 
   return (
     <>
-      <Button icon="login" onPress={showStartDatePicker} title="Start date!">
+      <Button icon="login" onPress={showStartDatePicker}>
         Start date
       </Button>
-      <Button icon="login" onPress={showEndDatePicker} title="End date!">
+      <Button icon="login" onPress={showEndDatePicker}>
         EndDate
       </Button>
       {isShow && (
         <DateTimePicker
           value={curDate}
-          mode="default"
+          mode="date"
           display="default"
           onChange={(event, date) => {
             const newDate: Date = date || new Date()
