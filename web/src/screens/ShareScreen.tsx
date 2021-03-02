@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  OpenAPI,
-  ShareDayService,
-  ShareService,
-  ShareStatsService,
-} from "../generated/openapi";
+import { OpenAPI, ShareDayService, ShareService } from "../generated/openapi";
 import { Day } from "../generated/day";
 import * as themis from "../themis";
 import { sub } from "date-fns";
@@ -52,7 +47,7 @@ export default () => {
   useEffect(() => {
     const load = async () => {
       const toDate = new Date();
-      const fromDate = sub(toDate, { months: 6 });
+      const fromDate = sub(toDate, { months: 36 });
 
       setLoading(true);
       OpenAPI.BASE = "http://localhost:5000";
@@ -117,9 +112,7 @@ export default () => {
             </Grid>
             <Grid item xs={12}>
               <Paper className={classes.paper}>
-                <div style={{ height: 300 }}>
-                  <PeriodHeatmap days={days} />
-                </div>
+                <PeriodHeatmap days={days} />
               </Paper>
             </Grid>
             <Grid item xs={12}>
