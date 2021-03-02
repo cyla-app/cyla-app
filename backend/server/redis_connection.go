@@ -524,7 +524,7 @@ func (s *CylaRedisClient) ShareAuth(ctx context.Context, shareId string, sharedP
 
 	_, err = pipeline.Exec(ctx)
 	if err != nil {
-		return ret, newHTTPErrorWithCauseError(500, "error when executing redis pipeline", err)
+		return ret, newHTTPErrorWithCauseError(400, "error when executing redis pipeline", err)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPwdCmd.Val()), []byte(sharedPwdDto.HashedPwd))
