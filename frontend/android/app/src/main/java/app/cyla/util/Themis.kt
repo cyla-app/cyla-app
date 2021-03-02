@@ -11,8 +11,7 @@ class Themis {
         fun createEncryptionKey(passphrase: String): Pair<SymmetricKey, ByteArray> {
             val key = SymmetricKey()
 
-            val encryptedKey = SecureCell.SealWithPassphrase(passphrase)
-                .encrypt(key.toByteArray())
+            val encryptedKey = encryptUserKey(key, passphrase)
 
             return Pair(key, encryptedKey)
         }
@@ -21,6 +20,14 @@ class Themis {
             val instance = MessageDigest.getInstance("SHA-512")
             instance.update(passphrase.encodeToByteArray())
             return instance.digest()
+        }
+
+        fun encryptUserKey(
+                userKey: SymmetricKey,
+                passphrase: String
+        ) : ByteArray {
+            val userKeyCell = SecureCell.SealWithPassphrase(passphrase)
+            return userKeyCell.encrypt(userKey.toByteArray())
         }
 
         fun decryptUserKey(

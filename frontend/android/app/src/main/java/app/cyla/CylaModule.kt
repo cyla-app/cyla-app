@@ -2,7 +2,6 @@ package app.cyla
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import app.cyla.api.DayApi
 import app.cyla.api.ShareApi
 import app.cyla.api.UserApi
@@ -22,6 +21,8 @@ import app.cyla.auth.AndroidEnclave
 import app.cyla.auth.SecureCompareLogin
 import app.cyla.auth.UserInfo
 import app.cyla.invoker.ApiException
+import app.cyla.util.Themis.Companion.encryptUserKey
+import com.cossacklabs.themis.SecureCellException
 import kotlinx.coroutines.Dispatchers
 import java.net.URL
 
@@ -41,20 +42,20 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         AndroidEnclave(reactContext?.currentActivity as MainActivity)
     }
 
-    private val dataApiClient = ApiClientBuilder(
+    private val cacheApiClient = ApiClientBuilder(
         true,
         reactApplicationContext,
         getAppStorage().getString("apiBasePath", null)
     ).build()
-    private val authApiClient = ApiClientBuilder(
+    private val noCacheApiClient = ApiClientBuilder(
         false,
         reactApplicationContext,
         getAppStorage().getString("apiBasePath", null)
     ).build()
-    private val userApi = UserApi(authApiClient)
-    private val dayApi = DayApi(dataApiClient)
-    private val statsApi = StatsApi(dataApiClient)
-    private val shareApi = ShareApi(dataApiClient)
+    private val userApi = UserApi(noCacheApiClient)
+    private val dayApi = DayApi(cacheApiClient)
+    private val statsApi = StatsApi(cacheApiClient)
+    private val shareApi = ShareApi(cacheApiClient)
 
     override fun getName(): String {
         return "CylaModule"
@@ -148,14 +149,17 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             .apply()
 
         this.userInfo = userInfo
-        val jwtAuth = dataApiClient.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
-        jwtAuth.bearerToken = userInfo.jwtToken
+        val jwtAuthCacheClient = cacheApiClient.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
+        jwtAuthCacheClient.bearerToken = userInfo.jwtToken
+
+        val jwtAuthNoCacheClient = noCacheApiClient.getAuthentication(JWT_AUTH_SCHEMA_NAME) as HttpBearerAuth
+        jwtAuthNoCacheClient.bearerToken = userInfo.jwtToken
     }
 
     @ReactMethod
     fun setApiBaseUrl(apiBaseUrl: String, promise: Promise) {
-        authApiClient.basePath = apiBaseUrl
-        dataApiClient.basePath = apiBaseUrl
+        noCacheApiClient.basePath = apiBaseUrl
+        cacheApiClient.basePath = apiBaseUrl
         getAppStorage().edit().putString("apiBasePath", apiBaseUrl).apply()
         promise.resolve(null)
     }
@@ -360,12 +364,54 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
             val shareId = shareApi.shareDays(userId, shareInfo)
             promise.resolve(shareId)
+        }.exceptionally { throwable ->
+            promise.reject(throwable)
         }
     }
 
+    @ReactMethod
+    fun changePassword(prevPwd: String, newPwd: String, promise: Promise) {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val prevAuthKey = generateAuthKey(prevPwd)
+                val newAuthKey = generateAuthKey(newPwd)
+
+
+                val userKey = decryptUserKey(getEncryptionStorage().getEncryptedUserKey()!!, prevPwd)
+                val newlyEncryptedUserKey = encryptUserKey(userKey, newPwd)
+
+                val dto = ChangePassphraseDTO()
+                dto.oldAuthKey = prevAuthKey
+                dto.newAuthKey = newAuthKey
+                dto.newEncryptedUserKey = newlyEncryptedUserKey
+                userApi.changePassPassphrase(getAppStorage().getUserId()!!, dto)
+
+                val (encryptedPassphrase, iv) = androidEnclave.encryptPassphrase(newPwd)
+                getEncryptionStorage().edit()
+                        .putPassphrase(encryptedPassphrase, iv)
+                        .putEncryptedUserKey(newlyEncryptedUserKey)
+                        .apply()
+
+                promise.resolve(null)
+            } catch( e: Throwable) {
+                when(e) {
+                    is SecureCellException -> {
+                        promise.reject("400", e)
+                    }
+                    is ApiException -> {
+                        promise.reject(e.code.toString(), e)
+                    }
+                    else -> promise.reject(e)
+                }
+            }
+        }
+
+    }
+
+
     private suspend fun login(username: String, passphrase: String): SecureCompareLogin.SuccessAuthInfo {
         val authKey = generateAuthKey(passphrase)
-        val url = URL(authApiClient.basePath)
+        val url = URL(noCacheApiClient.basePath)
 
         val successAuthInfo = withContext(Dispatchers.IO) {
             SecureCompareLogin().login(username, authKey, url)

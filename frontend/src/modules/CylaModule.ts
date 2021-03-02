@@ -32,6 +32,7 @@ type CylaModuleType = {
     iso8601dateTo: string,
   ) => Promise<string[]>
   shareData: (iso8601dateFrom: string, iso8601dateTo: string) => Promise<string>
+  changePassword: (prevPwd: string, newPwd: string) => Promise<void>
 }
 
 const CylaNativeModule: CylaModuleType = NativeModules.CylaModule
@@ -130,6 +131,10 @@ class CylaModule {
       formatDay(startDate),
       formatDay(endDate),
     )
+  }
+
+  async changePwd(prevPwd: string, newPwd: string) {
+    return await CylaNativeModule.changePassword(prevPwd, newPwd)
   }
 }
 
