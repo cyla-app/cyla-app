@@ -368,10 +368,9 @@ paths:
         "200":
           description: Auth succesful
           content:
-            text/plain:
+            application/json:
               schema:
-                description: JWT Token
-                type: string
+                $ref: "#/components/schemas/SuccessfulShareAuthData"
 components:
   parameters:
     userId:
@@ -464,6 +463,16 @@ components:
       type: string
       format: byte
       description: Attribute that has been hashed with a CHF
+    SuccessfulShareAuthData:
+      title: SuccShareAuthData
+      type: object
+      properties:
+        jwt:
+          title: bearerJWT
+          type: string
+          description: Fresh JWT for share authentication
+        shareKey:
+          $ref: "#/components/schemas/EncryptedAttribute"
     DayDate:
       title: date
       description: ISO-8601-formatted date for an day entry. Only the date, no time is given.

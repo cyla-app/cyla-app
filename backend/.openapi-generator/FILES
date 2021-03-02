@@ -25,6 +25,7 @@ server/model_share.go
 server/model_share_info_upload.go
 server/model_shared_pwd_dto.go
 server/model_statistic.go
+server/model_successful_share_auth_data.go
 server/model_user.go
 server/model_user_created_response.go
 server/model_user_stats.go

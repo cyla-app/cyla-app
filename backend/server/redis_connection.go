@@ -159,7 +159,7 @@ func (s *CylaRedisClient) ChangePassPassphrase(ctx context.Context, userId strin
 			fmt.Sprintf("%v:%v", userPrefixKey, userId),
 			fmt.Sprintf(changePassphraseDto.OldAuthKey),
 		},
-		[]interface{}{ GetUserAuthKeyName(),
+		[]interface{}{GetUserAuthKeyName(),
 			GetUserAuthKeyName(), changePassphraseDto.NewAuthKey,
 			GetUserUserKeyBackupName(), changePassphraseDto.NewEncryptedUserKey}).Err()
 	if err != nil {
@@ -517,16 +517,25 @@ func (s *CylaRedisClient) GetShares(ctx context.Context, userId string) (ret []S
 	return
 }
 
-func (s *CylaRedisClient) ShareAuth(ctx context.Context, shareId string, sharedPwdDto SharedPwdDto) (ret string, err error) {
-	hashedPwd := s.HGet(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareId), GetShareAuthKeyName()).Val()
+func (s *CylaRedisClient) ShareAuth(ctx context.Context, shareId string, sharedPwdDto SharedPwdDto) (ret SuccessfulShareAuthData, err error) {
+	pipeline := s.Pipeline()
+	hashedPwdCmd := pipeline.HGet(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareId), GetShareAuthKeyName())
+	shareKeyCmd := pipeline.HGet(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareId), GetShareSharedKeyBackupName())
 
-	err = bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(sharedPwdDto.HashedPwd))
+	_, err = pipeline.Exec(ctx)
 	if err != nil {
-		return "", newHTTPErrorWithCauseError(500, "error when authenticating", err)
+		return ret, newHTTPErrorWithCauseError(500, "error when executing redis pipeline", err)
 	}
-	ret, err = getShareJWTToken(shareId)
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPwdCmd.Val()), []byte(sharedPwdDto.HashedPwd))
 	if err != nil {
-		return "", newHTTPErrorWithCauseError(500, "error when authenticating", err)
+		return ret, newHTTPErrorWithCauseError(500, "error when authenticating", err)
 	}
+	jwt, err := getShareJWTToken(shareId)
+	if err != nil {
+		return ret, newHTTPErrorWithCauseError(500, "error when authenticating", err)
+	}
+	ret.Jwt = jwt
+	ret.ShareKey = shareKeyCmd.Val()
 	return
 }
