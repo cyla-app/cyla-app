@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTheme } from 'react-native-paper'
 import CalendarStrip from 'react-native-calendar-strip'
-import { addWeeks } from 'date-fns'
+import { addDays, addWeeks } from 'date-fns'
 import moment, { Moment } from 'moment'
 import { Day, Period, PeriodStats } from '../types'
 import { formatDay } from '../utils/date'
@@ -54,9 +54,9 @@ export default ({
       dateNumberStyle={{ fontWeight: 'normal', color: colors.text }}
       dateNameStyle={{ fontWeight: 'normal', color: colors.text }}
       calendarAnimation={{ type: 'sequence', duration: 30 }}
-      maxDate={moment(addWeeks(now, 0))}
-      startingDate={moment(addWeeks(now, 0))}
-      selectedDate={moment(addWeeks(now, 0))}
+      maxDate={moment(addDays(now, 3))}
+      startingDate={moment(now)}
+      selectedDate={moment(now)}
       iconContainer={{ flex: 0.1 }}
       highlightDateNameStyle={{ fontWeight: 'bold', color: colors.primary }}
       highlightDateNumberStyle={{ fontWeight: 'bold', color: colors.primary }}
