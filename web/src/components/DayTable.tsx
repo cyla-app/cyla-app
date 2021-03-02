@@ -66,7 +66,6 @@ const mapCervixFirmness = (firmness: Cervix_Firmness) => {
     ? "Firm"
     : "";
 };
-
 const mapMucusTexture = (texture: Mucus_Texture) => {
   return texture === Mucus_Texture.TEXTURE_EGG_WHITE
     ? "Egg White"
@@ -83,6 +82,15 @@ const mapMucusFeeling = (feeling: Mucus_Feeling) => {
     ? "Dry"
     : "";
 };
+const mapBleedingStrength = (bleeding: Bleeding_Strength) => {
+  return bleeding === Bleeding_Strength.STRENGTH_WEAK
+    ? "Weak"
+    : bleeding === Bleeding_Strength.STRENGTH_MEDIUM
+    ? "Medium"
+    : bleeding === Bleeding_Strength.STRENGTH_STRONG
+    ? "Strong"
+    : "";
+};
 
 type PropsType = { days: Day[] };
 
@@ -94,13 +102,7 @@ export default ({ days }: PropsType) => {
         id: i,
         date: day.date,
         bleeding: day.bleeding
-          ? day.bleeding.strength === Bleeding_Strength.STRENGTH_WEAK
-            ? "Weak"
-            : day.bleeding.strength === Bleeding_Strength.STRENGTH_MEDIUM
-            ? "Medium"
-            : day.bleeding.strength === Bleeding_Strength.STRENGTH_STRONG
-            ? "Strong"
-            : ""
+          ? mapBleedingStrength(day.bleeding.strength)
           : "",
         cervix: day.cervix
           ? `${mapCervixOpening(day.cervix.opening)}, ${mapCervixPosition(

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTheme } from 'react-native-paper'
 import CalendarStrip from 'react-native-calendar-strip'
-import { addDays, addWeeks } from 'date-fns'
+import { addDays } from 'date-fns'
 import moment, { Moment } from 'moment'
 import { Day, Period, PeriodStats } from '../types'
 import { formatDay } from '../utils/date'

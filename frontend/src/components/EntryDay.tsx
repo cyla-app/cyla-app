@@ -38,9 +38,9 @@ export default ({ onSave, selectedDate }: PropsType) => {
   const [mucusTexture, setMucusTexture] = useState<MucusTexture>(
     MucusTexture.TEXTURE_NONE,
   )
-  const [excludeReason, setExcludeReason] = useState<ExcludeReason>(
+  /*  const [excludeReason, setExcludeReason] = useState<ExcludeReason>(
     ExcludeReason.EXCLUDE_REASON_NONE,
-  )
+  )*/
 
   return (
     <View
@@ -102,7 +102,7 @@ export default ({ onSave, selectedDate }: PropsType) => {
             date: selectedDate,
           })
         }}
-        mode="contained"
+        mode="outlined"
         style={{ borderRadius: 30, margin: 10 } as ViewStyle}>
         Save
       </Button>
