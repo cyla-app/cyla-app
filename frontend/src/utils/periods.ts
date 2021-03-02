@@ -83,8 +83,6 @@ export const markPeriod = (periods: Period[], day: Day) => {
     // merge into existing period
     const period = periods[index]
     const dayDate = parseDay(day.date)
-    console.log(isBefore(dayDate, new Date(period.from)))
-    console.log(isAfter(dayDate, new Date(period.from)))
     newPeriods[index] = {
       from: isBefore(dayDate, new Date(period.from)) ? day.date : period.from,
       to: isAfter(dayDate, new Date(period.to)) ? day.date : period.to,

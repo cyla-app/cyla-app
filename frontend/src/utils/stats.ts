@@ -54,7 +54,6 @@ export const periodPercentageOfCurrentCycle = (
     parseDay(currentPeriod.to),
     parseDay(currentPeriod.from),
   )
-  console.log('periodDays', periodDays)
   return periodDays / cycleStats.mean
 }
 
@@ -66,7 +65,6 @@ export const percentageUntilNextPeriod = (
     return 0
   }
   const cycleStats = stats(cycleLengths)
-  console.log('cycleDay', cycleDay)
   return Math.min(cycleDay / cycleStats.mean, 1)
 }
 

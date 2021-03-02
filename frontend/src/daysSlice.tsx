@@ -177,7 +177,6 @@ const fetchDurationEpic: MyEpic = (action$, state$) =>
       const now = new Date()
       const to = range ? parseDay(range.from) : now
       const from = sub(to, action.payload ?? { months: 1 })
-      console.log(action)
 
       return fromPromise(CylaModule.fetchDaysByRange(from, to)).pipe(
         map((fetchedDays: Day[]) => {

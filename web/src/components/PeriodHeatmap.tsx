@@ -20,7 +20,6 @@ export default ({ days }: PropsType) => {
   return (
     <>
       {Object.entries(byYear).map(([year, days]) => {
-        console.log(days);
         return (
           <>
             <div>{year}</div>

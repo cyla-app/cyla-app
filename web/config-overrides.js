@@ -1,5 +1,4 @@
 module.exports = function override(config, env) {
-  console.log(config.module.rules);
   const wasmExtensionRegExp = /libthemis\.wasm$/;
 
   config.resolve.extensions.push(".wasm");
