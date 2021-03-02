@@ -2,8 +2,8 @@ import { Day } from '../../types'
 import { scaleY } from './worklets'
 import { Circle, Line } from 'react-native-svg'
 import React from 'react'
-import { POINT_GAP } from './PointChart'
 import { useTheme } from 'react-native-paper'
+import { POINT_GAP } from './constants'
 
 type PointLineProps = {
   day: Day
