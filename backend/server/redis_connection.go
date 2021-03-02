@@ -32,6 +32,7 @@ var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
 var getHashUserKeyForLogin = loadLuaScript("resources/get_hash_user_key_for_login.lua")
 var shareDayScript = loadLuaScript("resources/share_day_script.lua")
 var getSharesForUser = loadLuaScript("resources/get_shares_for_user_script.lua")
+var changePassphrase = loadLuaScript("resources/change_passphrase_script.lua")
 
 const userPrefixKey = "user"
 const userNamePrefixKey = "name"
@@ -63,6 +64,7 @@ func NewRedisClient() (*CylaRedisClient, error) {
 		getHashUserKeyForLogin.Load(context.Background(), cylaClient)
 		shareDayScript.Load(context.Background(), cylaClient)
 		getSharesForUser.Load(context.Background(), cylaClient)
+		changePassphrase.Load(context.Background(), cylaClient)
 		return &cylaClient, nil
 	}
 
@@ -150,25 +152,17 @@ func (s *CylaRedisClient) GetRestoreData(ctx context.Context, userId string) (ke
 	return ret.Val(), err
 }
 
-func (s *CylaRedisClient) UpdateUser(ctx context.Context, userId string, user User) error {
-	if user.Id != userId && user.Id != "" {
-		return newHTTPError(400, "different userId in path and in request body")
-	}
-	valList, err := flatStructToSlice(user)
-	if err != nil {
-		return newHTTPErrorWithCauseError(500, "could not marshall user", err)
-	}
-	var opResult int
-	opResult, err = updateHResourceScript.Run(ctx, s,
+func (s *CylaRedisClient) ChangePassPassphrase(ctx context.Context, userId string, changePassphraseDto ChangePassphraseDto) error {
+	err := changePassphrase.Run(ctx, s,
 		[]string{
-			fmt.Sprintf("%v:%v", userPrefixKey, user.Id),
-		}, valList).Int()
-
+			fmt.Sprintf("%v:%v", userPrefixKey, userId),
+			fmt.Sprintf(changePassphraseDto.OldAuthKey),
+		},
+		[]interface{}{ GetUserAuthKeyName(),
+			GetUserAuthKeyName(), changePassphraseDto.NewAuthKey,
+			GetUserUserKeyBackupName(), changePassphraseDto.NewEncryptedUserKey}).Err()
 	if err != nil {
-		return newHTTPError(500, "redis error")
-	}
-	if opResult == 0 {
-		return newHTTPError(404, "user not found")
+		return newHTTPError(400, "Passphrase or userid incorrect")
 	}
 	return nil
 }

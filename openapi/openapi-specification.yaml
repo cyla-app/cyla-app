@@ -55,30 +55,6 @@ paths:
           $ref: "#/components/responses/UserNotFound"
         "500":
           description: Error when retrieving user
-
-    put:
-      tags:
-        - user
-      description: Update an user
-      operationId: updateUser
-      parameters:
-        - $ref: "#/components/parameters/userId"
-      requestBody:
-        description: Updated user
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        "200":
-          description: User updated successfully
-        "400":
-          description: Error in request
-        "404":
-          $ref: "#/components/responses/UserNotFound"
-        "500":
-          description: Error when updating user
   /user/{userId}/restore:
     get:
       tags:
@@ -96,6 +72,26 @@ paths:
                 $ref: "#/components/schemas/EncryptedAttribute"
         "404":
           $ref: "#/components/responses/UserNotFound"
+  /user/{userId}/changePwd:
+    post:
+      tags:
+        - user
+      description: Change the passphrase for an user
+      operationId: changePassPassphrase
+      parameters:
+        - $ref : "#/components/parameters/userId"
+      requestBody:
+        description: New Passphrase info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref : "#/components/schemas/ChangePassphraseDTO"
+      responses:
+        "200":
+          description: Passphrase changed successfully
+        "400":
+          description: passphrase doesn't correspond to the user's saved passphrase
   /day/{userId}:
     post:
       tags:
@@ -502,6 +498,17 @@ components:
         user_key_backup:
           $ref: "#/components/schemas/EncryptedAttribute"
         auth_key:
+          $ref: "#/components/schemas/EncryptedAttribute"
+    ChangePassphraseDTO:
+      title: changePassphraseDTO
+      type: object
+      description: Information for requesting a passphrase change for a user
+      properties:
+        oldAuthKey:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        newEncryptedUserKey:
+          $ref: "#/components/schemas/EncryptedAttribute"
+        newAuthKey:
           $ref: "#/components/schemas/EncryptedAttribute"
     Day:
       title: day

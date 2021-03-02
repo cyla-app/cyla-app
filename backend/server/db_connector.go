@@ -39,10 +39,10 @@ type StatsPersistence interface {
 	GetStats(ctx context.Context, userId string) (ret UserStats, err error)
 }
 type UserPersistence interface {
+	ChangePassPassphrase(ctx context.Context, userId string, changePassphraseDto ChangePassphraseDto) error
 	CreateUser(ctx context.Context, user User) (ret UserCreatedResponse, err error)
 	GetRestoreData(ctx context.Context, userId string) (ret EncryptedAttribute, err error)
 	GetUserById(ctx context.Context, userId string) (ret User, err error)
-	UpdateUser(ctx context.Context, userId string, user User) error
 }
 
 type LoginPersistence interface {

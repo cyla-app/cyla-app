@@ -24,6 +24,13 @@ func NewUserApiService() UserApiServicer {
 	return &UserApiService{}
 }
 
+// ChangePassPassphrase -
+func (s *UserApiService) ChangePassPassphrase(ctx context.Context, userId string, changePassphraseDto ChangePassphraseDto) (response ImplResponse, err error) {
+	err = DBConnection.ChangePassPassphrase(ctx, userId, changePassphraseDto)
+	response, err = httpResponse(err)
+	return
+}
+
 // CreateUser -
 func (s *UserApiService) CreateUser(ctx context.Context, user User) (response ImplResponse, err error) {
 	ret, err := DBConnection.CreateUser(ctx, user)
@@ -42,12 +49,5 @@ func (s *UserApiService) GetRestoreData(ctx context.Context, userId string) (res
 func (s *UserApiService) GetUserById(ctx context.Context, userId string) (response ImplResponse, err error) {
 	ret, err := DBConnection.GetUserById(ctx, userId)
 	response, err = httpResponseWithBody(ret, err)
-	return
-}
-
-// UpdateUser -
-func (s *UserApiService) UpdateUser(ctx context.Context, userId string, user User) (response ImplResponse, err error) {
-	err = DBConnection.UpdateUser(ctx, userId, user)
-	response, err = httpResponse(err)
 	return
 }

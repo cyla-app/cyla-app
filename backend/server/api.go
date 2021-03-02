@@ -63,10 +63,10 @@ type StatsApiRouter interface {
 // The UserApiRouter implementation should parse necessary information from the http request,
 // pass the data to a UserApiServicer to perform the required actions, then write the service results to the http response.
 type UserApiRouter interface {
+	ChangePassPassphrase(http.ResponseWriter, *http.Request)
 	CreateUser(http.ResponseWriter, *http.Request)
 	GetRestoreData(http.ResponseWriter, *http.Request)
 	GetUserById(http.ResponseWriter, *http.Request)
-	UpdateUser(http.ResponseWriter, *http.Request)
 }
 
 type LoginApiRouter interface {
@@ -126,10 +126,10 @@ type StatsApiServicer interface {
 // while the service implementation can ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type UserApiServicer interface {
+	ChangePassPassphrase(context.Context, string, ChangePassphraseDto) (ImplResponse, error)
 	CreateUser(context.Context, User) (ImplResponse, error)
 	GetRestoreData(context.Context, string) (ImplResponse, error)
 	GetUserById(context.Context, string) (ImplResponse, error)
-	UpdateUser(context.Context, string, User) (ImplResponse, error)
 }
 
 type LoginApiServicer interface {

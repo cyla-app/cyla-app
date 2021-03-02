@@ -17,6 +17,7 @@ server/helpers.go
 server/http_error.go
 server/impl.go
 server/logger.go
+server/model_change_passphrase_dto.go
 server/model_custom_types.go
 server/model_day.go
 server/model_day_stats_update.go

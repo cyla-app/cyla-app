@@ -31,6 +31,12 @@ func NewUserApiController(s UserApiServicer) Router {
 func (c *UserApiController) Routes() Routes {
 	return Routes{
 		{
+			"ChangePassPassphrase",
+			strings.ToUpper("Post"),
+			"/user/{userId}/changePwd",
+			Authorize(c.ChangePassPassphrase, []authFunc{userJWTAuth}),
+		},
+		{
 			"CreateUser",
 			strings.ToUpper("Post"),
 			"/user",
@@ -48,13 +54,28 @@ func (c *UserApiController) Routes() Routes {
 			"/user/{userId}",
 			Authorize(c.GetUserById, []authFunc{userJWTAuth}),
 		},
-		{
-			"UpdateUser",
-			strings.ToUpper("Put"),
-			"/user/{userId}",
-			Authorize(c.UpdateUser, []authFunc{userJWTAuth}),
-		},
 	}
+}
+
+// ChangePassPassphrase -
+func (c *UserApiController) ChangePassPassphrase(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	userId := params["userId"]
+	changePassphraseDto := &ChangePassphraseDto{}
+	if err := json.NewDecoder(r.Body).Decode(&changePassphraseDto); err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	result, err := c.service.ChangePassPassphrase(r.Context(), userId, *changePassphraseDto)
+	//If an error occured, encode the error with the status code
+	if err != nil {
+		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
+		return
+	}
+	//If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+
 }
 
 // CreateUser -
@@ -96,27 +117,6 @@ func (c *UserApiController) GetUserById(w http.ResponseWriter, r *http.Request) 
 	params := mux.Vars(r)
 	userId := params["userId"]
 	result, err := c.service.GetUserById(r.Context(), userId)
-	//If an error occured, encode the error with the status code
-	if err != nil {
-		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
-		return
-	}
-	//If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
-}
-
-// UpdateUser -
-func (c *UserApiController) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userId := params["userId"]
-	user := &User{}
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		w.WriteHeader(500)
-		return
-	}
-
-	result, err := c.service.UpdateUser(r.Context(), userId, *user)
 	//If an error occured, encode the error with the status code
 	if err != nil {
 		EncodeJSONResponse(err.Error(), &result.Code, result.Headers, w)
