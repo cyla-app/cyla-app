@@ -1980,6 +1980,13 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.4.tgz#15925414e0ad2cd765bfef58842f7e26a7accb24"
   integrity sha512-1HcDas8SEj4z1Wc696tH56G8OlRaH/sqZOynNNB+HF0WOeXPaxTtbYzJY2oEfiUxjSKjhCKr+MvR7dCHcEelug==
 
+"@types/react-calendar-heatmap@^1.6.2":
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/@types/react-calendar-heatmap/-/react-calendar-heatmap-1.6.2.tgz#739bdec0ebc4d5f8af5fa4987fb76ebfdb3bc456"
+  integrity sha512-5sbvToPXLN4RSQBSNvxV971nkn6Obb6gCWxn1cqkcMFfn3/VjG72krvJuI6/c95JQjFa/zItVkmaKSn4i2Xoqg==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-dom@^17.0.0":
   version "17.0.1"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.1.tgz#d92d77d020bfb083e07cc8e0ac9f933599a4d56a"

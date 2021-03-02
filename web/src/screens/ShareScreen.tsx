@@ -22,6 +22,7 @@ import minimal from "protobufjs/minimal";
 import { PeriodStats, PeriodStatsDTO } from "../generated/period-stats";
 import DayTable from "../components/DayTable";
 import TemperatureChart from "../components/TemperatureChart";
+import PeriodHeatmap from "../components/PeriodHeatmap";
 
 const base64Decode = (base64: string): Uint8Array => {
   const length = minimal.util.base64.length(base64);
@@ -50,11 +51,11 @@ export default () => {
   );
   const classes = useStyles();
 
-  const toDate = new Date();
-  const fromDate = sub(toDate, { months: 6 });
-
   useEffect(() => {
     const load = async () => {
+      const toDate = new Date();
+      const fromDate = sub(toDate, { months: 6 });
+
       setLoading(true);
       OpenAPI.BASE = "http://localhost:5000";
       const auth = await ShareService.shareAuth(shareId, {
@@ -94,23 +95,30 @@ export default () => {
       setLoading(false);
     };
     load();
-  }, [shareId, fromDate, toDate]);
+  }, [shareId]);
 
   return (
     <>
       {loading && <LinearProgress color="secondary" />}
       {!loading && (
         <Container maxWidth="lg">
+          <h2>Share {shareId}</h2>
           <Grid container spacing={3} className={classes.grid}>
             <Grid item xs={12}>
               <Paper className={classes.paper}>
-                <h2>Share {shareId}</h2>
-                <DayTable days={days} />
+                <TemperatureChart days={days} />
               </Paper>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={8}>
               <Paper className={classes.paper}>
-                <TemperatureChart days={days} />
+                <div style={{ height: 300 }}>
+                  <PeriodHeatmap days={days} />
+                </div>
+              </Paper>
+            </Grid>
+            <Grid item xs={12}>
+              <Paper className={classes.paper}>
+                <DayTable days={days} />
               </Paper>
             </Grid>
           </Grid>

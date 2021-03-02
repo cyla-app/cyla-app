@@ -8,7 +8,7 @@ type PropsType = { days: Day[] };
 export default ({ days }: PropsType) => {
   return (
     <LineChart
-      width={500}
+      width={1000}
       height={300}
       data={days.map((day, i) => ({
         date: day.date,
