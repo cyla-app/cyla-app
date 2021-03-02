@@ -10,7 +10,6 @@ import {
   Temperature,
 } from '../types'
 import EntryBleeding from './EntryBleeding'
-import EntryExclude from './EntryExclude'
 import EntryTemperature from './EntryTemperature'
 import EntryMucus from './EntryMucus'
 

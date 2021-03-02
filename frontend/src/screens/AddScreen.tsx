@@ -15,8 +15,15 @@ import { format } from 'date-fns'
 import { StackNavigationProp } from '@react-navigation/stack'
 
 type AddScreenNavigationProp = StackNavigationProp<MainStackParamList>
+type DetailScreenRouteProp = RouteProp<MainStackParamList, 'Add'>
 
-export default ({ navigation }: { navigation: AddScreenNavigationProp }) => {
+export default ({
+  navigation,
+  route,
+}: {
+  route: DetailScreenRouteProp
+  navigation: AddScreenNavigationProp
+}) => {
   const daysError = useSelector<RootState, string | undefined>(
     (state) => state.days.error,
   )
@@ -25,7 +32,9 @@ export default ({ navigation }: { navigation: AddScreenNavigationProp }) => {
     (state) => state.days.periodStats,
   )
 
-  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState(
+    route.params.date ?? new Date(),
+  )
 
   const dispatch = useDispatch()
 

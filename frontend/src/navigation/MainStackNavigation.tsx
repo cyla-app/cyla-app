@@ -24,7 +24,7 @@ export type MainStackParamList = {
   ServerChange: undefined
   Tabs: NavigatorScreenParams<TabsParamList>
   Profile: undefined
-  Add: undefined
+  Add: { date?: Date }
   Share: undefined
   ChangePassphrase: undefined
   Detail: { day: Day }
