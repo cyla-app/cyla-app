@@ -68,6 +68,13 @@ export default ({ navigation }: PropType) => {
         Set your name
       </Button>
       <Button
+        icon={'wrench'}
+        onPress={async () => {
+          navigation.navigate('ChangePassphrase')
+        }}>
+        Change Password
+      </Button>
+      <Button
         icon={'logout'}
         onPress={async () => {
           dispatch(logout())
