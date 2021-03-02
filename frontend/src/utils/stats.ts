@@ -36,9 +36,26 @@ export const dayOfCurrentCycle = (periodStats: Period[]) => {
   if (periodStats.length === 0) {
     return null
   }
-  const lastPeriod = periodStats[periodStats.length - 1]
+  const currentPeriod = periodStats[periodStats.length - 1]
 
-  return Math.max(differenceInDays(new Date(), parseDay(lastPeriod.from)), 1)
+  return Math.max(differenceInDays(new Date(), parseDay(currentPeriod.from)), 0)
+}
+
+export const periodPercentageOfCurrentCycle = (
+  cycleLengths: number[],
+  periodStats: Period[],
+) => {
+  if (periodStats.length === 0) {
+    return 0
+  }
+  const cycleStats = stats(cycleLengths)
+  const currentPeriod = periodStats[periodStats.length - 1]
+  const periodDays = differenceInDays(
+    parseDay(currentPeriod.to),
+    parseDay(currentPeriod.from),
+  )
+  console.log('periodDays', periodDays)
+  return periodDays / cycleStats.mean
 }
 
 export const percentageUntilNextPeriod = (
@@ -49,15 +66,21 @@ export const percentageUntilNextPeriod = (
     return 0
   }
   const cycleStats = stats(cycleLengths)
+  console.log('cycleDay', cycleDay)
   return Math.min(cycleDay / cycleStats.mean, 1)
 }
 
+export type CycleLengthType = [number, number, Period, Period]
+
 export const calculateCycleLengths = (periodStats: Period[]) =>
-  pairwise(periodStats).reduceRight<[number, Period, Period][]>(
+  pairwise(periodStats).reduceRight<CycleLengthType[]>(
     (accumulator, [period1, period2]) => {
       accumulator.push([
         Math.abs(
           differenceInDays(parseDay(period2.from), parseDay(period1.to)),
+        ),
+        Math.abs(
+          differenceInDays(parseDay(period1.to), parseDay(period1.from)),
         ),
         period1,
         period2,

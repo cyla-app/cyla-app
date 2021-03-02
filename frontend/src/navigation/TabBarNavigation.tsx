@@ -43,7 +43,7 @@ const AddButton = () => {
       }}>
       <TouchableRipple
         borderless
-        onPress={() => navigation.navigate('Add')}
+        onPress={() => navigation.navigate('Add', {})}
         rippleColor="rgba(0, 0, 0, .32)"
         style={{
           alignItems: 'center',

@@ -7,9 +7,11 @@ export default ({
   month,
   maxCycleLength,
   cycleLength,
+  periodLength,
 }: {
   month: string
   cycleLength: number
+  periodLength: number
   maxCycleLength: number
 }) => {
   const { colors } = useTheme()
@@ -34,6 +36,14 @@ export default ({
           height={20}
           rx="5px"
           fill={colors.primary}
+        />
+        <Rect
+          x={0}
+          y={0}
+          width={width * (periodLength / maxCycleLength)}
+          height={20}
+          rx="5px"
+          fill={colors.periodRed}
         />
       </Svg>
     </View>

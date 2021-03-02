@@ -30,6 +30,9 @@ export default () => {
 
   const cycleLengths = calculateCycleLengths(periodStats)
   const plainCycleLengths = cycleLengths.map(([cycleLength]) => cycleLength)
+  const plainPeriodLengths = cycleLengths.map(
+    ([_, periodLength]) => periodLength,
+  )
 
   const maxCycleLength = cycleLengths.length > 0 ? max(plainCycleLengths) : 0
 
@@ -64,20 +67,12 @@ export default () => {
           </Button>
         )}
 
-        <Card
-          style={{
-            margin: 20,
-          }}>
-          <View style={{ padding: 10 }}>
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <CycleStats cycleLengths={plainCycleLengths} />
-            </View>
-          </View>
-        </Card>
+        <View style={{ margin: 20 }}>
+          <CycleStats
+            cycleLengths={plainCycleLengths}
+            periodLengths={plainPeriodLengths}
+          />
+        </View>
 
         <Card
           style={{
@@ -89,10 +84,11 @@ export default () => {
               alignItems: 'center',
             }}>
             <View style={{ margin: 10 }}>
-              {cycleLengths.map(([cycleLength, period1], i) => (
+              {cycleLengths.map(([cycleLength, periodLength, period1], i) => (
                 <CycleBar
                   key={i}
                   month={format(parseDay(period1.to), 'MMMM')}
+                  periodLength={periodLength}
                   cycleLength={cycleLength}
                   maxCycleLength={maxCycleLength}
                 />
