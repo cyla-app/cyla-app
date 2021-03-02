@@ -50,7 +50,14 @@ export default () => {
         refreshControl={
           <RefreshControl refreshing={false} onRefresh={refresh} />
         }>
-        <Headline>Basal Temperature</Headline>
+        <View style={{ margin: 20 }}>
+          <CycleStats
+            cycleLengths={plainCycleLengths}
+            periodLengths={plainPeriodLengths}
+          />
+        </View>
+
+        <Headline style={{ margin: 20 }}>Temperature</Headline>
         {Object.keys(days.byWeek).length !== 0 ? (
           <Chart
             weekIndex={days.byWeek}
@@ -67,23 +74,17 @@ export default () => {
           </Button>
         )}
 
-        <View style={{ margin: 20 }}>
-          <CycleStats
-            cycleLengths={plainCycleLengths}
-            periodLengths={plainPeriodLengths}
-          />
-        </View>
-
         <Card
           style={{
             margin: 20,
           }}>
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <View style={{ margin: 10 }}>
+          <View style={{ margin: 10 }}>
+            <Headline>Cycles</Headline>
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
               {cycleLengths.map(([cycleLength, periodLength, period1], i) => (
                 <CycleBar
                   key={i}

@@ -38,7 +38,10 @@ export const dayOfCurrentCycle = (periodStats: Period[]) => {
   }
   const currentPeriod = periodStats[periodStats.length - 1]
 
-  return Math.max(differenceInDays(new Date(), parseDay(currentPeriod.from)), 0)
+  return (
+    // +1, because we assume that the current day is always counted
+    Math.max(differenceInDays(new Date(), parseDay(currentPeriod.from)), 0) + 1
+  )
 }
 
 export const periodPercentageOfCurrentCycle = (

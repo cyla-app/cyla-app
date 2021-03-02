@@ -30,7 +30,7 @@ export default ({
 }: {
   periodStats: Period[]
   cycleLengths: CycleLengthType[]
-  cycleDay?: number | null
+  cycleDay: number | null
 }) => {
   const { colors } = useTheme()
 
