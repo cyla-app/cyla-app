@@ -74,12 +74,12 @@ export default ({ onSave, selectedDate }: PropsType) => {
         />
       </>
 
-      <PropertyHeadline>Exclude</PropertyHeadline>
+      {/*<PropertyHeadline>Exclude</PropertyHeadline>
 
       <EntryExclude
         excludeReason={excludeReason}
         onExcludeReasonChanged={setExcludeReason}
-      />
+      />*/}
 
       <Button
         onPress={() => {
