@@ -109,11 +109,6 @@ export default ({
         fill={percentage >= 1 ? colors.primary : colors.buttonBackground}
         transform={`rotate(${fullDegrees} 50 50)`}
       />
-      {cycleDay && (
-        <Text x={50} y={50} fill="black" fontSize={10} textAnchor="middle">
-          {'Current day: ' + cycleDay}
-        </Text>
-      )}
     </Svg>
   )
 }
