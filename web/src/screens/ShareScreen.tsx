@@ -108,7 +108,7 @@ export default () => {
       {loading && <LinearProgress color="secondary" />}
       {!loading && !error && (
         <Container maxWidth="lg">
-          <h2>Share {shareId}</h2>
+          <h1>Shared medical data</h1>
           <Grid container spacing={3} className={classes.grid}>
             <Grid item xs={12}>
               <Paper className={classes.paper}>
