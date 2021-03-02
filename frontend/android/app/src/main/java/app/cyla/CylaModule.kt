@@ -2,13 +2,12 @@ package app.cyla
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import app.cyla.api.DayApi
 import app.cyla.api.ShareApi
 import app.cyla.api.UserApi
 import app.cyla.util.*
 import app.cyla.util.Themis.Companion.generateAuthKey
-import app.cyla.util.Themis.Companion.createEncryptionKey
+import app.cyla.util.Themis.Companion.createEncryptedSymmetricKey
 import app.cyla.util.Themis.Companion.decryptUserKey
 import app.cyla.invoker.auth.HttpBearerAuth
 import com.facebook.react.bridge.*
@@ -104,7 +103,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
     }
 
     private fun createNewUserKey(username: String, passphrase: String): Triple<UserInfo, ByteArray, String> {
-        val (userKey, encryptedUserKey) = createEncryptionKey(passphrase)
+        val (userKey, encryptedUserKey) = createEncryptedSymmetricKey(passphrase)
         val authKey = generateAuthKey(passphrase)
 
         val user = User()
@@ -326,7 +325,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         val userId = getAppStorage().getUserId()
         //TODO: Generate strong, random password for sharing
         val sharePwd = "password"
-        val (shareKey, shareKeyEncrypted) = Themis.createEncryptionKey(sharePwd)
+        val (shareKey, shareKeyEncrypted) = Themis.createEncryptedSymmetricKey(sharePwd)
 
         CompletableFuture.supplyAsync {
             val days = dayApi.getDayByUserAndRange(
