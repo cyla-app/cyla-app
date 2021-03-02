@@ -52,13 +52,27 @@ export default ({}: { navigation: DailyScreenNavigationProp }) => {
         }>
         <Card
           style={{
-            margin: 20,
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 10,
+            marginBottom: 10,
           }}>
           <View style={{ padding: 10 }}>
             <Headline>Hello!</Headline>
             <Subheading>
               Today is your {cycleDay !== null ? cycleDay : ''}. cycle day
             </Subheading>
+          </View>
+        </Card>
+
+        <Card
+          style={{
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 10,
+            marginBottom: 10,
+          }}>
+          <View style={{ padding: 10 }}>
             <View
               style={{
                 justifyContent: 'center',

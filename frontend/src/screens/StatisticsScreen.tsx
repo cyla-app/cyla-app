@@ -50,7 +50,13 @@ export default () => {
         refreshControl={
           <RefreshControl refreshing={false} onRefresh={refresh} />
         }>
-        <View style={{ margin: 20 }}>
+        <View
+          style={{
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 10,
+            marginBottom: 20,
+          }}>
           <CycleStats
             cycleLengths={plainCycleLengths}
             periodLengths={plainPeriodLengths}
@@ -76,7 +82,10 @@ export default () => {
 
         <Card
           style={{
-            margin: 20,
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 20,
+            marginBottom: 10,
           }}>
           <View style={{ margin: 10 }}>
             <Headline>Cycles</Headline>
