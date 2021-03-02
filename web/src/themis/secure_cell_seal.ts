@@ -161,7 +161,7 @@ export class SecureCellSeal {
     }
   }
 
-  decrypt(message: Uint8Array) {
+  decrypt(message: Uint8Array, context: Uint8Array = new Uint8Array()) {
     message = coerceToBytes(message);
     if (message.length == 0) {
       throw new ThemisError(
@@ -171,12 +171,7 @@ export class SecureCellSeal {
       );
     }
 
-    let context;
-    if (arguments.length > 1 && arguments[1] !== null) {
-      context = coerceToBytes(arguments[1]);
-    } else {
-      context = new Uint8Array();
-    }
+    context = coerceToBytes(context);
 
     let status;
     /// C API uses "size_t" for lengths, it's defined as "i32" in Emscripten

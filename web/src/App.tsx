@@ -13,8 +13,6 @@ import {
   createMuiTheme,
   CssBaseline,
   Toolbar,
-  Typography,
-  Button,
   makeStyles,
 } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
@@ -24,16 +22,16 @@ import AppIcon from "./assets/app_icon.png";
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: "#556cd6",
+      main: "#00075E",
     },
     secondary: {
-      main: "#19857b",
+      main: "#CC1C21",
     },
     error: {
       main: red.A400,
     },
     background: {
-      default: "#fff",
+      default: "#ffeded",
     },
   },
 });
@@ -61,8 +59,6 @@ const App = () => {
               <div>
                 <img className={classes.appIcon} src={AppIcon} />
               </div>
-              <Typography variant="h6" className={classes.title}></Typography>
-              <Button color="inherit">Login</Button>
             </Toolbar>
           </AppBar>
 

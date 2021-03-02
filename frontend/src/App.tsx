@@ -48,7 +48,7 @@ const theme = {
     ...PaperDefaultTheme.colors,
     primary: '#00075E',
     accent: '#CC1C21',
-    surface: '#ffeded',
+    surface: '#fff',
     // surface: '#FFF',
     background: '#ffeded',
     // background: '#FFF',

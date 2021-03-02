@@ -10,18 +10,18 @@
 package main
 
 import (
-    "github.com/gorilla/handlers"
+	"github.com/gorilla/handlers"
 	"log"
 	"net/http"
-    "os"
+	"os"
 
 	server "github.com/cyla-app/cyla-app/server"
 )
 
 func main() {
 	log.Printf("Server started")
-    // Initialize DB connection as global variable
-    server.InitializeDBConnection()
+	// Initialize DB connection as global variable
+	server.InitializeDBConnection()
 
 	DayApiService := server.NewDayApiService()
 	DayApiController := server.NewDayApiController(DayApiService)
@@ -41,14 +41,15 @@ func main() {
 	UserApiService := server.NewUserApiService()
 	UserApiController := server.NewUserApiController(UserApiService)
 
-    LoginApiService := server.NewLoginApiService()
-    LoginApiController := server.NewLoginApiController(LoginApiService)
+	LoginApiService := server.NewLoginApiService()
+	LoginApiController := server.NewLoginApiController(LoginApiService)
 
-	router := server.NewRouter(LoginApiController,DayApiController, ShareApiController, ShareDayApiController, ShareStatsApiController, StatsApiController, UserApiController)
+	router := server.NewRouter(LoginApiController, DayApiController, ShareApiController, ShareDayApiController, ShareStatsApiController, StatsApiController, UserApiController)
 
-    if env, ok := os.LookupEnv("CYLA_ENV"); ok && env == "dev" {
-        log.Fatal(http.ListenAndServe(":5000", handlers.CORS()(router)))
-    } else {
-        log.Fatal(http.ListenAndServe(":5000", router))
-    }
+	if env, ok := os.LookupEnv("CYLA_ENV"); ok && env == "dev" {
+		headersOk := handlers.AllowedHeaders([]string{"Content-Type", "Authorization"})
+		log.Fatal(http.ListenAndServe(":5000", handlers.CORS(headersOk)(router)))
+	} else {
+		log.Fatal(http.ListenAndServe(":5000", router))
+	}
 }

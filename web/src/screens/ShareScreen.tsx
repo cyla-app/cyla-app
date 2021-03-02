@@ -1,89 +1,129 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  DayService,
   OpenAPI,
   ShareDayService,
   ShareService,
+  ShareStatsService,
 } from "../generated/openapi";
 import { Day } from "../generated/day";
 import * as themis from "../themis";
+import { sub } from "date-fns";
 // @ts-ignore
 import themisWasm from "../themis/libthemis.wasm";
-import { DataGrid, ValueGetterParams } from "@material-ui/data-grid";
-import { Box, Container } from "@material-ui/core";
+import {
+  Container,
+  Grid,
+  LinearProgress,
+  makeStyles,
+  Paper,
+} from "@material-ui/core";
+import minimal from "protobufjs/minimal";
+import { PeriodStats, PeriodStatsDTO } from "../generated/period-stats";
+import DayTable from "../components/DayTable";
+import TemperatureChart from "../components/TemperatureChart";
+import PeriodHeatmap from "../components/PeriodHeatmap";
 
-new DayService();
-console.log(Day.toJSON({ date: "sdf" }));
-themis.initialize(themisWasm).then(function () {
-  let cell = themis.SecureCellSeal.withPassphrase("sdf");
-  const encrypted = cell.encrypt(new TextEncoder().encode("Hello World"));
-  console.log(new TextDecoder().decode(cell.decrypt(encrypted)));
-});
+const base64Decode = (base64: string): Uint8Array => {
+  const length = minimal.util.base64.length(base64);
+  const buffer = new Uint8Array(length);
+  minimal.util.base64.decode(base64, buffer, 0);
+  return buffer;
+};
 
-const columns = [
-  { field: "id", headerName: "ID", width: 70 },
-  { field: "firstName", headerName: "First name", width: 130 },
-  { field: "lastName", headerName: "Last name", width: 130 },
-  {
-    field: "age",
-    headerName: "Age",
-    type: "number",
-    width: 90,
+const useStyles = makeStyles((theme) => ({
+  grid: {
+    margin: 20,
   },
-  {
-    field: "fullName",
-    headerName: "Full name",
-    description: "This column has a value getter and is not sortable.",
-    sortable: false,
-    width: 160,
-    valueGetter: (params: ValueGetterParams) =>
-      `${params.getValue("firstName") || ""} ${
-        params.getValue("lastName") || ""
-      }`,
+  paper: {
+    padding: theme.spacing(2),
+    textAlign: "center",
+    color: theme.palette.text.secondary,
   },
-];
-
-const rows = [
-  { id: 1, lastName: "Snow", firstName: "Jon", age: 35 },
-  { id: 2, lastName: "Lannister", firstName: "Cersei", age: 42 },
-  { id: 3, lastName: "Lannister", firstName: "Jaime", age: 45 },
-  { id: 4, lastName: "Stark", firstName: "Arya", age: 16 },
-  { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-  { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-  { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-  { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-  { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-];
+}));
 
 export default () => {
-  let { shareId } = useParams();
+  const { shareId } = useParams();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [days, setDays] = useState<Day[]>([]);
+  const [periodStats, setPeriodStats] = useState<PeriodStats | undefined>(
+    undefined
+  );
+  const classes = useStyles();
 
   useEffect(() => {
     const load = async () => {
-      OpenAPI.BASE = "http://localhost:5000";
-      const shares = await ShareService.shareAuth("shareId", {
-        hashedPwd: "sdf",
-      });
-      console.log(shares);
-    };
+      const toDate = new Date();
+      const fromDate = sub(toDate, { months: 6 });
 
+      setLoading(true);
+      OpenAPI.BASE = "http://localhost:5000";
+      const auth = await ShareService.shareAuth(shareId, {
+        hashedPwd: "password",
+      });
+      OpenAPI.TOKEN = auth.jwt!!;
+
+      const days = await ShareDayService.shareGetDayByUserAndRange(
+        shareId,
+        fromDate.toISOString(),
+        toDate.toISOString()
+      );
+      const stats = await ShareStatsService.shareGetPeriodStats(shareId);
+      await themis.initialize(themisWasm);
+      const shareKeyCell = themis.SecureCellSeal.withPassphrase("password");
+      const shareKey = shareKeyCell.decrypt(base64Decode(auth.shareKey!!));
+
+      const shareCell = themis.SecureCellSeal.withKey(shareKey);
+      for (let i = 0; i < 500; i++) {}
+
+      setPeriodStats(
+        PeriodStatsDTO.decode(shareCell.decrypt(base64Decode(stats.value)))
+          .periodStats
+      );
+
+      const dayInfos = days.map((day) => {
+        const dayKey = shareCell.decrypt(base64Decode(day.day_key));
+        const dayInfoCell = themis.SecureCellSeal.withKey(dayKey);
+        return Day.decode(
+          dayInfoCell.decrypt(
+            base64Decode(day.dayInfo),
+            new TextEncoder().encode(day.date)
+          )
+        );
+      });
+      setDays(dayInfos);
+      setLoading(false);
+    };
     load();
-  });
+  }, [shareId]);
 
   return (
     <>
-      <Container maxWidth="sm">
-        <Box style={{ height: 400 }} my={4}>
+      {loading && <LinearProgress color="secondary" />}
+      {!loading && (
+        <Container maxWidth="lg">
           <h2>Share {shareId}</h2>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            pageSize={5}
-            checkboxSelection
-          />
-        </Box>
-      </Container>
+          <Grid container spacing={3} className={classes.grid}>
+            <Grid item xs={12}>
+              <Paper className={classes.paper}>
+                <TemperatureChart days={days} />
+              </Paper>
+            </Grid>
+            <Grid item xs={8}>
+              <Paper className={classes.paper}>
+                <div style={{ height: 300 }}>
+                  <PeriodHeatmap days={days} />
+                </div>
+              </Paper>
+            </Grid>
+            <Grid item xs={12}>
+              <Paper className={classes.paper}>
+                <DayTable days={days} />
+              </Paper>
+            </Grid>
+          </Grid>
+        </Container>
+      )}
     </>
   );
 };

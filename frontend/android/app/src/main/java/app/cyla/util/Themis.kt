@@ -8,7 +8,7 @@ import java.security.MessageDigest
 
 class Themis {
     companion object {
-        fun createEncryptionKey(passphrase: String): Pair<SymmetricKey, ByteArray> {
+        fun createEncryptedSymmetricKey(passphrase: String): Pair<SymmetricKey, ByteArray> {
             val key = SymmetricKey()
 
             val encryptedKey = encryptUserKey(key, passphrase)
