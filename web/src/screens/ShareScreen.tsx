@@ -17,9 +17,9 @@ import {
   LinearProgress,
   makeStyles,
   Paper,
+  Snackbar,
 } from "@material-ui/core";
 import minimal from "protobufjs/minimal";
-import { PeriodStats, PeriodStatsDTO } from "../generated/period-stats";
 import DayTable from "../components/DayTable";
 import TemperatureChart from "../components/TemperatureChart";
 import PeriodHeatmap from "../components/PeriodHeatmap";
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(2),
-    textAlign: "center",
+    textAlign: "start",
     color: theme.palette.text.secondary,
   },
 }));
@@ -45,10 +45,8 @@ const useStyles = makeStyles((theme) => ({
 export default () => {
   const { shareId } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
   const [days, setDays] = useState<Day[]>([]);
-  const [periodStats, setPeriodStats] = useState<PeriodStats | undefined>(
-    undefined
-  );
   const classes = useStyles();
 
   useEffect(() => {
@@ -68,18 +66,11 @@ export default () => {
         fromDate.toISOString(),
         toDate.toISOString()
       );
-      const stats = await ShareStatsService.shareGetPeriodStats(shareId);
       await themis.initialize(themisWasm);
       const shareKeyCell = themis.SecureCellSeal.withPassphrase("password");
       const shareKey = shareKeyCell.decrypt(base64Decode(auth.shareKey!!));
 
       const shareCell = themis.SecureCellSeal.withKey(shareKey);
-      for (let i = 0; i < 500; i++) {}
-
-      setPeriodStats(
-        PeriodStatsDTO.decode(shareCell.decrypt(base64Decode(stats.value)))
-          .periodStats
-      );
 
       const dayInfos = days.map((day) => {
         const dayKey = shareCell.decrypt(base64Decode(day.day_key));
@@ -94,13 +85,28 @@ export default () => {
       setDays(dayInfos);
       setLoading(false);
     };
-    load();
+    load().catch((e) => {
+      setError(e);
+    });
   }, [shareId]);
+
+  if (error) {
+    return (
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => {
+          setError(null);
+        }}
+        message={error?.message || "Unknown error"}
+      />
+    );
+  }
 
   return (
     <>
       {loading && <LinearProgress color="secondary" />}
-      {!loading && (
+      {!loading && !error && (
         <Container maxWidth="lg">
           <h2>Share {shareId}</h2>
           <Grid container spacing={3} className={classes.grid}>
@@ -109,7 +115,7 @@ export default () => {
                 <TemperatureChart days={days} />
               </Paper>
             </Grid>
-            <Grid item xs={8}>
+            <Grid item xs={12}>
               <Paper className={classes.paper}>
                 <div style={{ height: 300 }}>
                   <PeriodHeatmap days={days} />
