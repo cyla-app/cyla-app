@@ -55,7 +55,7 @@ export default ({}: { navigation: DailyScreenNavigationProp }) => {
             margin: 20,
           }}>
           <View style={{ padding: 10 }}>
-            <Headline>Hello Maria!</Headline>
+            <Headline>Hello!</Headline>
             <Subheading>
               Today is your {cycleDay !== null ? cycleDay : ''}. cycle day
             </Subheading>

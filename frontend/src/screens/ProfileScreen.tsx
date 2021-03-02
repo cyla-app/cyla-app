@@ -24,7 +24,6 @@ export default ({ navigation }: PropType) => {
   const daysLoaded = useSelector<RootState, number>(
     (state) => Object.keys(state.days.byDay).length,
   )
-  const [realName, setRealName] = useState<string | null>('')
   const [loading, refresh] = useRefresh()
   const dispatch = useDispatch()
 
@@ -33,11 +32,6 @@ export default ({ navigation }: PropType) => {
       setUserId(await CylaModule.getUserId())
     }
 
-    const getRealName = async () => {
-      setRealName(await AsyncStorage.getItem('realName'))
-    }
-
-    getRealName()
     getUserId()
   }, [])
 
@@ -57,16 +51,6 @@ export default ({ navigation }: PropType) => {
         justifyContent: 'center',
         margin: 10,
       }}>
-      <Headline>{realName ? `Hello, ${realName}!` : 'Hello!'}</Headline>
-      <Button
-        icon={'wrench'}
-        onPress={async () => {
-          const name = 'Mary Garcia'
-          setRealName(name)
-          await AsyncStorage.setItem('realName', name)
-        }}>
-        Set your name
-      </Button>
       <Button
         icon={'wrench'}
         onPress={async () => {
