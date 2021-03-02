@@ -13,10 +13,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import SignInScreen from '../screens/SignInScreen'
 import StatusBanner from '../components/StatusBanner'
-import { useTheme } from 'react-native-paper'
 import ServerChangeScreen from '../screens/ServerChangeScreen'
 import SharingScreen from '../screens/SharingScreen'
 import ChangePassphrase from '../screens/ChangePassphraseScreen'
+import AddScreen from '../screens/AddScreen'
 
 export type MainStackParamList = {
   SignUp: undefined
@@ -24,6 +24,7 @@ export type MainStackParamList = {
   ServerChange: undefined
   Tabs: NavigatorScreenParams<TabsParamList>
   Profile: undefined
+  Add: undefined
   Share: undefined
   ChangePassphrase: undefined
   Detail: { day: Day }
@@ -78,6 +79,17 @@ export default () => {
                   backgroundColor: 'transparent',
                   marginTop: 150,
                   flex: 1,
+                },
+              }}
+            />
+            <Stack.Screen
+              name="Add"
+              component={AddScreen}
+              options={{
+                ...TransitionPresets.ModalSlideFromBottomIOS,
+                gestureEnabled: true,
+                gestureResponseDistance: {
+                  vertical: 500,
                 },
               }}
             />

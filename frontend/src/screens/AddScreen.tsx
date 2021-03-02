@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import { MainStackParamList } from '../navigation/MainStackNavigation'
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
-import { StackNavigationProp } from '@react-navigation/stack'
-import { CompositeNavigationProp } from '@react-navigation/native'
-import { TabsParamList } from '../navigation/TabBarNavigation'
+import { RouteProp } from '@react-navigation/native'
 import { Day, Period } from '../types'
 import EntryDay from '../components/EntryDay'
 import { DayIndex, saveDay } from '../daysSlice'
@@ -12,16 +9,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../App'
 import { formatDay } from '../utils/date'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
-import { Headline } from 'react-native-paper'
+import { Headline, IconButton } from 'react-native-paper'
 import CalendarStrip from '../components/CalendarStrip'
 import { format } from 'date-fns'
+import { StackNavigationProp } from '@react-navigation/stack'
 
-type AddScreenNavigationProp = CompositeNavigationProp<
-  BottomTabNavigationProp<TabsParamList, 'Add'>,
-  StackNavigationProp<MainStackParamList>
->
+type AddScreenNavigationProp = StackNavigationProp<MainStackParamList>
 
-export default ({}: { navigation: AddScreenNavigationProp }) => {
+export default ({ navigation }: { navigation: AddScreenNavigationProp }) => {
   const daysError = useSelector<RootState, string | undefined>(
     (state) => state.days.error,
   )
@@ -43,7 +38,19 @@ export default ({}: { navigation: AddScreenNavigationProp }) => {
           alignContent: 'flex-end',
           marginBottom: 30,
         }}>
-        <Headline style={{ textAlign: 'center' }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+          }}>
+          <IconButton
+            icon="close"
+            color={'black'}
+            size={25}
+            onPress={() => navigation.goBack()}
+          />
+        </View>
+        <Headline style={{ textAlign: 'center', margin: 20 }}>
           {format(selectedDate, 'dd MMMM yyyy')}
         </Headline>
         <ScrollView contentContainerStyle={{}}>

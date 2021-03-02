@@ -21,7 +21,7 @@ const SIZE = 55
 export type TabsParamList = {
   Daily: undefined
   Calendar: undefined
-  Add: undefined
+  Add_Dummy: undefined
   Statistics: undefined
   Profile: undefined
   Sharing: undefined
@@ -87,7 +87,7 @@ export default () => {
           }}
         />
         <Tab.Screen
-          name="Add"
+          name="Add_Dummy"
           component={AddScreen}
           options={{
             tabBarColor: colors.add,
