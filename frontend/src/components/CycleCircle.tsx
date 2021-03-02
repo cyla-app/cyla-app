@@ -26,7 +26,7 @@ export default ({
 }) => {
   const { colors } = useTheme()
 
-  const width = Dimensions.get('window').width * 0.5
+  const width = Dimensions.get('window').width * 0.65
   const radius = 50
   const centerX = 50
   const centerY = 50
