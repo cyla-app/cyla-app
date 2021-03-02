@@ -5,21 +5,17 @@ import {
   OpenAPI,
   ShareDayService,
   ShareService,
+  ShareStatsService,
 } from "../generated/openapi";
 import { Day } from "../generated/day";
 import * as themis from "../themis";
+import { sub } from "date-fns";
 // @ts-ignore
 import themisWasm from "../themis/libthemis.wasm";
 import { DataGrid, ValueGetterParams } from "@material-ui/data-grid";
 import { Box, Container } from "@material-ui/core";
-
-new DayService();
-console.log(Day.toJSON({ date: "sdf" }));
-themis.initialize(themisWasm).then(function () {
-  let cell = themis.SecureCellSeal.withPassphrase("sdf");
-  const encrypted = cell.encrypt(new TextEncoder().encode("Hello World"));
-  console.log(new TextDecoder().decode(cell.decrypt(encrypted)));
-});
+import minimal from "protobufjs/minimal";
+import { PeriodStats, PeriodStatsDTO } from "../generated/period-stats";
 
 const columns = [
   { field: "id", headerName: "ID", width: 70 },
@@ -56,18 +52,56 @@ const rows = [
   { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
 ];
 
+const base64Decode = (base64: string): Uint8Array => {
+  const length = minimal.util.base64.length(base64);
+  const buffer = new Uint8Array(length);
+  minimal.util.base64.decode(base64, buffer, 0);
+  return buffer;
+};
+
+const base64Encode = (buffer: Uint8Array) => {
+  return minimal.util.base64.encode(buffer, 0, buffer.length);
+};
+
 export default () => {
   let { shareId } = useParams();
 
   useEffect(() => {
     const load = async () => {
       OpenAPI.BASE = "http://localhost:5000";
-      const shares = await ShareService.shareAuth("shareId", {
-        hashedPwd: "sdf",
+      const shareId = "ac1dfa4f-a156-4cbf-b8e8-d62817e786ea";
+      const auth = await ShareService.shareAuth(shareId, {
+        hashedPwd: "password",
       });
-      console.log(shares);
-    };
 
+      OpenAPI.TOKEN = auth.jwt!!;
+
+      const days = await ShareDayService.shareGetDayByUserAndRange(
+        shareId,
+        sub(new Date(), { months: 6 }).toISOString(),
+        new Date().toISOString()
+      );
+      console.log(days);
+
+      const stats = await ShareStatsService.shareGetPeriodStats(shareId);
+      console.log(stats);
+
+      console.time("init wasm");
+      await themis.initialize(themisWasm);
+      console.timeEnd("init wasm");
+
+      console.time("init keys");
+      const shareKeyCell = themis.SecureCellSeal.withPassphrase("password");
+      const shareKey = shareKeyCell.decrypt(base64Decode(auth.shareKey!!));
+      console.timeEnd("init keys");
+
+      const cell = themis.SecureCellSeal.withKey(shareKey);
+      console.time("decrypt");
+      for (let i = 0; i < 500; i++) {
+        PeriodStatsDTO.decode(cell.decrypt(base64Decode(stats.value)));
+      }
+      console.timeEnd("decrypt");
+    };
     load();
   });
 
