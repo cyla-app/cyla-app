@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"hash/fnv"
@@ -218,8 +219,12 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 	if err = saveStatsShare(ctx, pipeline, shareInfoUpload.Statistics, ret, userId); err != nil {
 		return "", err
 	}
-
-	hashPwd, _ := bcrypt.GenerateFromPassword([]byte(shareInfoUpload.AuthKey), bcrypt.MinCost)
+	pwdDecoded, err := base64.StdEncoding.DecodeString(shareInfoUpload.AuthKey)
+	if err != nil {
+		log.Println("Error while decoding hashKey")
+		return "", newHTTPErrorWithCauseError(500, "error when decoding passphrase", err)
+	}
+	hashPwd, _ := bcrypt.GenerateFromPassword(pwdDecoded, bcrypt.MinCost)
 	share := Share{
 		Owner:           userId,
 		ExpirationDate:  "testExpDate", //TODO: Use proper exp date
