@@ -62,9 +62,7 @@ export default ({}: { navigation: DailyScreenNavigationProp }) => {
           }}>
           <View style={{ padding: 10 }}>
             <Headline>Hello Maria!</Headline>
-            {cycleDay && (
-              <Subheading>Today is your {cycleDay}. cycle day</Subheading>
-            )}
+            <Subheading>Today is your {cycleDay ?? ''}. cycle day</Subheading>
             <View
               style={{
                 justifyContent: 'center',

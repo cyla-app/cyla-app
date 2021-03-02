@@ -11,6 +11,7 @@ export default ({ initialString, onTemperatureChanged }: PropsType) => {
   const [temperatureString, setTemperatureString] = useState<string>(
     initialString,
   )
+  const [focused, setFocus] = useState(false)
 
   const setTemperature = (
     newTemperature: number,
@@ -31,6 +32,7 @@ export default ({ initialString, onTemperatureChanged }: PropsType) => {
           flex: 0.25,
         }}
       />
+
       <TextInput
         style={{
           width: 100,
@@ -38,12 +40,20 @@ export default ({ initialString, onTemperatureChanged }: PropsType) => {
           fontFamily: 'monospace',
           fontSize: 30,
           alignSelf: 'center',
+          marginLeft: 5,
+          marginRight: 5,
+          backgroundColor: focused
+            ? theme.colors.buttonBackground
+            : 'transparent',
+          borderRadius: 10,
         }}
         selectionColor={theme.colors.primary}
         value={temperatureString}
         onChangeText={(text) => {
           setTemperature(parseFloat(text), text)
         }}
+        onFocus={() => setFocus(true)}
+        onBlur={() => setFocus(false)}
         maxLength={5}
         placeholder={'--.--'}
         keyboardType={'numeric'}

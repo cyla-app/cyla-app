@@ -7,13 +7,12 @@ import Chart from '../components/chart/Chart'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
 import { RefreshControl, ScrollView, View } from 'react-native'
 import useRefresh from '../hooks/useRefresh'
-import { Button, Card, Headline, Subheading } from 'react-native-paper'
+import { Button, Card, Headline } from 'react-native-paper'
 import CycleBar from '../components/CycleBar'
 import { format } from 'date-fns'
 import { parseDay } from '../utils/date'
 import { Period } from '../../generated/period-stats'
 import { calculateCycleLengths, max } from '../utils/stats'
-import CycleCircle from '../components/CycleCircle'
 import CycleStats from '../components/CycleStats'
 
 export default () => {
@@ -48,6 +47,7 @@ export default () => {
         refreshControl={
           <RefreshControl refreshing={false} onRefresh={refresh} />
         }>
+        <Headline>Basal Temperature</Headline>
         {Object.keys(days.byWeek).length !== 0 ? (
           <Chart
             weekIndex={days.byWeek}

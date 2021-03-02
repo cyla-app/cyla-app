@@ -67,7 +67,6 @@ export default ({
                 l ${arrowSize}, ${arrowSize} -${arrowSize}, ${arrowSize} z
         `}
         fill={percentage >= 1 ? colors.primary : colors.buttonBackground}
-        stroke={colors.primary}
         transform={`rotate(${fullDegrees} 50 50)`}
       />
       {cycleDay && (
