@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Android AAB" type="js.build_tools.npm" folderName="RN">
-    <package-json value="$PROJECT_DIR$/frontend/package.json" />
+  <configuration default="false" name="Web Protobuf" type="js.build_tools.npm" folderName="Web">
+    <package-json value="$PROJECT_DIR$/web/package.json" />
     <command value="run" />
     <scripts>
-      <script value="android:aab" />
+      <script value="generate:protobuf" />
     </scripts>
     <node-interpreter value="project" />
     <envs />
