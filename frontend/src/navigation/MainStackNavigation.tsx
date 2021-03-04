@@ -1,8 +1,5 @@
 import React, { useEffect } from 'react'
-import {
-  createStackNavigator,
-  TransitionPresets,
-} from '@react-navigation/stack'
+import { createNativeStackNavigator } from 'react-native-screens/native-stack'
 import { NavigatorScreenParams } from '@react-navigation/native'
 import TabBarNavigation, { TabsParamList } from './TabBarNavigation'
 import SignUpScreen from '../screens/SignUpScreen'
@@ -30,7 +27,7 @@ export type MainStackParamList = {
   Detail: { day: Day }
 }
 
-const Stack = createStackNavigator<MainStackParamList>()
+const Stack = createNativeStackNavigator<MainStackParamList>()
 
 export default () => {
   const sessionStatus = useSelector<RootState>((state) => state.session.status)
@@ -55,7 +52,7 @@ export default () => {
   return (
     <>
       <StatusBanner isOnline={isOnline} sessionError={sessionError} />
-      <Stack.Navigator screenOptions={{ headerShown: false }} mode="modal">
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {sessionStatus === SessionStatus.SIGNED_OUT ? (
           <>
             <Stack.Screen name="SignUp" component={SignUpScreen} />
@@ -70,27 +67,14 @@ export default () => {
               name="Detail"
               component={DetailScreen}
               options={{
-                ...TransitionPresets.ModalSlideFromBottomIOS,
                 gestureEnabled: true,
-                gestureResponseDistance: {
-                  vertical: 500,
-                },
-                cardStyle: {
-                  backgroundColor: 'transparent',
-                  marginTop: 150,
-                  flex: 1,
-                },
               }}
             />
             <Stack.Screen
               name="Add"
               component={AddScreen}
               options={{
-                ...TransitionPresets.ModalSlideFromBottomIOS,
                 gestureEnabled: true,
-                gestureResponseDistance: {
-                  vertical: 500,
-                },
               }}
             />
             <Stack.Screen name="Share" component={SharingScreen} />
