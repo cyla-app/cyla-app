@@ -13,11 +13,7 @@ import { Period } from '../types'
 import CycleCircle from '../components/CycleCircle'
 import useRefresh from '../hooks/useRefresh'
 import { Card, Headline, Subheading } from 'react-native-paper'
-import {
-  calculateCycleLengths,
-  dayOfCurrentCycle,
-  percentageUntilNextPeriod,
-} from '../utils/stats'
+import { calculateCycleLengths, dayOfCurrentCycle } from '../utils/stats'
 
 type DailyScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabsParamList, 'Daily'>,
@@ -42,10 +38,8 @@ export default ({}: { navigation: DailyScreenNavigationProp }) => {
   }, [dispatch])
 
   const cycleLengths = calculateCycleLengths(periodStats)
-  const plainCycleLengths = cycleLengths.map(([cycleLength]) => cycleLength)
 
   const cycleDay = dayOfCurrentCycle(periodStats)
-  const percentage = percentageUntilNextPeriod(cycleDay ?? 0, plainCycleLengths)
 
   return (
     <>
@@ -58,20 +52,38 @@ export default ({}: { navigation: DailyScreenNavigationProp }) => {
         }>
         <Card
           style={{
-            margin: 20,
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 10,
+            marginBottom: 10,
           }}>
           <View style={{ padding: 10 }}>
-            <Headline>Hello Maria!</Headline>
-            {cycleDay && (
-              <Subheading>Today is your {cycleDay}. cycle day</Subheading>
-            )}
+            <Headline>Hello!</Headline>
+            <Subheading>
+              Today is your {cycleDay !== null ? cycleDay : ''}. cycle day
+            </Subheading>
+          </View>
+        </Card>
+
+        <Card
+          style={{
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 10,
+            marginBottom: 10,
+          }}>
+          <View style={{ padding: 10 }}>
             <View
               style={{
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
               <View style={{ margin: 10 }}>
-                <CycleCircle cycleDay={undefined} percentage={percentage} />
+                <CycleCircle
+                  cycleDay={cycleDay}
+                  periodStats={periodStats}
+                  cycleLengths={cycleLengths}
+                />
               </View>
             </View>
           </View>

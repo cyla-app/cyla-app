@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Android AAB" type="js.build_tools.npm" folderName="RN">
+  <configuration default="false" name="Android Forward Ports" type="js.build_tools.npm" folderName="RN">
     <package-json value="$PROJECT_DIR$/frontend/package.json" />
     <command value="run" />
     <scripts>
-      <script value="android:aab" />
+      <script value="android:adb:reverse" />
     </scripts>
     <node-interpreter value="project" />
     <envs />

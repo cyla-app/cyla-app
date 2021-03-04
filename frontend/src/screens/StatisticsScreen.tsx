@@ -7,13 +7,12 @@ import Chart from '../components/chart/Chart'
 import DaysErrorSnackbar from '../components/DaysErrorSnackbar'
 import { RefreshControl, ScrollView, View } from 'react-native'
 import useRefresh from '../hooks/useRefresh'
-import { Button, Card, Headline, Subheading } from 'react-native-paper'
+import { Button, Card, Headline } from 'react-native-paper'
 import CycleBar from '../components/CycleBar'
 import { format } from 'date-fns'
 import { parseDay } from '../utils/date'
 import { Period } from '../../generated/period-stats'
 import { calculateCycleLengths, max } from '../utils/stats'
-import CycleCircle from '../components/CycleCircle'
 import CycleStats from '../components/CycleStats'
 
 export default () => {
@@ -31,6 +30,9 @@ export default () => {
 
   const cycleLengths = calculateCycleLengths(periodStats)
   const plainCycleLengths = cycleLengths.map(([cycleLength]) => cycleLength)
+  const plainPeriodLengths = cycleLengths.map(
+    ([_, periodLength]) => periodLength,
+  )
 
   const maxCycleLength = cycleLengths.length > 0 ? max(plainCycleLengths) : 0
 
@@ -48,6 +50,20 @@ export default () => {
         refreshControl={
           <RefreshControl refreshing={false} onRefresh={refresh} />
         }>
+        <View
+          style={{
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 10,
+            marginBottom: 20,
+          }}>
+          <CycleStats
+            cycleLengths={plainCycleLengths}
+            periodLengths={plainPeriodLengths}
+          />
+        </View>
+
+        <Headline style={{ margin: 20 }}>Temperature</Headline>
         {Object.keys(days.byWeek).length !== 0 ? (
           <Chart
             weekIndex={days.byWeek}
@@ -66,33 +82,23 @@ export default () => {
 
         <Card
           style={{
-            margin: 20,
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 20,
+            marginBottom: 10,
           }}>
-          <View style={{ padding: 10 }}>
+          <View style={{ margin: 10 }}>
+            <Headline>Cycles</Headline>
             <View
               style={{
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
-              <CycleStats cycleLengths={plainCycleLengths} />
-            </View>
-          </View>
-        </Card>
-
-        <Card
-          style={{
-            margin: 20,
-          }}>
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <View style={{ margin: 10 }}>
-              {cycleLengths.map(([cycleLength, period1], i) => (
+              {cycleLengths.map(([cycleLength, periodLength, period1], i) => (
                 <CycleBar
                   key={i}
                   month={format(parseDay(period1.to), 'MMMM')}
+                  periodLength={periodLength}
                   cycleLength={cycleLength}
                   maxCycleLength={maxCycleLength}
                 />

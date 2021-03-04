@@ -88,9 +88,7 @@ export default ({
       onDayPress={(calendarDay) => {
         const found = days[calendarDay.dateString]
 
-        if (found) {
-          onDaySelected(found)
-        }
+        onDaySelected(found ?? { date: calendarDay.dateString })
       }}
       // Handler which gets executed on day long press. Default = undefined
       onDayLongPress={(day) => {

@@ -1,5 +1,5 @@
 import { Dimensions, Text, View } from 'react-native'
-import Svg, { Rect } from 'react-native-svg'
+import Svg, { Rect, Text as SvgText } from 'react-native-svg'
 import React from 'react'
 import { useTheme } from 'react-native-paper'
 
@@ -7,17 +7,24 @@ export default ({
   month,
   maxCycleLength,
   cycleLength,
+  periodLength,
 }: {
   month: string
   cycleLength: number
+  periodLength: number
   maxCycleLength: number
 }) => {
   const { colors } = useTheme()
   const width = Dimensions.get('window').width * 0.8
 
+  const periodBarWidth = width * (periodLength / maxCycleLength)
+  const cycleBarWidth = width * (cycleLength / maxCycleLength)
   return (
     <View style={{ marginTop: 30 }}>
-      <Text>{month}</Text>
+      <View style={{ flexDirection: 'row' }}>
+        <Text style={{ flexGrow: 1 }}>{month}</Text>
+        <Text>{cycleLength}d</Text>
+      </View>
       <Svg width={width} height="20" viewBox={`0 0 ${width} 20`}>
         <Rect
           x={0}
@@ -30,11 +37,28 @@ export default ({
         <Rect
           x={0}
           y={0}
-          width={width * (cycleLength / maxCycleLength)}
+          width={cycleBarWidth}
           height={20}
           rx="5px"
           fill={colors.primary}
         />
+        <Rect
+          x={0}
+          y={0}
+          width={periodBarWidth}
+          height={20}
+          rx="5px"
+          fill={colors.periodRed}
+        />
+        <SvgText
+          x={periodBarWidth / 2}
+          y={10}
+          textAnchor="middle"
+          alignmentBaseline={'middle'}
+          fontSize={15}
+          fill={'white'}>
+          {periodLength}
+        </SvgText>
       </Svg>
     </View>
   )

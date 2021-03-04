@@ -10,7 +10,6 @@ import {
   Temperature,
 } from '../types'
 import EntryBleeding from './EntryBleeding'
-import EntryExclude from './EntryExclude'
 import EntryTemperature from './EntryTemperature'
 import EntryMucus from './EntryMucus'
 
@@ -38,9 +37,9 @@ export default ({ onSave, selectedDate }: PropsType) => {
   const [mucusTexture, setMucusTexture] = useState<MucusTexture>(
     MucusTexture.TEXTURE_NONE,
   )
-  const [excludeReason, setExcludeReason] = useState<ExcludeReason>(
+  /*  const [excludeReason, setExcludeReason] = useState<ExcludeReason>(
     ExcludeReason.EXCLUDE_REASON_NONE,
-  )
+  )*/
 
   return (
     <View
@@ -74,12 +73,12 @@ export default ({ onSave, selectedDate }: PropsType) => {
         />
       </>
 
-      <PropertyHeadline>Exclude</PropertyHeadline>
+      {/*<PropertyHeadline>Exclude</PropertyHeadline>
 
       <EntryExclude
         excludeReason={excludeReason}
         onExcludeReasonChanged={setExcludeReason}
-      />
+      />*/}
 
       <Button
         onPress={() => {
@@ -102,7 +101,7 @@ export default ({ onSave, selectedDate }: PropsType) => {
             date: selectedDate,
           })
         }}
-        mode="contained"
+        mode="outlined"
         style={{ borderRadius: 30, margin: 10 } as ViewStyle}>
         Save
       </Button>

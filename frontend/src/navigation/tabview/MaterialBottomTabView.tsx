@@ -125,7 +125,7 @@ function MaterialBottomTabViewInner({
 
         const WIDTH = 80
         // @ts-ignore
-        return route.name === 'Add' ? (
+        return route.name === 'Add_Dummy' ? (
           <View
             key={route.key}
             style={{
