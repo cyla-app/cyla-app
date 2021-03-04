@@ -173,6 +173,16 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
         }
         promise.resolve(userId)
     }
+    
+    @ReactMethod
+    fun getUserName(promise: Promise) {
+        val username = getAppStorage().getUserName()
+        if (username == null) {
+            promise.reject(Exception("User name is null"))
+            return
+        }
+        promise.resolve(username)
+    }
 
     @ReactMethod
     fun loadUser(promise: Promise) {

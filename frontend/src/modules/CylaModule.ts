@@ -20,6 +20,7 @@ type CylaModuleType = {
    * */
   isUserSignedIn: () => Promise<boolean>
   getUserId: () => Promise<string>
+  getUserName: () => Promise<string>
   saveDay: (
     iso8601date: string,
     dayBase64: string,
@@ -124,6 +125,10 @@ class CylaModule {
 
   async getUserId() {
     return await CylaNativeModule.getUserId()
+  }
+
+  async getUserName() {
+    return await CylaNativeModule.getUserName()
   }
 
   async shareData(startDate: Date, endDate: Date) {
