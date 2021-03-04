@@ -33,11 +33,14 @@ export default ({
   const periodStats = stats(periodLengths)
   const avgPeriodLength = Math.round(periodStats.mean * 10) / 10
 
+  const innerView = { flex: 1, margin: 5 }
   return (
     <View style={{ flex: 1, flexDirection: 'row' }}>
       <Card style={cardStyle}>
-        <Text style={titleStyle}>Average Cycle:</Text>
-        <Text style={valueStyle}>{avgCycleLength}d</Text>
+        <View style={innerView}>
+          <Text style={titleStyle}>Average Cycle:</Text>
+          <Text style={valueStyle}>{avgCycleLength}d</Text>
+        </View>
       </Card>
       <Card
         style={[
@@ -47,12 +50,16 @@ export default ({
           },
           cardStyle,
         ]}>
-        <Text style={titleStyle}>Cycle Variance:</Text>
-        <Text style={valueStyle}> {cycleLengthVariance}d</Text>
+        <View style={innerView}>
+          <Text style={titleStyle}>Cycle Variance:</Text>
+          <Text style={valueStyle}> {cycleLengthVariance}d</Text>
+        </View>
       </Card>
       <Card style={cardStyle}>
-        <Text style={titleStyle}>Average Period:</Text>
-        <Text style={valueStyle}>{avgPeriodLength}d</Text>
+        <View style={innerView}>
+          <Text style={titleStyle}>Average Period:</Text>
+          <Text style={valueStyle}>{avgPeriodLength}d</Text>
+        </View>
       </Card>
     </View>
   )

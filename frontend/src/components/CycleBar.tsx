@@ -19,6 +19,7 @@ export default ({
 
   const periodBarWidth = width * (periodLength / maxCycleLength)
   const cycleBarWidth = width * (cycleLength / maxCycleLength)
+  const barHeight = 20
   return (
     <View style={{ marginTop: 30 }}>
       <View style={{ flexDirection: 'row' }}>
@@ -30,7 +31,7 @@ export default ({
           x={0}
           y={0}
           width={width}
-          height={20}
+          height={barHeight}
           rx="5px"
           fill={colors.buttonBackground}
         />
@@ -38,7 +39,7 @@ export default ({
           x={0}
           y={0}
           width={cycleBarWidth}
-          height={20}
+          height={barHeight}
           rx="5px"
           fill={colors.primary}
         />
@@ -46,15 +47,15 @@ export default ({
           x={0}
           y={0}
           width={periodBarWidth}
-          height={20}
+          height={barHeight}
           rx="5px"
           fill={colors.periodRed}
         />
         <SvgText
           x={periodBarWidth / 2}
-          y={10}
+          y={barHeight / 2}
           textAnchor="middle"
-          alignmentBaseline={'middle'}
+          alignmentBaseline={'central'}
           fontSize={15}
           fill={'white'}>
           {periodLength}
