@@ -23,4 +23,5 @@ services:
       - ./backend:/go/src/github.com/cyla-app/cyla-app
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - PEM_PASSWORD=${PEM_PASSWORD}
       - CYLA_ENV=${CYLA_ENV}
