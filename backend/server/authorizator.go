@@ -95,26 +95,26 @@ func authorizeBasedOnClaim(
 	return func(w http.ResponseWriter, r *http.Request) (isAuthorized bool) {
 		vars := mux.Vars(r)
 		claim := vars[claimName]
-		var jwtString string
+		var jweString string
 		splitAuthHeader := strings.Split(r.Header.Get("Authorization"), " ")
 		if len(splitAuthHeader) != 2 {
 			log.Println("Error while extraction jwt")
 			return
 		}
 
-		jwtString = splitAuthHeader[1]
-		jsonEncrypRec, err := jose.ParseEncrypted(jwtString)
+		jweString = splitAuthHeader[1]
+		jweEncrypted, err := jose.ParseEncrypted(jweString)
 		if err != nil {
 			log.Println("Error when parsing encrypted JWE")
 			return
 		}
-		encryptClaims, err := jsonEncrypRec.Decrypt(privateKey)
+		encryptedClaims, err := jweEncrypted.Decrypt(privateKey)
 		if err != nil {
 			log.Println("Error when decrypting JWE")
 			return
 		}
 
-		err = json.Unmarshal(encryptClaims,emptyClaimStruct)
+		err = json.Unmarshal(encryptedClaims,emptyClaimStruct)
 		if err != nil {
 			log.Println("Error while decoding", err)
 			return

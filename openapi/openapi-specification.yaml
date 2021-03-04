@@ -608,10 +608,12 @@ components:
           $ref: "#/components/schemas/CryptoHashedAttribute"
   securitySchemes:
     userJWTAuth:
+      description: Auth option for user requests. Uses JWE.
       type: http
       scheme: bearer
       bearerFormat: JWT
     shareJWTAuth:
+      description: Auth option for share requests. Uses JWE.
       type: http
       scheme: bearer
       bearerFormat: JWT
