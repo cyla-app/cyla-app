@@ -158,21 +158,7 @@ func getUserJWTToken(uuid string) (string, error) {
 		},
 	}
 
-	publicKey := &privateKey.PublicKey
-	// Ignore error, as the algorithms are supported
-	encrypter, _ := jose.NewEncrypter(jose.A128GCM, jose.Recipient{Algorithm: jose.RSA_OAEP_256, Key: publicKey}, nil)
-	ret, err := json.Marshal(claims)
-	if err != nil {
-		return "", err
-	}
-	jsonEncryp, err := encrypter.Encrypt(ret)
-	if err != nil {
-		return "", err
-	}
-
-	jwtString, err := jsonEncryp.CompactSerialize()
-
-	return jwtString, err
+	return getJWEFromClaims(claims)
 }
 
 func getShareJWTToken(shareId string) (string, error) {
@@ -186,6 +172,10 @@ func getShareJWTToken(shareId string) (string, error) {
 		},
 	}
 
+	return getJWEFromClaims(claims)
+}
+
+func getJWEFromClaims(claims jwt.Claims) (string, error) {
 	publicKey := &privateKey.PublicKey
 	// Ignore error, as the algorithms are supported
 	encrypter, _ := jose.NewEncrypter(jose.A128GCM, jose.Recipient{Algorithm: jose.RSA_OAEP_256, Key: publicKey}, nil)
