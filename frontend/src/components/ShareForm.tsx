@@ -1,66 +1,84 @@
 import * as React from 'react'
-import DateTimePicker from '@react-native-community/datetimepicker'
 import { useState } from 'react'
-import { Button } from 'react-native-paper'
+import { Button, DefaultTheme, ThemeProvider } from 'react-native-paper'
 import CylaModule from '../modules/CylaModule'
-import { Text, View } from 'react-native'
+import { Clipboard, Linking, Text, ToastAndroid, View } from 'react-native'
+import { DatePickerModal } from 'react-native-paper-dates'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 export default () => {
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(new Date())
-  const [isShow, setIsShow] = useState(false)
+  const [open, setOpen] = React.useState(true)
   const [shareId, setShareId] = useState('')
 
-  // FIXME: There's got to be a better way than creating an object with the func as attribute
-  const [changeDateFunc, setChangeFunc] = useState({ changeFunc: setStartDate })
+  const onDismiss = React.useCallback(() => {
+    setOpen(false)
+  }, [setOpen])
 
-  const curDate = new Date()
+  const onConfirm = React.useCallback(
+    ({ startDate, endDate }) => {
+      setOpen(false)
 
-  const showStartDatePicker = () => {
-    setChangeFunc({ changeFunc: setStartDate })
-    setIsShow(true)
-  }
+      if (!startDate || !endDate) {
+        return
+      }
 
-  const showEndDatePicker = () => {
-    setChangeFunc({ changeFunc: setEndDate })
-    setIsShow(true)
-  }
+      CylaModule.shareData(startDate, endDate).then((lastShareId) =>
+        setShareId(lastShareId),
+      )
+    },
+    [setOpen],
+  )
 
   return (
     <>
-      <Button icon="login" onPress={showStartDatePicker}>
-        Start date
-      </Button>
-      <Button icon="login" onPress={showEndDatePicker}>
-        EndDate
-      </Button>
-      {isShow && (
-        <DateTimePicker
-          value={curDate}
-          mode="date"
-          display="default"
-          onChange={(event, date) => {
-            const newDate: Date = date || new Date()
-            setIsShow(false)
-            changeDateFunc.changeFunc(newDate)
-          }}
-        />
-      )}
-      <Button
-        mode="contained"
-        icon="login"
-        style={{
-          margin: 20,
-        }}
-        onPress={() => {
-          CylaModule.shareData(startDate, endDate).then((lastShareId) =>
-            setShareId(lastShareId),
-          )
+      {/* FIXME, avoid using specific theme just for the date picker */}
+      <ThemeProvider
+        theme={{
+          ...DefaultTheme,
+          colors: {
+            ...DefaultTheme.colors,
+            primary: '#616182',
+            accent: '#616182',
+            onBackground: '#616182',
+            surface: '#fff',
+            background: '#ffeded',
+            backdrop: '#000000',
+            onSurface: '#ffffff',
+            periodRed: '#CC1C21',
+            buttonBackground: 'rgb(239,228,237)',
+            daily: '#00075E',
+            calendar: 'rgb(0,8,114)',
+            add: 'rgb(0,10,133)',
+            statistics: 'rgb(0,11,153)',
+            profile: 'rgb(0,13,172)',
+          },
         }}>
-        Share!
-      </Button>
-      <View>
-        <Text>Share Id: {shareId}</Text>
+        <DatePickerModal
+          mode="range"
+          visible={open}
+          onDismiss={onDismiss}
+          startDate={undefined}
+          endDate={undefined}
+          onConfirm={onConfirm}
+          saveLabel={'Share'}
+        />
+      </ThemeProvider>
+
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <MaterialCommunityIcons size={128} name={'check-circle-outline'} />
+        <Text>Medical data shared! Use the link below.</Text>
+
+        <Text
+          style={{ color: 'blue' }}
+          onPress={() =>
+            Linking.openURL(`http://localhost:3000/share/${shareId}`)
+          }
+          onLongPress={() => {
+            Clipboard.setString(`http://localhost:3000/share/${shareId}`)
+            ToastAndroid.show('Copied to clipboard!', 1000)
+          }}>
+          share.cyla.app/share/{shareId}
+        </Text>
       </View>
     </>
   )
