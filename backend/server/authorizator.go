@@ -65,7 +65,7 @@ func loadJWEKey(pemPath string) *rsa.PrivateKey {
 	return privateKey
 }
 
-var privateKey = loadJWEKey("resources/private.pem")
+var privateKey = loadJWEKey("resources/jwt-resources/private.pem")
 
 func authorizationChain(w http.ResponseWriter, r *http.Request, sliceFunc []authFunc) (isAuthorized bool) {
 	for _, authFunc := range sliceFunc {

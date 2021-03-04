@@ -26,14 +26,14 @@ func loadLuaScript(scriptPath string) *redis.Script {
 	return redis.NewScript(string(arr))
 }
 
-var changeDayScript = loadLuaScript("resources/change_day_script.lua")
-var changeStats = loadLuaScript("resources/change_stats_script.lua")
-var updateHResourceScript = loadLuaScript("resources/update_resource_script.lua")
-var getDayByRange = loadLuaScript("resources/get_day_by_range.lua")
-var getHashUserKeyForLogin = loadLuaScript("resources/get_hash_user_key_for_login.lua")
-var shareDayScript = loadLuaScript("resources/share_day_script.lua")
-var getSharesForUser = loadLuaScript("resources/get_shares_for_user_script.lua")
-var changePassphrase = loadLuaScript("resources/change_passphrase_script.lua")
+var changeDayScript = loadLuaScript("resources/lua-scripts/change_day_script.lua")
+var changeStats = loadLuaScript("resources/lua-scripts/change_stats_script.lua")
+var updateHResourceScript = loadLuaScript("resources/lua-scripts/update_resource_script.lua")
+var getDayByRange = loadLuaScript("resources/lua-scripts/get_day_by_range.lua")
+var getHashUserKeyForLogin = loadLuaScript("resources/lua-scripts/get_hash_user_key_for_login.lua")
+var shareDayScript = loadLuaScript("resources/lua-scripts/share_day_script.lua")
+var getSharesForUser = loadLuaScript("resources/lua-scripts/get_shares_for_user_script.lua")
+var changePassphrase = loadLuaScript("resources/lua-scripts/change_passphrase_script.lua")
 
 const userPrefixKey = "user"
 const userNamePrefixKey = "name"
