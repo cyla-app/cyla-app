@@ -11,7 +11,10 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/robfig/cron/v3"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
@@ -42,8 +45,11 @@ const dayPrefixKey = "day"
 const statsPrefixKey = "stats"
 const hashPrefixKey = "hashVal"
 const sharedPrefixKey = "shared"
+const deleteAtPrefixKey = "deleteAt"
 
 const initHashVal = "init"
+
+const dateFormat = "2006-01-02" // Counterintuitively, the Format in Go has to be the exact date of 2006-01-02
 
 type CylaRedisClient struct {
 	*redis.Client
@@ -67,9 +73,21 @@ func NewRedisClient() (*CylaRedisClient, error) {
 		shareDayScript.Load(context.Background(), cylaClient)
 		getSharesForUser.Load(context.Background(), cylaClient)
 		changePassphrase.Load(context.Background(), cylaClient)
+
+		scheduleCleanUpJob(&cylaClient)
 		return &cylaClient, nil
 	}
 
+}
+
+func scheduleCleanUpJob(client *CylaRedisClient) {
+	ctx, _ := context.WithCancel(context.Background())
+	c := cron.New()
+	c.AddFunc("@midnight", func() {
+		client.deleteExpiredShares(ctx)
+	})
+	log.Println("Starting cron scheduler")
+	c.Start()
 }
 
 func (s *CylaRedisClient) LoginUser(ctx context.Context, username string) (*successfulAuthData, error) {
@@ -192,7 +210,23 @@ func (s *CylaRedisClient) ModifyDayEntry(ctx context.Context, userId string, day
 
 }
 
-func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (ret string, err error) {
+func (s *CylaRedisClient) deleteExpiredShares(ctx context.Context) {
+	today := time.Now().Format(dateFormat)
+	log.Printf("Deleting expired entries for %v", today)
+	// Normal pipeline instead of TxPipeline to avoid blocking redis for long
+	pipeline := s.Pipeline()
+	for _, toDeleteEntry := range s.SMembers(ctx, fmt.Sprintf("%v:%v", deleteAtPrefixKey, today)).Val() {
+		toDeleteEntrySlice := strings.Split(toDeleteEntry, "#")
+		if len(toDeleteEntrySlice) != 2 {
+			log.Printf("Error: to delete entries should have two parts separated by #. %v", toDeleteEntrySlice)
+		} else {
+			pipeline.SRem(ctx, toDeleteEntrySlice[0], toDeleteEntrySlice[1])
+		}
+	}
+	_, _ = pipeline.Exec(ctx)
+}
+
+func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (shareIdString string, err error) {
 
 	// tempExpirationDate is used to automatically remove all share entries in redis in case something goes wrong, i.e. a shared day doesn't exist
 	tempDur, _ := time.ParseDuration("2m")
@@ -210,7 +244,7 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "could not create random", err)
 	}
-	ret = shareId.String()
+	shareIdString = shareId.String()
 
 	if s.Exists(ctx, fmt.Sprintf("%v:%v", userPrefixKey, userId)).Val() == 0 {
 		return "", newHTTPError(404, "user doesn't exist")
@@ -225,12 +259,12 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 
 		shareDayScript.Run(ctx, pipeline,
 			[]string{
-				fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),                             //sorted set for user's days DO NOT SET EXP DATE HERE
-				addKeyToSlice(fmt.Sprintf("%v:%v:%v", sharedPrefixKey, ret, dayPrefixKey)),               //sorted set for shared days
-				addKeyToSlice(fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, ret, dayPrefixKey, day.Date))}, //days resource
+				fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),                                       //sorted set for user's days DO NOT SET EXP DATE HERE
+				addKeyToSlice(fmt.Sprintf("%v:%v:%v", sharedPrefixKey, shareIdString, dayPrefixKey)),               //sorted set for shared days
+				addKeyToSlice(fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, shareIdString, dayPrefixKey, day.Date))}, //days resource
 			append([]interface{}{tempExpirationDate.Unix(), day.Date}, valList...))
 	}
-	if err = saveStatsShare(ctx, pipeline, shareInfoUpload.Statistics, ret, tempExpirationDate, addKeyToSlice); err != nil {
+	if err = saveStatsShare(ctx, pipeline, shareInfoUpload.Statistics, shareIdString, tempExpirationDate, addKeyToSlice); err != nil {
 		return "", err
 	}
 	pwdDecoded, err := base64.StdEncoding.DecodeString(shareInfoUpload.AuthKey)
@@ -241,9 +275,9 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 	hashPwd, _ := bcrypt.GenerateFromPassword(pwdDecoded, bcrypt.MinCost)
 	share := Share{
 		Owner:           userId,
-		ExpirationDate:  expirationDate.Format("2006-01-02"), // Counterintuitively, the Format in Go has to be the exact date of 2006-01-02
+		ExpirationDate:  expirationDate.Format(dateFormat),
 		SharedKeyBackup: shareInfoUpload.SharedKeyBackup,
-		ShareId:         ret,
+		ShareId:         shareIdString,
 		AuthKey:         string(hashPwd),
 	}
 	var redisShare map[string]interface{}
@@ -251,14 +285,19 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "could not unmarshall share", err)
 	}
-	keyShare := addKeyToSlice(fmt.Sprintf("%v:%v", sharedPrefixKey, ret))
+	keyShare := addKeyToSlice(fmt.Sprintf("%v:%v", sharedPrefixKey, shareIdString))
 	pipeline.HSet(ctx, keyShare, redisShare)
-	pipeline.ExpireAt(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, ret), tempExpirationDate)
+	pipeline.ExpireAt(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareIdString), tempExpirationDate)
 
-	// TODO: Deal with the entry in the share set for an user. No TTL for entries in sets allowed :(
 	pipeline.SAdd(ctx,
 		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, sharedPrefixKey),
-		ret)
+		shareIdString)
+
+	//Add the shareId entry in the user set to be deleted one day (to avoid inconsistency issues) after  the other keys are deleted.
+	// It is then the responsibility of a the server to delete the entry at that date (for example, through a cron job).
+	pipeline.SAdd(ctx,
+		fmt.Sprintf("%v:%v", deleteAtPrefixKey, expirationDate.AddDate(0, 0, 1).Format(dateFormat)),
+		fmt.Sprintf("%v:%v:%v#%v", userPrefixKey, userId, sharedPrefixKey, shareIdString))
 
 	_, err = pipeline.Exec(ctx)
 	if err != nil {
@@ -266,7 +305,7 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 	}
 	// If everything went well, set the expiration date to 30 days.
 	s.setExpirationDate(ctx, expirationDate, keysSlice)
-	return ret, nil
+	return shareIdString, nil
 }
 
 func (s *CylaRedisClient) setExpirationDate(ctx context.Context, expirationDate time.Time, keysSlice []string) {
@@ -548,7 +587,7 @@ func (s *CylaRedisClient) GetShares(ctx context.Context, userId string) (ret []S
 }
 
 func (s *CylaRedisClient) ShareAuth(ctx context.Context, shareId string, sharedPwdDto SharedPwdDto) (ret SuccessfulShareAuthData, err error) {
-	pipeline := s.Pipeline()
+	pipeline := s.TxPipeline()
 	hashedPwdCmd := pipeline.HGet(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareId), GetShareAuthKeyName())
 	shareKeyCmd := pipeline.HGet(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, shareId), GetShareSharedKeyBackupName())
 

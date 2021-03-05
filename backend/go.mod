@@ -11,6 +11,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/mitchellh/mapstructure v1.4.0
+	github.com/robfig/cron/v3 v3.0.0
 	golang.org/x/crypto v0.0.0-20210218145215-b8e89b74b9df
 	gopkg.in/square/go-jose.v2 v2.5.1
 )
