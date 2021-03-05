@@ -11,6 +11,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
@@ -192,6 +193,19 @@ func (s *CylaRedisClient) ModifyDayEntry(ctx context.Context, userId string, day
 }
 
 func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInfoUpload ShareInfoUpload) (ret string, err error) {
+
+	// tempExpirationDate is used to automatically remove all share entries in redis in case something goes wrong, i.e. a shared day doesn't exist
+	tempDur, _ := time.ParseDuration("2m")
+	tempExpirationDate := time.Now().Add(tempDur)
+
+	dur, _ := time.ParseDuration("720h") // Expire after 30 days
+	expirationDate := time.Now().Add(dur)
+
+	keysSlice := make([]string, 0, 4)
+	addKeyToSlice := func(key string) string {
+		keysSlice = append(keysSlice, key)
+		return key
+	}
 	shareId, err := uuid.NewRandom()
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "could not create random", err)
@@ -211,12 +225,12 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 
 		shareDayScript.Run(ctx, pipeline,
 			[]string{
-				fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),              //sorted set for user's days
-				fmt.Sprintf("%v:%v:%v", sharedPrefixKey, ret, dayPrefixKey),               //sorted set for shared days
-				fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, ret, dayPrefixKey, day.Date)}, //days resource
-			append([]interface{}{day.Date}, valList...))
+				fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, dayPrefixKey),                             //sorted set for user's days DO NOT SET EXP DATE HERE
+				addKeyToSlice(fmt.Sprintf("%v:%v:%v", sharedPrefixKey, ret, dayPrefixKey)),               //sorted set for shared days
+				addKeyToSlice(fmt.Sprintf("%v:%v:%v:%v", sharedPrefixKey, ret, dayPrefixKey, day.Date))}, //days resource
+			append([]interface{}{tempExpirationDate.Unix(), day.Date}, valList...))
 	}
-	if err = saveStatsShare(ctx, pipeline, shareInfoUpload.Statistics, ret, userId); err != nil {
+	if err = saveStatsShare(ctx, pipeline, shareInfoUpload.Statistics, ret, tempExpirationDate, addKeyToSlice); err != nil {
 		return "", err
 	}
 	pwdDecoded, err := base64.StdEncoding.DecodeString(shareInfoUpload.AuthKey)
@@ -227,7 +241,7 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 	hashPwd, _ := bcrypt.GenerateFromPassword(pwdDecoded, bcrypt.MinCost)
 	share := Share{
 		Owner:           userId,
-		ExpirationDate:  "testExpDate", //TODO: Use proper exp date
+		ExpirationDate:  expirationDate.Format("2006-01-02"), // Counterintuitively, the Format in Go has to be the exact date of 2006-01-02
 		SharedKeyBackup: shareInfoUpload.SharedKeyBackup,
 		ShareId:         ret,
 		AuthKey:         string(hashPwd),
@@ -237,19 +251,33 @@ func (s *CylaRedisClient) ShareDays(ctx context.Context, userId string, shareInf
 	if err != nil {
 		return "", newHTTPErrorWithCauseError(500, "could not unmarshall share", err)
 	}
-	pipeline.HSet(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, ret), redisShare)
+	keyShare := addKeyToSlice(fmt.Sprintf("%v:%v", sharedPrefixKey, ret))
+	pipeline.HSet(ctx, keyShare, redisShare)
+	pipeline.ExpireAt(ctx, fmt.Sprintf("%v:%v", sharedPrefixKey, ret), tempExpirationDate)
 
+	// TODO: Deal with the entry in the share set for an user. No TTL for entries in sets allowed :(
 	pipeline.SAdd(ctx,
 		fmt.Sprintf("%v:%v:%v", userPrefixKey, userId, sharedPrefixKey),
 		ret)
 
 	_, err = pipeline.Exec(ctx)
 	if err != nil {
-		// TODO: Clean database of incomplete share entries. Maybe use expiration dates for that?
 		return "", newHTTPErrorWithCauseError(400, "One or more days to be shared don't exist", err)
 	}
-
+	// If everything went well, set the expiration date to 30 days.
+	s.setExpirationDate(ctx, expirationDate, keysSlice)
 	return ret, nil
+}
+
+func (s *CylaRedisClient) setExpirationDate(ctx context.Context, expirationDate time.Time, keysSlice []string) {
+	var err error
+	for _, key := range keysSlice {
+		log.Printf("Setting expiration date for %s", key)
+		err = s.ExpireAt(ctx, key, expirationDate).Err()
+		if err != nil {
+			log.Println("Unexpected error when setting TTL. This should not happen.")
+		}
+	}
 }
 
 func (s *CylaRedisClient) ModifyDayEntryWithStats(ctx context.Context, userId string, dayStatsUpdate DayStatsUpdate) error {
@@ -305,14 +333,16 @@ func saveStats(ctx context.Context, pipeline redis.Pipeliner, userStats UserStat
 		changeStats.Run(ctx, pipeline, []string{
 			fmt.Sprintf("%v:%v", userPrefixKey, userId), //User resource
 			statPrefix + fmt.Sprintf(":%v", hashPrefixKey),
-			statPrefix}, // TODO: Use constant stats prefix keys instead of statName
+			statPrefix},
 			append([]interface{}{stat.PrevHashValue, stringHashValue}, valListStats...))
 
 	}
 	return nil
 }
 
-func saveStatsShare(ctx context.Context, pipeline redis.Pipeliner, userStats UserStats, shareId string, userId string) error {
+func saveStatsShare(ctx context.Context, pipeline redis.Pipeliner, userStats UserStats, shareId string,
+	tempExpDate time.Time,
+	addKeyFunc func(string) string) error {
 	userStatsMap, err := userStatsToMap(userStats)
 	if err != nil {
 		return newHTTPErrorWithCauseError(500, "could not marshall user stats", err)
@@ -323,10 +353,10 @@ func saveStatsShare(ctx context.Context, pipeline redis.Pipeliner, userStats Use
 		if err != nil {
 			return newHTTPErrorWithCauseError(500, "could not marshall stat", err)
 		}
-		pipeline.HSet(ctx,
-			fmt.Sprintf("%v:%v:%v:%v",
-				sharedPrefixKey, shareId, statsPrefixKey, statName),
-			valListStats...)
+		key := addKeyFunc(fmt.Sprintf("%v:%v:%v:%v",
+			sharedPrefixKey, shareId, statsPrefixKey, statName))
+		pipeline.HSet(ctx, key, valListStats...)
+		pipeline.ExpireAt(ctx, key, tempExpDate)
 	}
 	return nil
 }

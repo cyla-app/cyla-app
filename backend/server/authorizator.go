@@ -114,7 +114,7 @@ func authorizeBasedOnClaim(
 			return
 		}
 
-		err = json.Unmarshal(encryptedClaims,emptyClaimStruct)
+		err = json.Unmarshal(encryptedClaims, emptyClaimStruct)
 		if err != nil {
 			log.Println("Error while decoding", err)
 			return

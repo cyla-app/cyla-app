@@ -25,7 +25,8 @@ func main() {
 
     {{#featureCORS}}
     if env, ok := os.LookupEnv("CYLA_ENV"); ok && env == "dev" {
-        log.Fatal(http.ListenAndServe(":{{serverPort}}", handlers.CORS()(router)))
+        headersOk := handlers.AllowedHeaders([]string{"Content-Type", "Authorization"})
+        log.Fatal(http.ListenAndServe(":5000", handlers.CORS(headersOk)(router)))
     } else {
         log.Fatal(http.ListenAndServe(":{{serverPort}}", router))
     }
