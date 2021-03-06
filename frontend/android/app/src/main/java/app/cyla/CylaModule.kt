@@ -336,11 +336,10 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
 
     @ReactMethod
     fun shareData(iso8601dateFrom: String, iso8601dateTo: String, promise: Promise) {
-        //TODO: Remove duplicate code here and in fetchDaysByRange
         val userId = getAppStorage().getUserId()
-        //TODO: Generate strong, random password for sharing
-        val sharePwd = "password"
-        val (shareKey, shareKeyEncrypted) = Themis.createEncryptedSymmetricKey(sharePwd)
+
+        val sharePwd = PasswordGenerator.generateRandomPassword()
+        val (shareKey, shareKeyEncrypted) = createEncryptedSymmetricKey(sharePwd)
 
         CompletableFuture.supplyAsync {
             val days = dayApi.getDayByUserAndRange(
@@ -358,7 +357,7 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
                 day.dayInfo = encryptedDayInfo
                 day.dayKey = encryptedDayKey
             }
-            //TODO: Compute stats for the shared days
+
             val periodStats = statsApi.getPeriodStats(userId)
             val decryptedStats = Themis.decryptData(userInfo.userKey, periodStats.value)
             periodStats.value = Themis.encryptData(shareKey, decryptedStats)
@@ -366,14 +365,18 @@ class CylaModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaM
             val shareInfo = ShareInfoUpload()
             shareInfo.days = days
             shareInfo.sharedKeyBackup = shareKeyEncrypted
-            //TODO: Hash the sharePwd before sending it
+
             shareInfo.authKey = sharePwd.toByteArray()
             val shareUserStats = UserStats()
             shareInfo.statistics = shareUserStats
             shareUserStats.periodStats = periodStats
 
             val shareId = shareApi.shareDays(userId, shareInfo)
-            promise.resolve(shareId)
+
+            val writableMap = WritableNativeMap()
+            writableMap.putString("shareId", shareId)
+            writableMap.putString("sharePwd", sharePwd)
+            promise.resolve(writableMap)
         }.exceptionally { throwable ->
             promise.reject(throwable)
         }

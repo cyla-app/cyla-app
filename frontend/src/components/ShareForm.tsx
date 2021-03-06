@@ -9,6 +9,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 export default () => {
   const [open, setOpen] = React.useState(true)
   const [shareId, setShareId] = useState('')
+  const [sharePwd, setSharePwd] = useState('')
 
   const onDismiss = React.useCallback(() => {
     setOpen(false)
@@ -22,9 +23,10 @@ export default () => {
         return
       }
 
-      CylaModule.shareData(startDate, endDate).then((lastShareId) =>
-        setShareId(lastShareId),
-      )
+      CylaModule.shareData(startDate, endDate).then((record) => {
+        setShareId(record.shareId)
+        setSharePwd(record.sharePwd)
+      })
     },
     [setOpen],
   )
@@ -66,7 +68,7 @@ export default () => {
 
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <MaterialCommunityIcons size={128} name={'check-circle-outline'} />
-        <Text>Medical data shared! Use the link below.</Text>
+        <Text>Medical data shared! Use the link and password below.</Text>
 
         <Text
           style={{ color: 'blue' }}
@@ -78,6 +80,17 @@ export default () => {
             ToastAndroid.show('Copied to clipboard!', 1000)
           }}>
           share.cyla.app/share/{shareId}
+        </Text>
+        <Text
+          onLongPress={() => {
+            Clipboard.setString(`${sharePwd}`)
+            ToastAndroid.show('Copied to clipboard!', 1000)
+          }}>
+          Password: {sharePwd}
+        </Text>
+        <Text style={{ color: 'red' }}>
+          Remember to save your password. You won't be able to retrieve it
+          later.
         </Text>
       </View>
     </>

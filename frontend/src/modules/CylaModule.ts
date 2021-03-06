@@ -32,7 +32,10 @@ type CylaModuleType = {
     iso8601dateFrom: string,
     iso8601dateTo: string,
   ) => Promise<string[]>
-  shareData: (iso8601dateFrom: string, iso8601dateTo: string) => Promise<string>
+  shareData: (
+    iso8601dateFrom: string,
+    iso8601dateTo: string,
+  ) => Promise<Record<string, string>>
   changePassword: (prevPwd: string, newPwd: string) => Promise<void>
 }
 
