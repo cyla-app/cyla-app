@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { OpenAPI, ShareDayService, ShareService } from "../generated/openapi";
 import { Day } from "../generated/day";
 import * as themis from "../themis";
@@ -37,8 +37,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface LocationState {
+  authKey: string;
+  pwd: string;
+}
+
 export default () => {
   const { shareId } = useParams();
+  const { state } = useLocation<LocationState>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [days, setDays] = useState<Day[]>([]);
@@ -51,10 +57,10 @@ export default () => {
 
       setLoading(true);
       OpenAPI.BASE = "http://localhost:5000";
-      const auth = await ShareService.shareAuth(shareId, {
-        hashedPwd: "password",
-      });
-      OpenAPI.TOKEN = auth.jwt!!;
+      // const auth = await ShareService.shareAuth(shareId, {
+      //   hashedPwd: "VYcslK",
+      // });
+      // OpenAPI.TOKEN = auth.jwt!!;
 
       const days = await ShareDayService.shareGetDayByUserAndRange(
         shareId,
@@ -62,8 +68,8 @@ export default () => {
         toDate.toISOString()
       );
       await themis.initialize(themisWasm);
-      const shareKeyCell = themis.SecureCellSeal.withPassphrase("password");
-      const shareKey = shareKeyCell.decrypt(base64Decode(auth.shareKey!!));
+      const shareKeyCell = themis.SecureCellSeal.withPassphrase(state.pwd);
+      const shareKey = shareKeyCell.decrypt(base64Decode(state.authKey));
 
       const shareCell = themis.SecureCellSeal.withKey(shareKey);
 

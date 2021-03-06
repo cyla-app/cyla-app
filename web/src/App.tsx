@@ -17,7 +17,9 @@ import {
 } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import { red } from "@material-ui/core/colors";
+import { OpenAPI } from "./generated/openapi";
 import AppIcon from "./assets/app_icon.png";
+import LoginScreen from "./screens/LoginScreen";
 
 const theme = createMuiTheme({
   palette: {
@@ -47,6 +49,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const routeFunc = () => {
+  if (OpenAPI.TOKEN) {
+    return <ShareScreen />;
+  } else {
+    return <LoginScreen />;
+  }
+};
 const App = () => {
   const classes = useStyles();
   return (
@@ -63,9 +72,7 @@ const App = () => {
           </AppBar>
 
           <Switch>
-            <Route path="/share/:shareId">
-              <ShareScreen />
-            </Route>
+            <Route render={routeFunc} path="/share/:shareId" />
             <Route path="/">
               <HomeScreen />
             </Route>
