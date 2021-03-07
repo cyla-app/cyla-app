@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useState } from 'react'
 import { Button, DefaultTheme, ThemeProvider } from 'react-native-paper'
 import CylaModule from '../modules/CylaModule'
-import { Clipboard, Linking, Text, ToastAndroid, View } from 'react-native'
+import { Clipboard, Text, ToastAndroid, View } from 'react-native'
 import { DatePickerModal } from 'react-native-paper-dates'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -68,29 +68,26 @@ export default () => {
 
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <MaterialCommunityIcons size={128} name={'check-circle-outline'} />
-        <Text>Medical data shared! Use the link and password below.</Text>
+        <Text style={{ margin: 10 }}>
+          Medical data shared! Use the link and password below.
+        </Text>
 
-        <Text
-          style={{ color: 'blue' }}
-          onPress={() =>
-            Linking.openURL(`http://localhost:3000/share/${shareId}`)
-          }
-          onLongPress={() => {
+        <Button
+          style={{ margin: 10 }}
+          mode={'contained'}
+          onPress={() => {
             Clipboard.setString(`http://localhost:3000/share/${shareId}`)
             ToastAndroid.show('Copied to clipboard!', 1000)
           }}>
-          share.cyla.app/share/{shareId}
-        </Text>
+          Copy Link
+        </Button>
         <Text
+          style={{ margin: 10 }}
           onLongPress={() => {
             Clipboard.setString(`${sharePwd}`)
             ToastAndroid.show('Copied to clipboard!', 1000)
           }}>
           Password: {sharePwd}
-        </Text>
-        <Text style={{ color: 'red' }}>
-          Remember to save your password. You won't be able to retrieve it
-          later.
         </Text>
       </View>
     </>
