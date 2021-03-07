@@ -43,13 +43,21 @@ export default ({ days }: PropsType) => {
                 }))}
                 showWeekdayLabels={true}
                 classForValue={(value) => {
+                  if (!value) {
+                    return "color-bleeding-0";
+                  }
                   return `color-bleeding-${value.count}`;
                 }}
-                transformDayElement={(element, value) => (
-                  <Tooltip title={value.date}>
-                    {React.cloneElement(element, { rx: 100, ry: 100 })}
-                  </Tooltip>
-                )}
+                transformDayElement={(element, value) => {
+                  if (!value) {
+                    return React.cloneElement(element, { rx: 100, ry: 100 });
+                  }
+                  return (
+                    <Tooltip title={value.date}>
+                      {React.cloneElement(element, { rx: 100, ry: 100 })}
+                    </Tooltip>
+                  );
+                }}
               />
             </div>
           </>
