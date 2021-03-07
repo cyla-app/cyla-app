@@ -105,14 +105,21 @@ export default ({ days }: PropsType) => {
           ? mapBleedingStrength(day.bleeding.strength)
           : "",
         cervix: day.cervix
-          ? `${mapCervixOpening(day.cervix.opening)}, ${mapCervixPosition(
-              day.cervix.position
-            )}, ${mapCervixFirmness(day.cervix.firmness)}`
+          ? [
+              mapCervixOpening(day.cervix.opening),
+              mapCervixPosition(day.cervix.position),
+              mapCervixFirmness(day.cervix.firmness),
+            ]
+              .filter(Boolean)
+              .join(", ")
           : "",
         mucus: day.mucus
-          ? `${mapMucusTexture(day.mucus.texture)}, ${mapMucusFeeling(
-              day.mucus.feeling
-            )}`
+          ? [
+              mapMucusTexture(day.mucus.texture),
+              mapMucusFeeling(day.mucus.feeling),
+            ]
+              .filter(Boolean)
+              .join(", ")
           : "",
         temperature: day.temperature?.value,
       }))}
