@@ -1,5 +1,5 @@
 import { Dispatch } from '@reduxjs/toolkit'
-import { addDays, getDate } from 'date-fns'
+import { addDays, sub } from 'date-fns'
 import { saveMockDays } from '../daysSlice'
 import { formatDay } from './date'
 import {
@@ -24,11 +24,15 @@ export const generateMockData = (dispatch: Dispatch) => {
       start.getTime() + Math.random() * (end.getTime() - start.getTime()),
     )
 
-  const startDate = randomDate(new Date(2020, 0, 1), new Date(2020, 2, 1))
+  const cycleCount = 14
+  const startDate = randomDate(
+    sub(new Date(), { days: cycleCount * 29 }),
+    sub(new Date(), { days: cycleCount * 26 }),
+  )
   let day = 0
   const days: Day[] = []
-  for (let cycle = 0; cycle < 24; cycle++) {
-    const cycleLength = getRandomInt(21, 35)
+  for (let cycle = 0; cycle < cycleCount; cycle++) {
+    const cycleLength = getRandomInt(26, 29)
     const periodLength = getRandomInt(4, 6)
     for (let cycleDay = 0; cycleDay < cycleLength; cycleDay++) {
       const date = addDays(startDate, day)
@@ -54,7 +58,7 @@ export const generateMockData = (dispatch: Dispatch) => {
               }
             : undefined,
         temperature: {
-          value: 37 + Math.sin(Math.sin(0.1 * cycle) * cycle),
+          value: 36.75 + 0.7 * Math.sin(Math.sin(0.1 * day) * day),
           timestamp: date.toISOString(),
           note: '',
           excludeReason: ExcludeReason.EXCLUDE_REASON_NONE,
