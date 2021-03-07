@@ -1,6 +1,8 @@
-import RadioButtonGroup from './RadioButtonGroup'
+import RadioButtonGroup, { TextIcon } from './RadioButtonGroup'
 import { MucusTexture, MucusFeeling } from '../types'
 import React from 'react'
+import { Headline, Subheading } from 'react-native-paper'
+import { PropertyHeadline } from './EntryDay'
 
 type PropsType = {
   feeling: MucusFeeling
@@ -17,6 +19,7 @@ export default ({
 }: PropsType) => {
   return (
     <>
+      <PropertyHeadline>Mucus Feeling</PropertyHeadline>
       <RadioButtonGroup
         value={feeling}
         defaultValue={MucusFeeling.FEELING_NONE}
@@ -26,20 +29,21 @@ export default ({
           {
             title: 'Dry',
             value: MucusFeeling.FEELING_DRY,
-            icon: 'hair-dryer',
+            icon: () => <TextIcon title={'Dry'} />,
           },
           {
             title: 'Slippery',
             value: MucusFeeling.FEELING_SLIPPERY,
-            icon: 'wave',
+            icon: () => <TextIcon title={'Slippery'} />,
           },
           {
             title: 'Wet',
             value: MucusFeeling.FEELING_WET,
-            icon: 'waves',
+            icon: () => <TextIcon title={'Wet'} />,
           },
         ]}
       />
+      <PropertyHeadline>Mucus Texture</PropertyHeadline>
       <RadioButtonGroup
         value={texture}
         defaultValue={MucusTexture.TEXTURE_NONE}
@@ -48,12 +52,12 @@ export default ({
           {
             title: 'Creamy',
             value: MucusTexture.TEXTURE_CREAMY,
-            icon: 'ice-cream',
+            icon: () => <TextIcon title={'Creamy'} />,
           },
           {
             title: 'Egg White',
             value: MucusTexture.TEXTURE_EGG_WHITE,
-            icon: 'egg',
+            icon: () => <TextIcon title={'Egg White'} />,
           },
         ]}
       />

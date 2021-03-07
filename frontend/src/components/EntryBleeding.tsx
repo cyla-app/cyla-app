@@ -1,4 +1,4 @@
-import RadioButtonGroup from './RadioButtonGroup'
+import RadioButtonGroup, { TextIcon } from './RadioButtonGroup'
 import { BleedingStrength } from '../types'
 import React from 'react'
 
@@ -17,17 +17,17 @@ export default ({ strength, onStrengthChanged }: PropsType) => {
         {
           title: 'Weak',
           value: BleedingStrength.STRENGTH_WEAK,
-          icon: 'water',
+          icon: () => <TextIcon title={'Weak'} />,
         },
         {
           title: 'Medium',
           value: BleedingStrength.STRENGTH_MEDIUM,
-          icon: 'water',
+          icon: () => <TextIcon title={'Medium'} />,
         },
         {
           title: 'Strong',
           value: BleedingStrength.STRENGTH_STRONG,
-          icon: 'water',
+          icon: () => <TextIcon title={'Strong'} />,
         },
       ]}
     />

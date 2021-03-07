@@ -10,6 +10,11 @@ import {
   MucusFeeling,
   MucusTexture,
 } from '../types'
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon'
+
+export const TextIcon = ({ title }: { title: string }) => (
+  <Text style={{ textAlign: 'center' }}>{title}</Text>
+)
 
 export default function <
   ValueType extends
@@ -31,7 +36,7 @@ export default function <
   onValueChange: (value: ValueType) => void
   buttons: Array<{
     value: ValueType
-    icon: string
+    icon: IconSource
     title: string
   }>
 }) {
@@ -60,12 +65,6 @@ export default function <
                 icon={button.icon}
                 value={button.value.toString()}
               />
-              <Text
-                style={{
-                  textAlign: 'center',
-                }}>
-                {button.title}
-              </Text>
             </View>
           )
         })}

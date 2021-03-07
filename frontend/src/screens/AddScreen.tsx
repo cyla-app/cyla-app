@@ -27,7 +27,6 @@ export default ({
   const daysError = useSelector<RootState, string | undefined>(
     (state) => state.days.error,
   )
-  const days = useSelector<RootState, DayIndex>((state) => state.days.byDay) // FIXME dynamically load from state
   const periodStats = useSelector<RootState, Period[]>(
     (state) => state.days.periodStats,
   )
@@ -43,7 +42,6 @@ export default ({
       <View
         style={{
           flex: 1,
-          flexDirection: 'column',
           alignContent: 'flex-end',
           marginBottom: 30,
         }}>
@@ -60,7 +58,7 @@ export default ({
           />
         </View>
         <Headline style={{ textAlign: 'center', margin: 20 }}>
-          {format(selectedDate, 'dd MMMM yyyy')}
+          {format(selectedDate, 'dd MMMM')}
         </Headline>
         <ScrollView contentContainerStyle={{}}>
           <EntryDay

@@ -1,6 +1,6 @@
 import { View, ViewStyle } from 'react-native'
 import React, { useState } from 'react'
-import { Button, Subheading } from 'react-native-paper'
+import { Button, Divider, Subheading } from 'react-native-paper'
 import {
   BleedingStrength,
   Day,
@@ -13,7 +13,11 @@ import EntryBleeding from './EntryBleeding'
 import EntryTemperature from './EntryTemperature'
 import EntryMucus from './EntryMucus'
 
-const PropertyHeadline = ({ children }: { children: React.ReactNode }) => (
+export const PropertyHeadline = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => (
   <Subheading style={{ marginTop: 10, fontWeight: '700' }}>
     {children}
   </Subheading>
@@ -44,34 +48,38 @@ export default ({ onSave, selectedDate }: PropsType) => {
   return (
     <View
       style={{
-        flexGrow: 1,
-        alignItems: 'center',
+        flex: 1,
         justifyContent: 'space-between',
       }}>
-      <EntryTemperature
-        initialString={''}
-        onTemperatureChanged={setTemperature}
-      />
+      <View style={{ alignItems: 'center', margin: 10 }}>
+        <EntryTemperature
+          initialString={''}
+          onTemperatureChanged={setTemperature}
+        />
+      </View>
 
-      <>
+      <Divider />
+
+      <View style={{ alignItems: 'center', margin: 10 }}>
         <PropertyHeadline>Bleeding Strength</PropertyHeadline>
 
         <EntryBleeding
           strength={bleedingStrength}
           onStrengthChanged={setBleedingStrength}
         />
-      </>
+      </View>
 
-      <>
-        <PropertyHeadline>Mucus</PropertyHeadline>
-
+      <Divider />
+      <View style={{ alignItems: 'center', margin: 10 }}>
         <EntryMucus
           feeling={mucusFeeling}
           onFeelingChanged={setMucusFeeling}
           texture={mucusTexture}
           onTextureChanged={setMucusTexture}
         />
-      </>
+      </View>
+
+      <Divider />
 
       {/*<PropertyHeadline>Exclude</PropertyHeadline>
 
@@ -102,7 +110,14 @@ export default ({ onSave, selectedDate }: PropsType) => {
           })
         }}
         mode="outlined"
-        style={{ borderRadius: 30, margin: 10 } as ViewStyle}>
+        style={
+          {
+            borderRadius: 30,
+            margin: 10,
+            width: 100,
+            alignSelf: 'center',
+          } as ViewStyle
+        }>
         Save
       </Button>
     </View>
