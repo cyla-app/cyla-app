@@ -48,7 +48,7 @@ export const periodPercentageOfCurrentCycle = (
   cycleLengths: number[],
   periodStats: Period[],
 ) => {
-  if (periodStats.length === 0) {
+  if (periodStats.length === 0 || cycleLengths.length === 0) {
     return 0
   }
   const cycleStats = stats(cycleLengths)
