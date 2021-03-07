@@ -38,7 +38,7 @@ class AndroidEnclave(private val context: MainActivity) {
         .setTitle("Passphrase Store")
         .setDescription("Authenticate to store your credentials securely.")
         .setAllowedAuthenticators(Authenticators.BIOMETRIC_STRONG)
-        .setNegativeButtonText("Cancel?")
+        .setNegativeButtonText("Cancel")
         .build()
 
     private fun getCipher(): Cipher {
