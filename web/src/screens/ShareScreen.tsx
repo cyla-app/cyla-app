@@ -115,44 +115,42 @@ export default () => {
         <CssBaseline />
         <div className={classes.paperLogin}>
           <Typography component="h1" variant="h5">
-            Sign in
+            Authentication
           </Typography>
-          <form className={classes.form} noValidate>
-            <Typography component="h4" variant="h5">
-              Share {shareId}
-            </Typography>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const authenticate = async () => {
+                const auth = await ShareService.shareAuth(shareId, {
+                  hashedPwd: sharePwd,
+                });
+                OpenAPI.TOKEN = auth.jwt!!;
+                setSharePwd(sharePwd);
+                setAuthSuccessful(true);
+                await loadData(auth.shareKey!!);
+              };
+
+              authenticate().catch((e) => setError(e));
+            }}
+            className={classes.form}
+          >
             <TextField
               variant="outlined"
               margin="normal"
               required
               fullWidth
-              name="password"
-              label="Password"
               type="password"
-              id="password"
               autoComplete="current-password"
               onChange={(e) => setSharePwd(e.target.value)}
             />
             <Button
+              type="submit"
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
-              onClick={() => {
-                const authenticate = async () => {
-                  const auth = await ShareService.shareAuth(shareId, {
-                    hashedPwd: sharePwd,
-                  });
-                  OpenAPI.TOKEN = auth.jwt!!;
-                  setSharePwd(sharePwd);
-                  setAuthSuccessful(true);
-                  await loadData(auth.shareKey!!);
-                };
-
-                authenticate().catch((e) => setError(e));
-              }}
             >
-              Sign In
+              Continue
             </Button>
           </form>
         </div>
