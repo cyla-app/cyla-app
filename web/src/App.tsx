@@ -1,11 +1,6 @@
 import React from "react";
 
-import { DayService } from "./generated/openapi";
-import { Day } from "./generated/day";
-// @ts-ignore
-import themisWasm from "./themis/libthemis.wasm";
-import * as themis from "./themis";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ShareScreen from "./screens/ShareScreen";
 import HomeScreen from "./screens/HomeScreen";
 import {
@@ -17,9 +12,7 @@ import {
 } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import { red } from "@material-ui/core/colors";
-import { OpenAPI } from "./generated/openapi";
 import AppIcon from "./assets/app_icon.png";
-import LoginScreen from "./screens/LoginScreen";
 
 const theme = createMuiTheme({
   palette: {
@@ -49,13 +42,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const routeFunc = () => {
-  if (OpenAPI.TOKEN) {
-    return <ShareScreen />;
-  } else {
-    return <LoginScreen />;
-  }
-};
 const App = () => {
   const classes = useStyles();
   return (
@@ -72,7 +58,9 @@ const App = () => {
           </AppBar>
 
           <Switch>
-            <Route render={routeFunc} path="/share/:shareId" />
+            <Route path="/share/:shareId">
+              <ShareScreen />
+            </Route>
             <Route path="/">
               <HomeScreen />
             </Route>
