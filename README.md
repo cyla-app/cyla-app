@@ -1,17 +1,22 @@
-# Cyla
+<img src="./frontend/assets/app_icon.png" width="100" height="100">
+
+# Cyla - Secure Cycle Tracking
+
+![](./docs/screenshots/demo.gif)
+
+> Period & ovulation information is medical data. Current period tracking apps reportedly share user data with third parties. We believe that users should be in control of their data, especially when the data gives insights into a persons health and sexual activity. We want to create an app for people who want to give birth as well as people who want to avoid pregnancy with a strong focus on privacy.
 
 # Setup
 
 ## backend
 
 [OpenAPI](https://editor.swagger.io/?url=https://raw.githubusercontent.com/cyla-app/cyla-app/main/openapi/openapi-specification.yaml)
+[OpenAPI Login](https://editor.swagger.io/?url=https://raw.githubusercontent.com/cyla-app/cyla-app/main/openapi/login-specification.yaml)
 
 1. `cd backend/`
 1. `go get -d`
 
 ## frontend
-
-[Data Model](https://editor.swagger.io/?url=https://raw.githubusercontent.com/cyla-app/cyla-app/main/openapi/frontend-spec.yaml)
 
 1. `cd frontend`
 1. `npm instal`
@@ -42,20 +47,13 @@ Then restart the app completely.
 1. Create a `.env` file in the project root. Fill it according to `.env.example`.
 1. Start all containers: `sudo docker-compose up`
 
-### Docker Services
 
-#### app
-> Go backend with auto reloading using air
+Services:
 
-Port: 5000
+* app (Port: 5000)
+* redis (Port: 6379)
 
-#### redis
-
-> Used as key-value database
-
-Port: 6379
-
-#### Inspecting database
+### Inspecting database
 
 1. First get the redis container id `docker ps`
 1. Then use the id to start redis-cli: `docker exec -i -t <id> redis-cli`
