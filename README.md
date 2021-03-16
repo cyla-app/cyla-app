@@ -6,7 +6,11 @@
 
 > Period & ovulation information is medical data. Current period tracking apps reportedly share user data with third parties. We believe that users should be in control of their data, especially when the data gives insights into a persons health and sexual activity. We want to create an app for people who want to give birth as well as people who want to avoid pregnancy with a strong focus on privacy.
 
-The Kanban board can be foun [here](https://github.com/orgs/cyla-app/projects/1).
+The Kanban board can be found [here](https://github.com/orgs/cyla-app/projects/1).
+
+# Documentation
+
+See [here](./docs/01-docs.md)
 
 # Setup
 
