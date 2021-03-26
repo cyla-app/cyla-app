@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { OpenAPI, ShareDayService, ShareService } from "../generated/openapi";
 import { Day } from "../generated/day";
-import * as themis from "../themis";
+import { initialize, SecureCellSeal } from "wasm-themis";
 import { sub } from "date-fns";
 // @ts-ignore
-import themisWasm from "../themis/libthemis.wasm";
+import themisWasm from "wasm-themis/dist/libthemis.wasm";
 import {
   Container,
   Grid,
@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-OpenAPI.BASE = "https://api.cyla.app";
+OpenAPI.BASE = "http://localhost:5000";
 
 export default () => {
   const { shareId } = useParams();
@@ -76,15 +76,15 @@ export default () => {
       fromDate.toISOString(),
       toDate.toISOString()
     );
-    await themis.initialize(themisWasm);
-    const shareKeyCell = themis.SecureCellSeal.withPassphrase(sharePwd);
+    await initialize(themisWasm);
+    const shareKeyCell = SecureCellSeal.withPassphrase(sharePwd);
     const shareKey = shareKeyCell.decrypt(base64Decode(encryptedShareKey));
 
-    const shareCell = themis.SecureCellSeal.withKey(shareKey);
+    const shareCell = SecureCellSeal.withKey(shareKey);
 
     const dayInfos = days.map((day) => {
       const dayKey = shareCell.decrypt(base64Decode(day.day_key));
-      const dayInfoCell = themis.SecureCellSeal.withKey(dayKey);
+      const dayInfoCell = SecureCellSeal.withKey(dayKey);
       return Day.decode(
         dayInfoCell.decrypt(
           base64Decode(day.dayInfo),

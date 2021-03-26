@@ -11746,6 +11746,10 @@ wasm-themis@^0.13.1:
   dependencies:
     fastestsmallesttextencoderdecoder "^1.0.14"
 
+"wasm-themis@file:wasm-themis-0.14.0.tgz":
+  version "0.14.0"
+  resolved "file:wasm-themis-0.14.0.tgz#91e6fbb9240ca0f727829dbec2944f33d10e51fc"
+
 watchpack-chokidar2@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/watchpack-chokidar2/-/watchpack-chokidar2-2.0.1.tgz#38500072ee6ece66f3769936950ea1771be1c957"
