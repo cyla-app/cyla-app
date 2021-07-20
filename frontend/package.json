@@ -40,7 +40,7 @@
     "npm": "^7.6.0",
     "protobufjs": "^6.10.2",
     "react": "16.13.1",
-    "react-native": "0.63.3",
+    "react-native": "0.64.1",
     "react-native-calendar-strip": "^2.1.0",
     "react-native-calendars": "^1.505.0",
     "react-native-flipper": "^0.72.0",
